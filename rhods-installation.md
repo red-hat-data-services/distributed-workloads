@@ -1,6 +1,6 @@
 # Distributed Workloads Stack Installation
 
-This document outlines the steps to be followed to install the Distributed Workloads stack on RHODS. The instructions are written for RHODS 1.31 or earlier. With RHODS 1.32+, the installation process might be changed.
+This document outlines the steps to be followed to install the Distributed Workloads stack on RHODS. The instructions are written for RHODS 1.33 or earlier. With RHODS 1.34+, the installation process might be changed.
 
 1. Install RHODS via the operatorhub ui. The installation doesn't matter, but the `stable` channel is usually recommended for self-managed installs
    - From the OpenShift UI, click Operators --> OperatorHub and search for: `Red Hat OpenShift Data Science`
@@ -75,6 +75,11 @@ This document outlines the steps to be followed to install the Distributed Workl
        uri: https://github.com/red-hat-data-services/distributed-workloads/tarball/main
    EOF
    ```
+  Note, it can take a few minutes for the operators and the CodeFlare components to start.  You can watch for KubeRay to start, and most of the RHODS items with: 
+  ```
+  watch oc get pods -n redhat-ods-applications`
+  ```
+
   Find the dashboard/notebook UI by:
   ```
   oc get route -n redhat-ods-applications |grep dash |awk '{print $2}'
@@ -120,15 +125,15 @@ To completely clean up all the CodeFlare components after an install, follow the
 
 6. Remove the CodeFlare CRDs
    ```bash
-   oc delete crd instascales.codeflare.codeflare.dev mcads.codeflare.codeflare.dev schedulingspecs.mcad.ibm.com queuejobs.mcad.ibm.com
+   oc delete crd quotasubtrees.quota.codeflare.dev appwrappers.workload.codeflare.dev schedulingspecs.workload.codeflare.dev
    ```
-7. If you're removing the RHODS kfdefs and operator, you'd want to do this:
+7. If you're removing the RHODS kfdefs and operator, remove them with these steps:
 
    7.1 Delete all the kfdefs:  (Note, this can take awhile as it needs to stop all the running pods in redhat-ods-applications, redhat-ods-monitoring and rhods-notebooks)
    ```
-   oc delete kfdef rhods-anaconda rhods-dashboard  rhods-data-science-pipelines-operator rhods-model-mesh  rhods-nbc
-   oc delete kfdef  modelmesh-monitoring monitoring -n redhat-ods-monitoring
-   oc delete kfdef rhods-notebooks -n rhods-notebooks
+   oc delete kfdef -n redhat-ods-applications rhods-anaconda rhods-dashboard  rhods-data-science-pipelines-operator rhods-model-mesh  rhods-nbc
+   oc delete kfdef -n redhat-ods-monitoring modelmesh-monitoring monitoring
+   oc delete kfdef -n rhods-notebooks rhods-notebooks
    ```
 
    7.2 And then delete the subscription and the csv:
