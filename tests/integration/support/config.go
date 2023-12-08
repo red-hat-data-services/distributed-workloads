@@ -30,7 +30,7 @@ func GetOpenDataHubNamespace() string {
 }
 
 func lookupEnvOrDefault(key, value string) string {
-	if v, ok := os.LookupEnv(key); ok {
+	if v, yes := os.LookupEnv(key); yes {
 		return v
 	}
 	return value
