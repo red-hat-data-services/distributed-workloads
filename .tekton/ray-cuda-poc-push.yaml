@@ -6,8 +6,12 @@ metadata:
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
-      == "konflux-poc"
+    pipelinesascode.tekton.dev/on-cel-expression: |
+      event == "push" 
+      && target_branch == "konflux-poc"
+      && ( "/images/runtime/ray /cuda/***".pathChanged() || ".tekton/ray-cuda-poc-push.yaml".pathChanged()
+      || "Dockerfile".pathChanged() )
+      && ("/images/runtime/ray/cuda/***".pathChanged() && !"**".pathChangedExcept("images/runtime/ray/cuda/**") )
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: runtime-ray
@@ -17,16 +21,18 @@ metadata:
   namespace: rhoai-tenant
 spec:
   params:
+  - name: fixed_tag
+    value: 2.35.0-py39-cu121
   - name: git-url
     value: '{{source_url}}'
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/rhoai-tenant/runtime-ray/ray-cuda-poc:{{revision}}
+    value: quay.io/modh/ray:'{{fixed_tag}}'
   - name: dockerfile
     value: Dockerfile
   - name: path-context
-    value: images/runtime/ray /cuda
+    value: images/runtime/ray/cuda
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while maintaining trust after pipeline customization.
@@ -404,6 +410,9 @@ spec:
       params:
       - name: IMAGE
         value: $(tasks.build-image-index.results.IMAGE_URL)
+      - name: ADDITIONAL_TAGS
+        value: 
+          - '{{fixed_tag}}{{revision}}'
       runAfter:
       - build-image-index
       taskRef:
