@@ -17,20 +17,14 @@ metadata:
   namespace: rhoai-tenant
 spec:
   params:
-  - name: ray-version
-    value: "2.35.0"
-  - name: python-version
-    value: "39"
-  - name: cuda-version
-    value: "121"
-  - name: image-tag
-    value: "$(params.ray-version)-py$(params.python-version)-cu$(params.cuda-version)"
   - name: git-url
     value: '{{source_url}}'
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: "quay.io/modh/ray-test:$(params.image-tag)"
+    value: "quay.io/modh/ray-test:2.35.0-py39-cu121"
+  - name: additional-tag
+    value: "2.35.0-py39-cu121-{{revision}}"
   - name: dockerfile
     value: Dockerfile
   - name: path-context
@@ -56,14 +50,9 @@ spec:
           value: task
         resolver: bundles
     params:
-    - name: ray-version
+    - name: additional-tag
       type: string
-    - name: python-version
-      type: string
-    - name: cuda-version
-      type: string
-    - name: image-tag
-      type: string
+      description: Additional fixed tag for the image
     - description: Source Repository URL
       name: git-url
       type: string
@@ -422,7 +411,7 @@ spec:
         value: $(tasks.build-image-index.results.IMAGE_URL)
       - name: ADDITIONAL_TAGS
         value:
-          - "$(params.image-tag)-{{revision}}"
+          - "$(params.additional-tag)"
       runAfter:
       - build-image-index
       taskRef:
