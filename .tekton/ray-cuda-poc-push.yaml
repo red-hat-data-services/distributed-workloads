@@ -30,7 +30,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/rhoai-tenant/runtime-ray/ray-cuda-poc:$(params.fixed_tag)
+    value: quay.io/redhat-user-workloads/rhoai-tenant/runtime-ray/ray-cuda-poc:"$(params.fixed_tag)"
   - name: dockerfile
     value: Dockerfile
   - name: path-context
