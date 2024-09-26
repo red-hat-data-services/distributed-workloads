@@ -26,7 +26,7 @@ spec:
   - name: cuda-version-xy
     value: $(params.cuda-version-xy)
   script: |
-    echo "$(params.ray-version)-$(params.python-version-xy)-$(params.cuda-version-xy)" > /tekton/results/fixed_tag
+    echo "$(params.ray-version)-$(params.python-version-xy)-$(params.cuda-version-xy)"
   results:
   - name: fixed_tag
     description: "Computed fixed tag"
