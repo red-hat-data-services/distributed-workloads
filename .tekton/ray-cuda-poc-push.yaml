@@ -30,7 +30,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/rhoai-tenant/runtime-ray/ray-cuda-poc: "$(params.fixed_tag)"
+    value: quay.io/redhat-user-workloads/rhoai-tenant/runtime-ray/ray-cuda-poc:$(params.fixed_tag)
   - name: dockerfile
     value: Dockerfile
   - name: path-context
@@ -80,6 +80,9 @@ spec:
       type: string
     - name: cuda-version-xy
       description: "cuda version in XY format"
+      type: string
+    - name: fixed_tag
+      description: "fixed tag "
       type: string
     - description: Source Repository URL
       name: git-url
@@ -439,7 +442,7 @@ spec:
         value: $(tasks.build-image-index.results.IMAGE_URL)
       - name: ADDITIONAL_TAGS
         value: 
-          - '$(params.fixed_tag){{revision}}'
+          - "$(params.fixed_tag)-{{revision}}"
       runAfter:
       - build-image-index
       taskRef:
