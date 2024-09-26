@@ -164,6 +164,15 @@ spec:
         resolver: bundles
     - name: clone-repository
       params:
+      - name: ray-version
+        description: "Version of Ray"
+        default: "2.35.0"
+      - name: python-version-xy
+        description: "Python version in XY format"
+        default: "py39"
+      - name: rocm-version-xy
+        description: "ROCm version in XY format"
+        default: "rocm121"
       - name: url
         value: $(params.git-url)
       - name: revision
