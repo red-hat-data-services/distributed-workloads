@@ -21,16 +21,16 @@ spec:
     value: 2.35.0
   - name: python-version-xy
     value: py39
-  - name: rocm-version-xy
-    value: rocm121
+  - name: cuda-version-xy
+    value: cu121
   - name: fixed_tag
-    value: $(params.ray-version)-$(params.python-version-xy)-$(params.rocm-version-xy)
+    value: $(params.ray-version)-$(params.python-version-xy)-$(params.cuda-version-xy)
   - name: git-url
     value: '{{source_url}}'
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/rhoai-tenant/runtime-ray/ray-cuda-poc:{{revision}}
+    value: quay.io/redhat-user-workloads/rhoai-tenant/runtime-ray/ray-cuda-poc:$(params.fixed_tag)
   - name: dockerfile
     value: Dockerfile
   - name: path-context
@@ -72,15 +72,15 @@ spec:
           value: task
         resolver: bundles
     params:
-    - description: "Version of Ray"
-      name: ray-version
-      default: "2.35.0"
-    - description: "Python version in XY format"
-      name: python-version-xy
-      default: "py39"
-    - description: "ROCm version in XY format"
-      name: rocm-version-xy
-      default: "rocm121"
+    - name: ray-version
+      description: "Version of Ray"
+      type: string
+    - name: python-version-xy
+      description: "Python version in XY format"
+      type: string
+    - name: cuda-version-xy
+      description: "cuda version in XY format"
+      type: string
     - description: Source Repository URL
       name: git-url
       type: string
