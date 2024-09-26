@@ -22,7 +22,7 @@ metadata:
 spec:
   params:
   - name: fixed_tag
-    value: 2.35.0-py39-cu121
+    value: "2.35.0-py39-cu121"
   - name: git-url
     value: '{{source_url}}'
   - name: revision
