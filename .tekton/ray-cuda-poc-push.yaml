@@ -17,8 +17,17 @@ metadata:
   namespace: rhoai-tenant
 spec:
   params:
+  - name: ray-version
+    description: Version of Ray
+    value: 2.35.0
+  - name: python-version-xy
+    description: Python version (XY format)
+    value: py39
+  - name: rocm-version-xy
+    description: ROCm version (XY format)
+    value: rocm121
   - name: fixed_tag
-    value: 2.35.0-py39-cu121
+    value: $(params.ray-version)-$(params.python-version-xy)-$(params.rocm-version-xy)
   - name: git-url
     value: '{{source_url}}'
   - name: revision
@@ -424,7 +433,7 @@ spec:
         value: $(tasks.build-image-index.results.IMAGE_URL)
       - name: ADDITIONAL_TAGS
         value: 
-          - '{{fixed_tag}}{{revision}}'
+          - '$(params.fixed_tag){{revision}}'
       runAfter:
       - build-image-index
       taskRef:
