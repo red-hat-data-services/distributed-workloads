@@ -154,19 +154,6 @@ spec:
       name: CHAINS-GIT_COMMIT
       value: $(tasks.clone-repository.results.commit)
     tasks:
-    - name: compute-fixed-tag
-      params:
-      - name: ray-version
-        value: $(params.ray-version)
-      - name: python-version-xy
-        value: $(params.python-version-xy)
-      - name: cuda-version-xy
-        value: $(params.cuda-version-xy)
-      script: |
-        echo "$(params.ray-version)-$(params.python-version-xy)-$(params.cuda-version-xy)" > /tekton/results/fixed_tag
-      results:
-      - name: fixed_tag
-        description: "Computed fixed tag"
     - name: init
       params:
       - name: image-url
