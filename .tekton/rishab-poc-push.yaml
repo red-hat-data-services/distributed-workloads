@@ -23,12 +23,14 @@ spec:
     value: "39"
   - name: cuda-version
     value: "121"
+  - name: image-tag
+    value: "$(params.ray-version)-py$(params.python-version)-cu$(params.cuda-version)"
   - name: git-url
     value: '{{source_url}}'
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: "quay.io/modh/ray-test:{{ray-version}}-py{{python-version}}-cu{{cuda-version}}"
+    value: "quay.io/modh/ray-test:$(params.image-tag)"
   - name: dockerfile
     value: Dockerfile
   - name: path-context
@@ -59,6 +61,8 @@ spec:
     - name: python-version
       type: string
     - name: cuda-version
+      type: string
+    - name: image-tag
       type: string
     - description: Source Repository URL
       name: git-url
@@ -418,7 +422,7 @@ spec:
         value: $(tasks.build-image-index.results.IMAGE_URL)
       - name: ADDITIONAL_TAGS
         value:
-          - "{{ray-version}}-py{{python-version}}-cu{{cuda-version}}-{{revision}}"
+          - "$(params.image-tag)-{{revision}}"
       runAfter:
       - build-image-index
       taskRef:
