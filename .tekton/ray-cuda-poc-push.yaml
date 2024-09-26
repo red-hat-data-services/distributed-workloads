@@ -24,13 +24,13 @@ spec:
   - name: cuda-version-xy
     value: cu121
   - name: fixed_tag
-    value: "$(params.ray-version)-$(params.python-version-xy)-$(params.cuda-version-xy)"
+    value: $(params.ray-version)-$(params.python-version-xy)-$(params.cuda-version-xy)
   - name: git-url
     value: '{{source_url}}'
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/rhoai-tenant/runtime-ray/ray-cuda-poc:"$(params.fixed_tag)"
+    value: quay.io/redhat-user-workloads/rhoai-tenant/runtime-ray/ray-cuda-poc:$(params.fixed_tag)
   - name: dockerfile
     value: Dockerfile
   - name: path-context
