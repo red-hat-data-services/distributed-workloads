@@ -23,17 +23,14 @@ spec:
     value: $(params.python-version-xy)
   - name: cuda-version-xy
     value: $(params.cuda-version-xy)
-  script: |
-    echo "$(params.ray-version)-$(params.python-version-xy)-$(params.cuda-version-xy)"
-  results:
   - name: fixed_tag
-    description: "Computed fixed tag"
+    value: "$(params.ray-version)-$(params.python-version-xy)-$(params.cuda-version-xy)"
   - name: git-url
     value: '{{source_url}}'
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/rhoai-tenant/runtime-ray/ray-cuda-poc:$(tasks.compute-fixed-tag.results.fixed_tag)
+    value: quay.io/redhat-user-workloads/rhoai-tenant/runtime-ray/ray-cuda-poc:$(params.fixed_tag)
   - name: dockerfile
     value: Dockerfile
   - name: path-context
