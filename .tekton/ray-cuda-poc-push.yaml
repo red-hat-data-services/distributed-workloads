@@ -17,20 +17,25 @@ metadata:
   namespace: rhoai-tenant
 spec:
   params:
+- name: compute-fixed-tag
+  params:
   - name: ray-version
-    value: 2.35.0
+    value: $(params.ray-version)
   - name: python-version-xy
-    value: py39
+    value: $(params.python-version-xy)
   - name: cuda-version-xy
-    value: cu121
+    value: $(params.cuda-version-xy)
+  script: |
+    echo "$(params.ray-version)-$(params.python-version-xy)-$(params.cuda-version-xy)" > /tekton/results/fixed_tag
+  results:
   - name: fixed_tag
-    value: $(params.ray-version)-$(params.python-version-xy)-$(params.cuda-version-xy)
+    description: "Computed fixed tag"
   - name: git-url
     value: '{{source_url}}'
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/rhoai-tenant/runtime-ray/ray-cuda-poc:$(params.fixed_tag)
+    value: quay.io/redhat-user-workloads/rhoai-tenant/runtime-ray/ray-cuda-poc:$(tasks.compute-fixed-tag.results.fixed_tag)
   - name: dockerfile
     value: Dockerfile
   - name: path-context
