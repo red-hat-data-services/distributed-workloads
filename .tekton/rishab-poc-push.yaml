@@ -4,19 +4,16 @@ metadata:
   annotations:
     build.appstudio.openshift.io/repo: https://github.com/red-hat-data-services/distributed-workloads?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
-    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "pull_request" 
-      && target_branch == "main" 
-      && ( !".tekton/**".pathChanged() || ".tekton/ray-rocm-pull-request.yaml".pathChanged() || ("images/runtime/ray/cocm/**".pathChanged() && !"**".pathChangedExcept("images/runtime/ray/rocm/**")) )
+    pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
+      == "rhoai-2.14"
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: runtime-ray
-    appstudio.openshift.io/component: ray-rocm
+    appstudio.openshift.io/component: rishab-poc
     pipelines.appstudio.openshift.io/type: build
-  name: ray-rocm-on-pull-request
+  name: rishab-poc-on-push
   namespace: rhoai-tenant
 spec:
   params:
@@ -25,29 +22,13 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/rhoai-tenant/runtime-ray/ray-rocm:on-pr-{{revision}}
-  - name: image-expires-after
-    value: 5d
+    value: "quay.io/modh/ray-test:2.35.0-py39-cu121"
+  - name: additional-tag
+    value: "2.35.0-py39-cu121-{{revision}}"
   - name: dockerfile
     value: Dockerfile
   - name: path-context
-    value: images/runtime/ray/rocm
-  taskRunSpecs:
-    - pipelineTaskName: build-container
-      stepSpecs:
-        - name: build
-          computeResources:
-            requests:
-              memory: 10Gi
-            limits:
-              memory: 10Gi
-    - pipelineTaskName: prefetch-dependencies
-      computeResources:
-        requests:
-          cpu: '1'
-          memory: 2Gi
-        limits:
-          memory: 2Gi
+    value: images/runtime/ray/cuda
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while maintaining trust after pipeline customization.
@@ -69,6 +50,9 @@ spec:
           value: task
         resolver: bundles
     params:
+    - name: additional-tag
+      type: string
+      description: Additional fixed tag for the image
     - description: Source Repository URL
       name: git-url
       type: string
@@ -425,6 +409,9 @@ spec:
       params:
       - name: IMAGE
         value: $(tasks.build-image-index.results.IMAGE_URL)
+      - name: ADDITIONAL_TAGS
+        value:
+          - "$(params.additional-tag)"
       runAfter:
       - build-image-index
       taskRef:
