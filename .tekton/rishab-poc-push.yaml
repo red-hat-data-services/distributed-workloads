@@ -17,12 +17,18 @@ metadata:
   namespace: rhoai-tenant
 spec:
   params:
+  - name: ray-version
+    value: "2.35.0"
+  - name: python-version
+    value: "39"
+  - name: cuda-version
+    value: "121"
   - name: git-url
     value: '{{source_url}}'
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/rhoai-tenant/runtime-ray/rishab-poc:{{revision}}
+    value: "quay.io/modh/ray-test:{{ray-version}}-py{{python-version}}-cu{{cuda-version}}"
   - name: dockerfile
     value: Dockerfile
   - name: path-context
@@ -48,6 +54,12 @@ spec:
           value: task
         resolver: bundles
     params:
+    - name: ray-version
+      type: string
+    - name: python-
+      type: string
+    - name: cuda-version
+      type: string
     - description: Source Repository URL
       name: git-url
       type: string
@@ -404,6 +416,9 @@ spec:
       params:
       - name: IMAGE
         value: $(tasks.build-image-index.results.IMAGE_URL)
+      - name: ADDITIONAL_TAGS
+        value:
+          - "{{ray-version}}-py{{python-version}}-cu{{cuda-version}}-{{revision}}"
       runAfter:
       - build-image-index
       taskRef:
