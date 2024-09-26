@@ -10,8 +10,7 @@ metadata:
     pipelinesascode.tekton.dev/on-cel-expression: |
       event == "pull_request" 
       && target_branch== "konflux-poc" 
-      && ( "/images/runtime/ray /cuda/***".pathChanged() || ".tekton/ray-cuda-poc-pull-request.yaml".pathChanged()
-      || "Dockerfile".pathChanged() )
+      && (!".tekton/**".pathChanged() || ".tekton/ray-cuda-poc-pull-request.yaml".pathChanged() )
       && ("/images/runtime/ray/cuda/***".pathChanged() && !"**".pathChangedExcept("images/runtime/ray/cuda/**") )
   creationTimestamp: null
   labels:
