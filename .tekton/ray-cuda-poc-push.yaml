@@ -17,8 +17,6 @@ metadata:
   namespace: rhoai-tenant
 spec:
   params:
-- name: compute-fixed-tag
-  params:
   - name: ray-version
     value: $(params.ray-version)
   - name: python-version-xy
