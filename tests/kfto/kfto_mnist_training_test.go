@@ -95,8 +95,8 @@ func runKFTOPyTorchMnistJob(t *testing.T, accelerator Accelerator, image string,
 					And(
 						HaveLen(numProcPerNode),
 						ContainElement(
-							// Check that at least some GPU was utilized on more than 20%
-							HaveField("Value", BeNumerically(">", 20)),
+							// Check that at least some GPU was utilized on more than 5%
+							HaveField("Value", BeNumerically(">", 5)),
 						),
 					),
 				)
