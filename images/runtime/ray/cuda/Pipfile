@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-numpy = {version = "<2.0.0" }
+numpy = {version = "<2.2.3" }
 "ray[all]" = {version = "~=2.35.0" }
 
 [requires]
