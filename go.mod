@@ -1,6 +1,8 @@
 module github.com/opendatahub-io/distributed-workloads
 
-go 1.22.2
+go 1.23.0
+
+toolchain go1.23.8
 
 require (
 	github.com/kubeflow/training-operator v1.7.0
@@ -64,7 +66,7 @@ require (
 	golang.org/x/oauth2 v0.21.0 // indirect
 	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/term v0.22.0 // indirect
-	golang.org/x/text v0.16.0 // indirect
+	golang.org/x/text v0.24.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
