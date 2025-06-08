@@ -7,7 +7,7 @@ require (
 	github.com/matoous/go-nanoid/v2 v2.1.0
 	github.com/onsi/gomega v1.32.0
 	github.com/openshift/api v0.0.0-20230718161610-2a3e8b481cec
-	github.com/openshift/client-go v0.0.0-20230718165156-6014fb98e86a
+	github.com/openshift/client-go 900624865677
 	github.com/project-codeflare/appwrapper v0.8.0
 	github.com/prometheus/client_golang v1.20.4
 	github.com/prometheus/common v0.57.0
