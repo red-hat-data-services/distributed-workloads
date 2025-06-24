@@ -38,5 +38,5 @@ ENV TEST_TRAINING_ROCM_PYTORCH_241_IMAGE=quay.io/modh/training@sha256:883739b576
 ENV TEST_TRAINING_CUDA_PYTORCH_251_IMAGE=quay.io/modh/training@sha256:1d0caea3e5d56ff7d672954b1ad511e661df9bdb364d56879961169a4ca8dae0
 # Corresponds to quay.io/modh/training:py311-rocm62-torch251
 ENV TEST_TRAINING_ROCM_PYTORCH_251_IMAGE=quay.io/modh/training@sha256:6cdae840fa029da33cccab620367e82404d24ddf67762eb4537a9bffe1af306d
-# Corresponds to quay.io/modh/odh-workbench-jupyter-datascience-cpu-py311-ubi9:rhoai-2.21
+# Corresponds to quay.io/modh/odh-workbench-jupyter-datascience-cpu-py311-ubi9:rhoai-2.22
 ENV NOTEBOOK_IMAGE=quay.io/modh/odh-workbench-jupyter-datascience-cpu-py311-ubi9@sha256:48c2be818e8d2a5005a69e2c76f9a2d40ddeb1d03376e04516ca6da13418c887
