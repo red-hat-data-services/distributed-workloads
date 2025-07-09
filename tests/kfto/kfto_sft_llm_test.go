@@ -37,7 +37,7 @@ import (
 )
 
 func TestKftoSftLlmLlama3_1_8BInstruct(t *testing.T) {
-	Tags(t, KftoCuda)
+	Tags(t, ExamplesCuda)
 	kftoSftLlm(t, "meta-llama/Llama-3.1-8B-Instruct")
 }
 
