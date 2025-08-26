@@ -5,6 +5,8 @@ ARG PYTHON_VERSION=311
 # use UBI9
 FROM registry.access.redhat.com/ubi9/python-${PYTHON_VERSION}:${IMAGE_TAG}
 
+ARG TARGETARCH
+
 LABEL name="training:py311-cuda124-torch251" \
       summary="CUDA 12.4 Python 3.11 PyTorch 2.5.1 image based on UBI9 for Training" \
       description="CUDA 12.4 Python 3.11 PyTorch 2.5.1 image based on UBI9 for Training" \
@@ -37,15 +39,24 @@ ENV CUDA_VERSION=12.4.0 \
 
 # Ref: https://gitlab.com/nvidia/container-images/cuda/-/blob/master/dist/12.4.1/ubi9/base/Dockerfile
 # nvcc is required for Flash Attention
-RUN dnf config-manager \
-    --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-rhel9.repo \
- && dnf install -y \
-     cuda-cudart-12-4-${NV_CUDA_CUDART_VERSION} \
-     cuda-compat-12-4-${NV_CUDA_COMPAT_VERSION} \
-     cuda-nvcc-12-4-${NV_CUDA_NVCC_VERSION} \
- && echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
- && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf \
- && dnf clean all
+RUN if [ "${TARGETARCH}" = "arm64" ]; then CUDA_ARCH=sbsa; else CUDA_ARCH=x86_64; fi && \
+    dnf config-manager \
+        --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel9/${CUDA_ARCH}/cuda-rhel9.repo \
+    && if [ "${TARGETARCH}" = "arm64" ]; then \
+        dnf install -y \
+            cuda-cudart-12-4-${NV_CUDA_CUDART_VERSION} \
+            cuda-compat-12-4-${NV_CUDA_COMPAT_VERSION} \
+            cuda-nvcc-12-4-${NV_CUDA_NVCC_VERSION} \
+            cuda-cudart-devel-12-4-${NV_CUDA_CUDART_VERSION}; \
+    else \
+        dnf install -y \
+            cuda-cudart-12-4-${NV_CUDA_CUDART_VERSION} \
+            cuda-compat-12-4-${NV_CUDA_COMPAT_VERSION} \
+            cuda-nvcc-12-4-${NV_CUDA_NVCC_VERSION}; \
+    fi \
+    && echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
+    && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf \
+    && dnf clean all
 
 ENV CUDA_HOME="/usr/local/cuda" \
  PATH="/usr/local/nvidia/bin:${CUDA_HOME}/bin:${PATH}" \
@@ -73,18 +84,37 @@ RUN pip install --no-cache-dir -U "micropipenv[toml]"
 # Install Python dependencies from Pipfile.lock file
 COPY Pipfile.lock ./
 
-RUN micropipenv install -- --no-cache-dir && \
+RUN if [ "${TARGETARCH}" = "arm64" ]; then \
+        # ARM64: Install compatible versions manually (using latest stable versions) \
+        pip install --no-cache-dir \
+            torch==2.7.0 \
+            torchvision==0.22.0 \
+            torchaudio==2.7.0 \
+            transformers \
+            datasets \
+            accelerate \
+            bitsandbytes \
+            peft \
+            trl; \
+    else \
+        # x86_64: Use exact versions from Pipfile.lock \
+        micropipenv install -- --no-cache-dir; \
+    fi && \
     rm -f ./Pipfile.lock && \
     # Fix permissions to support pip in OpenShift environments \
     chmod -R g+w /opt/app-root/lib/python3.11/site-packages && \
     fix-permissions /opt/app-root -P
 
-# Install Flash Attention
-RUN pip install wheel
-RUN pip install --no-cache-dir flash-attn==2.7.4.post1 --no-build-isolation
-
-# Upgrade NCCL to a more recent version until we upgrade torch
-RUN pip install nvidia-nccl-cu12==2.26.2 && \
+# Install Flash Attention, NCCL, and cuDNN
+RUN pip install wheel && \
+    export CUDA_HOME="/usr/local/cuda" PATH="/usr/local/cuda/bin:${PATH}" && \
+    if [ "${TARGETARCH}" = "arm64" ]; then \
+        pip install --no-cache-dir flash-attn==2.7.4.post1 --no-build-isolation || \
+        echo "Flash Attention failed on ARM64, falling back to standard attention"; \
+    else \
+        pip install --no-cache-dir flash-attn==2.7.4.post1 --no-build-isolation; \
+    fi && \
+    pip install --no-cache-dir nvidia-nccl-cu12==2.26.2 nvidia-cudnn-cu12==9.1.1.17 && \
     fix-permissions /opt/app-root -P
 
 # Restore user workspace

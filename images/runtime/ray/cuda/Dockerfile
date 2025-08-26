@@ -3,6 +3,8 @@ ARG IMAGE_TAG=9.6-1750969934
 
 FROM registry.access.redhat.com/ubi9/python-${PYTHON_VERSION}:${IMAGE_TAG}
 
+ARG TARGETARCH
+
 LABEL name="ray-ubi9-py311-cu121" \
       summary="CUDA 12.1 Python 3.11 image based on UBI9 for Ray" \
       description="CUDA 12.1 Python 3.11 image based on UBI9 for Ray" \
@@ -19,9 +21,15 @@ ENV NVARCH=x86_64
 ENV NVIDIA_REQUIRE_CUDA="cuda>=12.1 brand=tesla,driver>=470,driver<471 brand=unknown,driver>=470,driver<471 brand=nvidia,driver>=470,driver<471 brand=nvidiartx,driver>=470,driver<471 brand=geforce,driver>=470,driver<471 brand=geforcertx,driver>=470,driver<471 brand=quadro,driver>=470,driver<471 brand=quadrortx,driver>=470,driver<471 brand=titan,driver>=470,driver<471 brand=titanrtx,driver>=470,driver<471 brand=tesla,driver>=525,driver<526 brand=unknown,driver>=525,driver<526 brand=nvidia,driver>=525,driver<526 brand=nvidiartx,driver>=525,driver<526 brand=geforce,driver>=525,driver<526 brand=geforcertx,driver>=525,driver<526 brand=quadro,driver>=525,driver<526 brand=quadrortx,driver>=525,driver<526 brand=titan,driver>=525,driver<526 brand=titanrtx,driver>=525,driver<526"
 ENV NV_CUDA_CUDART_VERSION=12.1.105-1
 
-COPY cuda.repo-x86_64 /etc/yum.repos.d/cuda.repo
+COPY cuda.repo-* ./
 
 RUN NVIDIA_GPGKEY_SUM=d0664fbbdb8c32356d45de36c5984617217b2d0bef41b93ccecd326ba3b80c87 && \
+    if [ "${TARGETARCH}" = "arm64" ]; then \
+        NVARCH=sbsa; \
+        cp cuda.repo-arm64 /etc/yum.repos.d/cuda.repo; \
+    else \
+        cp cuda.repo-x86_64 /etc/yum.repos.d/cuda.repo; \
+    fi && \
     curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/rhel9/${NVARCH}/D42D0685.pub | sed '/^Version/d' > /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA && \
     echo "$NVIDIA_GPGKEY_SUM  /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA" | sha256sum -c --strict -
 
@@ -96,22 +104,24 @@ RUN yum install -y \
     cuda-libraries-devel-12-1-${NV_CUDA_LIB_VERSION} \
     cuda-minimal-build-12-1-${NV_CUDA_LIB_VERSION} \
     cuda-cudart-devel-12-1-${NV_CUDA_CUDART_DEV_VERSION} \
-    ${NV_NVPROF_DEV_PACKAGE} \
     cuda-nvml-devel-12-1-${NV_NVML_DEV_VERSION} \
     libcublas-devel-12-1-${NV_LIBCUBLAS_DEV_VERSION} \
     ${NV_LIBNPP_DEV_PACKAGE} \
     ${NV_LIBNCCL_DEV_PACKAGE} \
     ${NV_CUDA_NSIGHT_COMPUTE_DEV_PACKAGE} \
+    && if [ "${TARGETARCH}" != "arm64" ]; then \
+        yum install -y ${NV_NVPROF_DEV_PACKAGE}; \
+    fi \
     && yum clean all \
     && rm -rf /var/cache/yum/*
 
 ENV LIBRARY_PATH=/usr/local/cuda/lib64/stubs
 
-# Install CUDA devel cudnn8 from:
-# https://gitlab.com/nvidia/container-images/cuda/-/blob/master/dist/12.1.1/ubi9/devel/cudnn8/Dockerfile
-ENV NV_CUDNN_VERSION=8.9.0.131-1
-ENV NV_CUDNN_PACKAGE=libcudnn8-${NV_CUDNN_VERSION}.cuda12.1
-ENV NV_CUDNN_PACKAGE_DEV=libcudnn8-devel-${NV_CUDNN_VERSION}.cuda12.1
+# Install CUDA devel cudnn9 from NVIDIA CUDA repository
+# cuDNN 9.1.1.17 supports both x86_64 and ARM64 architectures
+ENV NV_CUDNN_VERSION=9.1.1.17-1
+ENV NV_CUDNN_PACKAGE=libcudnn9-cuda-12-${NV_CUDNN_VERSION}
+ENV NV_CUDNN_PACKAGE_DEV=libcudnn9-devel-cuda-12-${NV_CUDNN_VERSION}
 
 LABEL com.nvidia.cudnn.version="${NV_CUDNN_VERSION}"
 
