@@ -77,25 +77,17 @@ RUN pip install --no-cache-dir -U "micropipenv[toml]"
 # Install Python dependencies from Pipfile.lock file
 COPY Pipfile.lock ./
 
-# Install triton for ARM64 - try newer version with potential ARM64 wheels
-RUN if [ "${TARGETARCH}" = "arm64" ]; then \
-        # Try installing newer triton versions that might have ARM64 wheels \
-        pip install --no-cache-dir triton>=3.0.0 || \
-        pip install --no-cache-dir triton==3.0.0 || \
-        pip install --no-cache-dir triton==2.3.1 || \
-        echo "No triton wheels available for ARM64, will build from source later if needed"; \
-    fi
-
 # Install base dependencies with architecture-specific handling
 RUN if [ "${TARGETARCH}" = "arm64" ]; then \
-        # ARM64: Install ARM64-compatible bitsandbytes, then use micropipenv for rest \
-        pip install --no-cache-dir "bitsandbytes>=0.42.0" && \
-        # Install all other dependencies from Pipfile.lock, excluding problematic ones \
-        micropipenv install -- --no-cache-dir --skip-lock && \
-        # Try to install liger-kernel separately (may fail due to triton dependency) \
-        (pip install --no-cache-dir "liger-kernel==0.5.4" || echo "Skipping liger-kernel on ARM64 due to triton dependency"); \
+        # ARM64: Install all common packages from Pipfile (will skip triton/liger-kernel due to lack of ARM64 wheels) \
+        micropipenv install -- --no-cache-dir || echo "Expected triton/liger-kernel failures on ARM64" && \
+        # Install triton from PyTorch test index (has ARM64 wheels) \
+        echo "Installing triton from PyTorch test index for ARM64..." && \
+        pip install --no-cache-dir triton --index-url https://download.pytorch.org/whl/test/cu121 --force-reinstall && \
+        # Install liger-kernel now that triton is available \
+        pip install --no-cache-dir "liger-kernel==0.5.4"; \
     else \
-        # x86_64: Use Pipfile.lock for exact versions \
+        # x86_64: Use Pipfile.lock for exact versions (includes triton wheels) \
         micropipenv install -- --no-cache-dir; \
     fi && \
     rm -f ./Pipfile.lock && \
