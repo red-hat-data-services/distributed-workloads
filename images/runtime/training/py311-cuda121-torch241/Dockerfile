@@ -88,33 +88,10 @@ RUN if [ "${TARGETARCH}" = "arm64" ]; then \
 
 # Install base dependencies with architecture-specific handling
 RUN if [ "${TARGETARCH}" = "arm64" ]; then \
-        # ARM64: Install compatible versions, skip triton-dependent packages \
-        pip install --no-cache-dir \
-            "torch==2.4.1" \
-            "transformers>=4.49.0" \
-            "datasets>=2.15.0" \
-            "accelerate>=1.4.0" \
-            "peft>=0.14.0" \
-            "trl>=0.15.2" \
-            "bitsandbytes>=0.42.0" \
-            "sentencepiece>=0.1.99,<0.3" \
-            "tokenizers>=0.13.3,<1.0" \
-            "tqdm>=4.66.2,<5.0" \
-            "protobuf>=5.28.0,<6.0.0" \
-            "simpleeval>=0.9.13,<1.0" \
-            "safetensors" \
-            "packaging>=20.9" \
-            "pyyaml" \
-            "py-cpuinfo" \
-            "numba" \
-            "rich" \
-            "instructlab-dolomite>=0.1.1" \
-            "pydantic>=2.7.0" \
-            "deepspeed>=0.14.3" \
-            "aiofiles>=23.2.1" \
-            "async-timeout==4.0.3" \
-            "tensorboard==2.19.0" \
-            "numpy>=1.23.5,<2.0.0" && \
+        # ARM64: Install ARM64-compatible bitsandbytes, then use micropipenv for rest \
+        pip install --no-cache-dir "bitsandbytes>=0.42.0" && \
+        # Install all other dependencies from Pipfile.lock, excluding problematic ones \
+        micropipenv install -- --no-cache-dir --skip-lock && \
         # Try to install liger-kernel separately (may fail due to triton dependency) \
         (pip install --no-cache-dir "liger-kernel==0.5.4" || echo "Skipping liger-kernel on ARM64 due to triton dependency"); \
     else \
