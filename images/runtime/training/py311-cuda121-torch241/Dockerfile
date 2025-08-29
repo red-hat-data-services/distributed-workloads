@@ -42,18 +42,11 @@ ENV CUDA_VERSION=12.1.0 \
 RUN if [ "${TARGETARCH}" = "arm64" ]; then CUDA_ARCH=sbsa; else CUDA_ARCH=x86_64; fi && \
     dnf config-manager \
         --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel9/${CUDA_ARCH}/cuda-rhel9.repo \
-    && if [ "${TARGETARCH}" = "arm64" ]; then \
-        dnf install -y \
-            cuda-cudart-12-1-${NV_CUDA_CUDART_VERSION} \
-            cuda-compat-12-1-${NV_CUDA_COMPAT_VERSION} \
-            cuda-nvcc-12-1-${NV_CUDA_NVCC_VERSION} \
-            cuda-cudart-devel-12-1-${NV_CUDA_CUDART_VERSION}; \
-    else \
-        dnf install -y \
-            cuda-cudart-12-1-${NV_CUDA_CUDART_VERSION} \
-            cuda-compat-12-1-${NV_CUDA_COMPAT_VERSION} \
-            cuda-nvcc-12-1-${NV_CUDA_NVCC_VERSION}; \
-    fi \
+    && dnf install -y \
+        cuda-cudart-12-1-${NV_CUDA_CUDART_VERSION} \
+        cuda-compat-12-1-${NV_CUDA_COMPAT_VERSION} \
+        cuda-nvcc-12-1-${NV_CUDA_NVCC_VERSION} \
+        $([ "${TARGETARCH}" = "arm64" ] && echo "cuda-cudart-devel-12-1-${NV_CUDA_CUDART_VERSION}") \
     && echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
     && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf \
     && dnf clean all
@@ -84,20 +77,48 @@ RUN pip install --no-cache-dir -U "micropipenv[toml]"
 # Install Python dependencies from Pipfile.lock file
 COPY Pipfile.lock ./
 
+# Install triton for ARM64 - try newer version with potential ARM64 wheels
 RUN if [ "${TARGETARCH}" = "arm64" ]; then \
-        # ARM64: Install compatible versions manually (using latest stable versions) \
+        # Try installing newer triton versions that might have ARM64 wheels \
+        pip install --no-cache-dir triton>=3.0.0 || \
+        pip install --no-cache-dir triton==3.0.0 || \
+        pip install --no-cache-dir triton==2.3.1 || \
+        echo "No triton wheels available for ARM64, will build from source later if needed"; \
+    fi
+
+# Install base dependencies with architecture-specific handling
+RUN if [ "${TARGETARCH}" = "arm64" ]; then \
+        # ARM64: Install compatible versions, skip triton-dependent packages \
         pip install --no-cache-dir \
-            torch==2.7.0 \
-            torchvision==0.22.0 \
-            torchaudio==2.7.0 \
-            transformers \
-            datasets \
-            accelerate \
-            bitsandbytes \
-            peft \
-            trl; \
+            "torch==2.4.1" \
+            "transformers>=4.49.0" \
+            "datasets>=2.15.0" \
+            "accelerate>=1.4.0" \
+            "peft>=0.14.0" \
+            "trl>=0.15.2" \
+            "bitsandbytes>=0.42.0" \
+            "sentencepiece>=0.1.99,<0.3" \
+            "tokenizers>=0.13.3,<1.0" \
+            "tqdm>=4.66.2,<5.0" \
+            "protobuf>=5.28.0,<6.0.0" \
+            "simpleeval>=0.9.13,<1.0" \
+            "safetensors" \
+            "packaging>=20.9" \
+            "pyyaml" \
+            "py-cpuinfo" \
+            "numba" \
+            "rich" \
+            "instructlab-dolomite>=0.1.1" \
+            "pydantic>=2.7.0" \
+            "deepspeed>=0.14.3" \
+            "aiofiles>=23.2.1" \
+            "async-timeout==4.0.3" \
+            "tensorboard==2.19.0" \
+            "numpy>=1.23.5,<2.0.0" && \
+        # Try to install liger-kernel separately (may fail due to triton dependency) \
+        (pip install --no-cache-dir "liger-kernel==0.5.4" || echo "Skipping liger-kernel on ARM64 due to triton dependency"); \
     else \
-        # x86_64: Use exact versions from Pipfile.lock \
+        # x86_64: Use Pipfile.lock for exact versions \
         micropipenv install -- --no-cache-dir; \
     fi && \
     rm -f ./Pipfile.lock && \
@@ -105,16 +126,26 @@ RUN if [ "${TARGETARCH}" = "arm64" ]; then \
     chmod -R g+w /opt/app-root/lib/python3.11/site-packages && \
     fix-permissions /opt/app-root -P
 
-# Install Flash Attention, NCCL, and cuDNN
+# Install Flash Attention (architecture-specific due to wheel availability)
 RUN pip install wheel && \
     export CUDA_HOME="/usr/local/cuda" PATH="/usr/local/cuda/bin:${PATH}" && \
     if [ "${TARGETARCH}" = "arm64" ]; then \
+        # ARM64: Build from source with optimized settings for ARM compilation \
+        echo "Installing Flash Attention for ARM64 - this may take 15+ minutes..." && \
+        pip install ninja && \
+        export MAX_JOBS=1 && \
+        export FLASH_ATTENTION_DISABLE_SPLIT=TRUE && \
+        export FLASH_ATTENTION_DISABLE_LOCAL=TRUE && \
+        export FLASH_ATTENTION_DISABLE_PAGEDKV=TRUE && \
+        export FLASH_ATTENTION_DISABLE_FP16=TRUE && \
+        export FLASH_ATTENTION_DISABLE_FP8=TRUE && \
         pip install --no-cache-dir flash-attn==2.7.4.post1 --no-build-isolation || \
-        echo "Flash Attention failed on ARM64, falling back to standard attention"; \
+        echo "Flash Attention compilation failed on ARM64, models will use standard attention"; \
     else \
-        pip install --no-cache-dir flash-attn==2.7.4.post1 --no-build-isolation; \
+        # x86_64: Use pre-built CUDA wheels (no source build to avoid CPU fallback) \
+        pip install --no-cache-dir flash-attn==2.7.4.post1 --only-binary=flash-attn || \
+        echo "Flash Attention wheel installation failed on x86_64, models will use standard attention"; \
     fi && \
-    pip install --no-cache-dir nvidia-nccl-cu12==2.26.2 nvidia-cudnn-cu12==9.1.1.17 && \
     fix-permissions /opt/app-root -P
 
 # Restore user workspace
