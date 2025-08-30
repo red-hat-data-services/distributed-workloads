@@ -77,19 +77,13 @@ RUN pip install --no-cache-dir -U "micropipenv[toml]"
 # Install Python dependencies from Pipfile.lock file
 COPY Pipfile.lock ./
 
-# Install base dependencies with architecture-specific handling
-RUN if [ "${TARGETARCH}" = "arm64" ]; then \
-        # ARM64: Install all common packages from Pipfile (will skip triton/liger-kernel due to lack of ARM64 wheels) \
-        micropipenv install -- --no-cache-dir || echo "Expected triton/liger-kernel failures on ARM64" && \
-        # Install triton from PyTorch test index (has ARM64 wheels) \
-        echo "Installing triton from PyTorch test index for ARM64..." && \
-        pip install --no-cache-dir triton --index-url https://download.pytorch.org/whl/test/cu121 --force-reinstall && \
-        # Install liger-kernel now that triton is available \
-        pip install --no-cache-dir "liger-kernel==0.5.4"; \
-    else \
-        # x86_64: Use Pipfile.lock for exact versions (includes triton wheels) \
-        micropipenv install -- --no-cache-dir; \
-    fi && \
+# Install Python dependencies - unified approach for both architectures
+RUN echo "Installing triton 3.4.0 from PyTorch test index..." && \
+    pip install --no-cache-dir triton==3.4.0 --index-url https://download.pytorch.org/whl/test/cu121 && \
+    # Install liger-kernel (now works on both architectures since triton is available) \
+    pip install --no-cache-dir "liger-kernel==0.5.4" && \
+    # Install all other dependencies from Pipfile (triton will be skipped since already installed) \
+    micropipenv install -- --no-cache-dir && \
     rm -f ./Pipfile.lock && \
     # Fix permissions to support pip in OpenShift environments \
     chmod -R g+w /opt/app-root/lib/python3.11/site-packages && \
