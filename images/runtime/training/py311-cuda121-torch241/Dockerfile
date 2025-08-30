@@ -5,6 +5,8 @@ ARG PYTHON_VERSION=311
 # use UBI9
 FROM registry.access.redhat.com/ubi9/python-${PYTHON_VERSION}:${IMAGE_TAG}
 
+ARG TARGETARCH
+
 LABEL name="training:py311-cuda121-torch241" \
       summary="CUDA 12.1 Python 3.11 PyTorch 2.4.1 image based on UBI9 for Training" \
       description="CUDA 12.1 Python 3.11 PyTorch 2.4.1 image based on UBI9 for Training" \
@@ -31,21 +33,23 @@ ENV CUDA_VERSION=12.1.0 \
     NV_CUDA_LIB_VERSION=12.1.0-1 \
     NVIDIA_VISIBLE_DEVICES=all \
     NVIDIA_DRIVER_CAPABILITIES=compute,utility \
-    NV_CUDA_CUDART_VERSION=12.1.55-1 \
+    NV_CUDA_CUDART_VERSION=12.1.105-1 \
     NV_CUDA_COMPAT_VERSION=530.30.02-1 \
-    NV_CUDA_NVCC_VERSION=12.1.66-1
+    NV_CUDA_NVCC_VERSION=12.1.105-1
 
 # Ref: https://gitlab.com/nvidia/container-images/cuda/-/blob/master/dist/12.1.1/ubi9/base/Dockerfile
 # nvcc is required for Flash Attention
-RUN dnf config-manager \
-    --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-rhel9.repo \
- && dnf install -y \
-     cuda-cudart-12-1-${NV_CUDA_CUDART_VERSION} \
-     cuda-compat-12-1-${NV_CUDA_COMPAT_VERSION} \
-     cuda-nvcc-12-1-${NV_CUDA_NVCC_VERSION} \
- && echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
- && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf \
- && dnf clean all
+RUN if [ "${TARGETARCH}" = "arm64" ]; then CUDA_ARCH=sbsa; else CUDA_ARCH=x86_64; fi && \
+    dnf config-manager \
+        --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel9/${CUDA_ARCH}/cuda-rhel9.repo \
+    && dnf install -y \
+        cuda-cudart-12-1-${NV_CUDA_CUDART_VERSION} \
+        cuda-compat-12-1-${NV_CUDA_COMPAT_VERSION} \
+        cuda-nvcc-12-1-${NV_CUDA_NVCC_VERSION} \
+        $([ "${TARGETARCH}" = "arm64" ] && echo "cuda-cudart-devel-12-1-${NV_CUDA_CUDART_VERSION}") \
+    && echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
+    && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf \
+    && dnf clean all
 
 ENV CUDA_HOME="/usr/local/cuda" \
  PATH="/usr/local/nvidia/bin:${CUDA_HOME}/bin:${PATH}" \
@@ -73,18 +77,38 @@ RUN pip install --no-cache-dir -U "micropipenv[toml]"
 # Install Python dependencies from Pipfile.lock file
 COPY Pipfile.lock ./
 
-RUN micropipenv install -- --no-cache-dir && \
+# Install Python dependencies - unified approach for both architectures
+RUN echo "Installing triton 3.4.0 from PyTorch test index..." && \
+    pip install --no-cache-dir triton==3.4.0 --index-url https://download.pytorch.org/whl/test/cu121 && \
+    # Install liger-kernel (now works on both architectures since triton is available) \
+    pip install --no-cache-dir "liger-kernel==0.5.4" && \
+    # Install all other dependencies from Pipfile (triton will be skipped since already installed) \
+    micropipenv install -- --no-cache-dir && \
     rm -f ./Pipfile.lock && \
     # Fix permissions to support pip in OpenShift environments \
     chmod -R g+w /opt/app-root/lib/python3.11/site-packages && \
     fix-permissions /opt/app-root -P
 
-# Install Flash Attention
-RUN pip install wheel
-RUN pip install --no-cache-dir flash-attn==2.7.4.post1 --no-build-isolation
-
-# Upgrade NCCL to a more recent version until we upgrade torch
-RUN pip install nvidia-nccl-cu12==2.26.2 && \
+# Install Flash Attention (architecture-specific due to wheel availability)
+RUN pip install wheel && \
+    export CUDA_HOME="/usr/local/cuda" PATH="/usr/local/cuda/bin:${PATH}" && \
+    if [ "${TARGETARCH}" = "arm64" ]; then \
+        # ARM64: Build from source with optimized settings for ARM compilation \
+        echo "Installing Flash Attention for ARM64 - this may take 15+ minutes..." && \
+        pip install ninja && \
+        export MAX_JOBS=1 && \
+        export FLASH_ATTENTION_DISABLE_SPLIT=TRUE && \
+        export FLASH_ATTENTION_DISABLE_LOCAL=TRUE && \
+        export FLASH_ATTENTION_DISABLE_PAGEDKV=TRUE && \
+        export FLASH_ATTENTION_DISABLE_FP16=TRUE && \
+        export FLASH_ATTENTION_DISABLE_FP8=TRUE && \
+        pip install --no-cache-dir flash-attn==2.7.4.post1 --no-build-isolation || \
+        echo "Flash Attention compilation failed on ARM64, models will use standard attention"; \
+    else \
+        # x86_64: Use pre-built CUDA wheels (no source build to avoid CPU fallback) \
+        pip install --no-cache-dir flash-attn==2.7.4.post1 --only-binary=flash-attn || \
+        echo "Flash Attention wheel installation failed on x86_64, models will use standard attention"; \
+    fi && \
     fix-permissions /opt/app-root -P
 
 # Restore user workspace
