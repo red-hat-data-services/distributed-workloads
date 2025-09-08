@@ -66,7 +66,7 @@ ENV CUDA_HOME="/usr/local/cuda" \
 
 # Install InfiniBand and RDMA packages
 RUN dnf config-manager \
-        --add-repo https://linux.mellanox.com/public/repo/mlnx_ofed/latest/rhel9.5/mellanox_mlnx_ofed.repo 
+        --add-repo https://linux.mellanox.com/public/repo/mlnx_ofed/latest/rhel9.5/mellanox_mlnx_ofed.repo
 
 RUN dnf install -y --disablerepo="*" --enablerepo="cuda-rhel9-x86_64,mlnx_ofed_24.10-1.1.4.0_base,ubi-9-appstream-rpms,ubi-9-baseos-rpms" \
         libibverbs-utils \
@@ -78,6 +78,20 @@ RUN dnf install -y --disablerepo="*" --enablerepo="cuda-rhel9-x86_64,mlnx_ofed_2
         mlnx-tools \
     && dnf clean all \
     && rm -rf /var/cache/dnf/*
+
+# Install Python packages
+
+# Install micropipenv to deploy packages from Pipfile.lock
+RUN pip install --no-cache-dir -U "micropipenv[toml]"
+
+# Install Python dependencies from Pipfile.lock file
+COPY Pipfile.lock ./
+
+RUN micropipenv install -- --no-cache-dir && \
+    rm -f ./Pipfile.lock && \
+    # Fix permissions to support pip in OpenShift environments \
+    chmod -R g+w /opt/app-root/lib/python3.12/site-packages && \
+    fix-permissions /opt/app-root -P
 
 # Upgrade NCCL to a more recent version and add Training Hub NVIDIA dependencies
 RUN pip install \
