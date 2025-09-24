@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ray-kft-test
+  labels:
+    kueue.openshift.io/managed: 'true'
+---
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: ResourceFlavor
+metadata:
+  name: test-rf
+---
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: ClusterQueue
+metadata:
+  name: test-cq
+spec:
+	namespaceSelector:
+    matchExpressions:
+      - key: kubernetes.io/metadata.name
+        operator: In
+        values:
+          - kueue-test
+  resourceGroups:
+  - coveredResources: ["cpu", "memory"]
+    flavors:
+    - name: test-rf
+      resources:
+      - name: cpu
+        nominalQuota: 8
+      - name: memory
+        nominalQuota: 80Gi
+---
+apiVersion: kueue.x-k8s.io/v1beta1
+kind: LocalQueue
+metadata:
+  name: test-lq
+  namespace: ray-kft-test
+spec:
+  clusterQueue: test-cq
