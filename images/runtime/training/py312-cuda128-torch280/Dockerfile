@@ -5,11 +5,13 @@ ARG PYTHON_VERSION=312
 # use UBI9
 FROM registry.access.redhat.com/ubi9/python-${PYTHON_VERSION}:${IMAGE_TAG}
 
-LABEL name="training:py312-cuda128-torch280" \
-      summary="CUDA 12.8 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
-      description="CUDA 12.8 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
-      io.k8s.display-name="CUDA 12.8 Python 3.12 PyTorch 2.8.0 base image for Training" \
-      io.k8s.description="CUDA 12.8 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
+ARG TARGETARCH
+
+LABEL name="training:py312-cuda128-torch271" \
+      summary="CUDA 12.8 Python 3.12 PyTorch 2.7.1 image with ARM64 flash-attention based on UBI9 for Training" \
+      description="CUDA 12.8 Python 3.12 PyTorch 2.7.1 image with ARM64 flash-attention based on UBI9 for Training" \
+      io.k8s.display-name="CUDA 12.8 Python 3.12 PyTorch 2.7.1 base image for Training" \
+      io.k8s.description="CUDA 12.8 Python 3.12 PyTorch 2.7.1 image with ARM64 flash-attention based on UBI9 for Training" \
       authoritative-source-url="https://github.com/opendatahub-io/distributed-workloads"
 
 # Copy license
@@ -37,14 +39,35 @@ ENV CUDA_VERSION=12.8.0 \
 
 # Ref: https://gitlab.com/nvidia/container-images/cuda/-/blob/master/dist/12.8.0/ubi9/base/Dockerfile
 # nvcc is required for Flash Attention
-RUN dnf config-manager \
-    --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-rhel9.repo \
- && dnf install -y \
-     --disablerepo=rhel-9-for-x86_64-baseos-rpms \
-     --disablerepo=rhel-9-for-x86_64-appstream-rpms \
-     cuda-cudart-12-8-${NV_CUDA_CUDART_VERSION} \
-     cuda-compat-12-8-${NV_CUDA_COMPAT_VERSION} \
-     cuda-nvcc-12-8-${NV_CUDA_NVCC_VERSION} \
+# Set up architecture-specific CUDA repository using separate repo files
+RUN NVIDIA_GPGKEY_SUM=d0664fbbdb8c32356d45de36c5984617217b2d0bef41b93ccecd326ba3b80c87 && \
+    if [ "${TARGETARCH}" = "arm64" ]; then NVARCH=sbsa; else NVARCH=x86_64; fi && \
+    curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/rhel9/${NVARCH}/D42D0685.pub | sed '/^Version/d' > /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA && \
+    echo "$NVIDIA_GPGKEY_SUM  /etc/pki/rpm-gpg/RPM-GPG-KEY-NVIDIA" | sha256sum -c --strict -
+
+COPY cuda.repo-* ./
+
+RUN if [ "${TARGETARCH}" = "arm64" ]; then \
+        cp cuda.repo-arm64 /etc/yum.repos.d/cuda.repo; \
+    else \
+        cp cuda.repo-x86_64 /etc/yum.repos.d/cuda.repo; \
+    fi
+
+RUN dnf install -y \
+     cuda-cudart-12-8 \
+     cuda-cudart-devel-12-8 \
+     cuda-compat-12-8 \
+     cuda-nvcc-12-8 \
+     cuda-libraries-devel-12-8 \
+     cuda-minimal-build-12-8 \
+     cmake \
+     git \
+     gcc \
+     gcc-c++ \
+     make \
+     ninja-build \
+     python3-devel \
+     python3.12-devel \
  && echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
  && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf \
  && dnf clean all
@@ -57,7 +80,8 @@ ENV CUDA_HOME="/usr/local/cuda" \
 RUN dnf config-manager \
         --add-repo https://linux.mellanox.com/public/repo/mlnx_ofed/latest/rhel9.5/mellanox_mlnx_ofed.repo 
 
-RUN dnf install -y --disablerepo="*" --enablerepo="cuda-rhel9-x86_64,mlnx_ofed_24.10-1.1.4.0_base,ubi-9-appstream-rpms,ubi-9-baseos-rpms" \
+RUN if [ "${TARGETARCH}" = "arm64" ]; then CUDA_REPO="cuda-rhel9-sbsa"; else CUDA_REPO="cuda-rhel9-x86_64"; fi && \
+    dnf install -y --disablerepo="*" --enablerepo="${CUDA_REPO},mlnx_ofed_24.10-1.1.4.0_base,ubi-9-appstream-rpms,ubi-9-baseos-rpms" \
         libibverbs-utils \
         infiniband-diags \
         libibumad3 \
@@ -73,7 +97,7 @@ RUN dnf install -y --disablerepo="*" --enablerepo="cuda-rhel9-x86_64,mlnx_ofed_2
 # Install micropipenv to deploy packages from Pipfile.lock
 RUN pip install --no-cache-dir -U "micropipenv[toml]"
 
-# Install Python dependencies from Pipfile.lock file
+# Install Python dependencies from Pipfile.lock file (torch and triton removed for separate installation)
 COPY Pipfile.lock ./
 
 RUN micropipenv install -- --no-cache-dir && \
@@ -82,9 +106,30 @@ RUN micropipenv install -- --no-cache-dir && \
     chmod -R g+w /opt/app-root/lib/python3.12/site-packages && \
     fix-permissions /opt/app-root -P
 
-# Install Flash Attention
-RUN pip install wheel
-RUN pip install --no-cache-dir flash-attn==2.8.3 --no-build-isolation
+# Install PyTorch with ARM64 support using pre-built wheels
+RUN pip install torch==2.7.1+cu128 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+
+# Set GPU architectures for ARM64 CUDA systems (focus on Grace Hopper H100/H200)
+ENV GPU_ARCHS="9.0" \
+    CUDA_ARCHS="9.0" \
+    TORCH_CUDA_ARCH_LIST="9.0" \
+    FORCE_CUDA="1" \
+    CUDA_HOME="/usr/local/cuda" \
+    NVCC_PREPEND_FLAGS="-ccbin /usr/bin/gcc" \
+    CC="/usr/bin/gcc" \
+    CXX="/usr/bin/g++"
+
+# Build Flash Attention from source for ARM64 compatibility
+RUN pip install wheel ninja
+
+RUN export TMP_DIR=$(mktemp -d) \
+    && cd $TMP_DIR \
+    && git clone --depth 1 --branch v2.7.4 https://github.com/Dao-AILab/flash-attention.git \
+    && cd flash-attention \
+    && git submodule update --init \
+    && MAX_JOBS="4" pip install --no-build-isolation . \
+    && python3.12 -c "import flash_attn; print('✅ Flash Attention built from source:', flash_attn.__version__)" \
+    && rm -rf $TMP_DIR
 
 # Upgrade NCCL to a more recent version and add Training Hub NVIDIA dependencies
 RUN pip install \

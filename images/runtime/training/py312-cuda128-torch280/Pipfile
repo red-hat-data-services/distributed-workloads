@@ -9,7 +9,6 @@ verify_ssl = true
 name = "pytorch-cu128"
 
 [packages]
-torch = {version = "==2.8.0", index = "pytorch-cu128"}
 accelerate = "==1.10.0" 
 transformers = "==4.55.2"
 peft = "==0.17.0"
