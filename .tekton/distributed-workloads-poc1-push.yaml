@@ -67,14 +67,13 @@ spec:
       description: Skip checks against built image
       name: skip-checks
       type: string
-    - default: "true"
+    - default: "false"
       description: Execute the build with network isolation
       name: hermetic
       type: string
     - default: ""
       description: Build dependencies to be prefetched
       name: prefetch-input
-      value: '{"type": "pip", "path": "images/runtime/training/py312-cuda128-torch280"}'
       type: string
     - default: ""
       description: Image tag expiration time, time values could be something like
