@@ -74,7 +74,7 @@ spec:
     - default: ""
       description: Build dependencies to be prefetched
       name: prefetch-input
-      value: '{"type": "gomod", "path": "."}
+      value: '{"type": "gomod", "path": "."}'
       type: string
     - default: ""
       description: Image tag expiration time, time values could be something like
