@@ -114,11 +114,15 @@ RUN pip install wheel ninja
 
 RUN export TMP_DIR=$(mktemp -d) \
     && cd $TMP_DIR \
-    && git clone --depth 1 --branch v2.7.4 https://github.com/Dao-AILab/flash-attention.git \
+    && git clone --depth 1 --branch v2.8.3 https://github.com/Dao-AILab/flash-attention.git \
     && cd flash-attention \
     && git submodule update --init \
-    && MAX_JOBS="4" pip install --no-build-isolation . \
-    && python3.12 -c "import flash_attn; print('✅ Flash Attention built from source:', flash_attn.__version__)" \
+    && export FLASH_ATTN_CUDA_ARCHS="90" \
+    && export FLASH_ATTENTION_FORCE_BUILD=TRUE \
+    && export FLASH_ATTENTION_FORCE_CXX11_ABI=TRUE \
+    && export NVCC_THREADS="2" \
+    && export TORCH_CUDA_ARCH_LIST="9.0" \
+    && MAX_JOBS="2" pip install --no-build-isolation . \
     && rm -rf $TMP_DIR
 
 # Upgrade NCCL to a more recent version and add Training Hub NVIDIA dependencies
