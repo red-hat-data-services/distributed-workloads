@@ -19,7 +19,7 @@ COPY LICENSE.md /licenses/cuda-license.md
 USER 0
 WORKDIR /app
 
-# upgrade requests package
+# upgrade requests package 
 RUN pip install --no-cache-dir --upgrade requests==2.32.3
 
 # Install CUDA
@@ -75,6 +75,7 @@ RUN pip install --no-cache-dir -U "micropipenv[toml]"
 
 # Install Python dependencies from Pipfile.lock file
 COPY Pipfile.lock ./
+COPY requirements.txt ./
 
 RUN micropipenv install -- --no-cache-dir && \
     rm -f ./Pipfile.lock && \
