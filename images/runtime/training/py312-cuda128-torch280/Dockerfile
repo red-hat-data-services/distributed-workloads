@@ -18,9 +18,12 @@ COPY LICENSE.md /licenses/cuda-license.md
 # Set the working directory in the container
 USER 0
 WORKDIR /app
+COPY requirements.txt ./
+
 
 # upgrade requests package 
-RUN pip install --no-cache-dir --upgrade requests==2.32.3
+RUN pip install --no-cache-dir --upgrade pip && \
+pip install --no-cache-dir -r requirements.txt 
 
 # Install CUDA
 WORKDIR /opt/app-root/bin
