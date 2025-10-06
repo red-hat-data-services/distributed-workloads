@@ -18,12 +18,9 @@ COPY LICENSE.md /licenses/cuda-license.md
 # Set the working directory in the container
 USER 0
 WORKDIR /app
-COPY requirements.txt ./
 
-
-# upgrade requests package 
-RUN pip install --no-cache-dir --upgrade pip && \
-pip install --no-cache-dir -r requirements.txt 
+# upgrade requests package
+RUN pip install --no-cache-dir --upgrade requests==2.32.3
 
 # Install CUDA
 WORKDIR /opt/app-root/bin
@@ -78,7 +75,6 @@ RUN pip install --no-cache-dir -U "micropipenv[toml]"
 
 # Install Python dependencies from Pipfile.lock file
 COPY Pipfile.lock ./
-COPY requirements.txt ./
 
 RUN micropipenv install -- --no-cache-dir && \
     rm -f ./Pipfile.lock && \
