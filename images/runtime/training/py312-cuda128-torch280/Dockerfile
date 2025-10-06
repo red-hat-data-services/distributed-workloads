@@ -19,9 +19,6 @@ COPY LICENSE.md /licenses/cuda-license.md
 USER 0
 WORKDIR /app
 
-# upgrade requests package
-RUN pip install --no-cache-dir --upgrade requests==2.32.3
-
 # Install CUDA
 WORKDIR /opt/app-root/bin
 
