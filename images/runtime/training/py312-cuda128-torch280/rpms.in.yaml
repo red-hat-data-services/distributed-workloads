@@ -1,40 +1,18 @@
-contentOrigin:
-  repos:
-    # CUDA repository from NVIDIA
-    - repoid: cuda-rhel9
-      baseurl: https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/
-    
-    # Mellanox OFED repository for InfiniBand and RDMA packages
-    - repoid: mlnx_ofed
-      baseurl: https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-1.1.4.0/rhel9.5/x86_64
-    
-    # UBI 9 repositories - needed for dependency resolution even though they exist in base image
-    - repoid: ubi-9-baseos-rpms
-      baseurl: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/$basearch/baseos/os
-    
-    - repoid: ubi-9-appstream-rpms
-      baseurl: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/$basearch/appstream/os
-
-# RPM packages to be installed (extracted from the Dockerfile)
-packages:
-  # CUDA packages
-  - cuda-cudart-12-8
-  - cuda-compat-12-8
-  - cuda-nvcc-12-8
-  
-  # InfiniBand and RDMA packages
-  - libibverbs-utils
-  - infiniband-diags
-  - libibumad3
-  - librdmacm
-  - librdmacm-utils
-  - rdma-core
-  - mlnx-tools
-
-# Architecture (x86_64 based on the Dockerfile)
 arches:
   - x86_64
-
-# Context: use containerfile for dependency resolution
+contentOrigin:
+  repofiles:
+    - ubi.repo
+  packages:
+    - cuda-cudart-12-8
+    - cuda-compat-12-8
+    - cuda-nvcc-12-8
+    - libibverbs-utils
+    - infiniband-diags
+    - libibumad3
+    - librdmacm
+    - librdmacm-utils
+    - rdma-core
+    - mlnx-tools
 context:
   containerfile: Dockerfile
