@@ -34,9 +34,7 @@ ENV CUDA_VERSION=12.8.0 \
 
 # Ref: https://gitlab.com/nvidia/container-images/cuda/-/blob/master/dist/12.8.0/ubi9/base/Dockerfile
 # nvcc is required for Flash Attention
-RUN dnf config-manager \
-    --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-rhel9.repo \
- && dnf install -y \
+RUN dnf install -y \
      --disablerepo=rhel-9-for-x86_64-baseos-rpms \
      --disablerepo=rhel-9-for-x86_64-appstream-rpms \
      cuda-cudart-12-8-${NV_CUDA_CUDART_VERSION} \
@@ -50,11 +48,7 @@ ENV CUDA_HOME="/usr/local/cuda" \
  PATH="/usr/local/nvidia/bin:${CUDA_HOME}/bin:${PATH}" \
  LD_LIBRARY_PATH="/usr/local/nvidia/lib:/usr/local/nvidia/lib64:$CUDA_HOME/lib64:$CUDA_HOME/extras/CUPTI/lib64:$LD_LIBRARY_PATH"
 
-# Install InfiniBand and RDMA packages
-RUN dnf config-manager \
-        --add-repo https://linux.mellanox.com/public/repo/mlnx_ofed/latest/rhel9.5/mellanox_mlnx_ofed.repo 
-
-RUN dnf install -y --disablerepo="*" --enablerepo="cuda-rhel9-x86_64,mlnx_ofed_24.10-1.1.4.0_base,ubi-9-appstream-rpms,ubi-9-baseos-rpms" \
+RUN dnf install -y --disablerepo="*" --enablerepo="cuda-rhel9-x86_64,ubi-9-appstream-rpms,ubi-9-baseos-rpms" \
         libibverbs-utils \
         infiniband-diags \
         libibumad3 \
