@@ -278,8 +278,8 @@ sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.29.0 h1:/U5vjBbQn3RCh
 sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.29.0/go.mod h1:z7+wmGM2dfIiLRfrC6jb5kV2Mq/sK1ZP303cxzkV5Y4=
 sigs.k8s.io/controller-runtime v0.18.6 h1:UnEoLBLDpQwzJ2jYh6aTdiMhGjNDR7IdFn9YEqHIccc=
 sigs.k8s.io/controller-runtime v0.18.6/go.mod h1:Dcsa9v8AEBWa3sQNJHsuWPT4ICv99irl5wj83NiC12U=
-sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd h1:EDPBXCAspyGV4jQlpZSudPeMmr1bNJefnuqLsRAsHZo=
-sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd/go.mod h1:B8JuhiUyNFVKdsE8h686QcCxMaH6HrOAZj4vswFpcB0=
+sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730 h1:IpInykpT6ceI+QxKBbEflcR5EXP7sU1kvOlxwZh5txg=
+sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730/go.mod h1:mdzfpAEoE6DHQEN0uh9ZbOCuHbLK5wOm7dK4ctXE9Tg=
 sigs.k8s.io/kueue v0.6.2 h1:wSX6DY/BNCIaza9R8TyhRxwzSrY02EkyxfXXeHbV758=
 sigs.k8s.io/kueue v0.6.2/go.mod h1:TQ1lIc+2rdvObH7SszaxdCGTMYbp9XupKnCj0ZZDgEw=
 sigs.k8s.io/structured-merge-diff/v4 v4.4.1 h1:150L+0vs/8DA78h1u02ooW1/fFq/Lwr+sGiqlzvrtq4=
