@@ -4,13 +4,34 @@ lockfileVendor: redhat
 arches:
 - arch: x86_64
   packages:
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/h/hwdata-0.348-9.18.el9.noarch.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/i/infiniband-diags-54.0-1.el9.x86_64.rpm
+    repoid: ubi-9-appstream-rpms
+    size: 350069
+    checksum: sha256:f8f143480519d6412d36192f771a83779c75e605296d52954ae62e18b70f1711
+    name: infiniband-diags
+    evr: 54.0-1.el9
+    sourcerpm: rdma-core-54.0-1.el9.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/appstream/os/Packages/r/rdma-core-devel-54.0-1.el9.x86_64.rpm
+    repoid: ubi-9-appstream-rpms
+    size: 492466
+    checksum: sha256:fac8c9225390ee8e212e887c26f461ea412ddf1c50b8a06b81c737cd4092e484
+    name: rdma-core-devel
+    evr: 54.0-1.el9
+    sourcerpm: rdma-core-54.0-1.el9.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/l/libibumad-54.0-1.el9.x86_64.rpm
     repoid: ubi-9-baseos-rpms
-    size: 1724460
-    checksum: sha256:3f50d2d645126aab5407531cdfa813544c85c44d312bc19dcc3378460b9eb03d
-    name: hwdata
-    evr: 0.348-9.18.el9
-    sourcerpm: hwdata-0.348-9.18.el9.src.rpm
+    size: 28618
+    checksum: sha256:a174dec96834ebf4cb5072328649f1e833d7df03efa149792a4cd71d59b15985
+    name: libibumad
+    evr: 54.0-1.el9
+    sourcerpm: rdma-core-54.0-1.el9.src.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/l/libibverbs-54.0-1.el9.x86_64.rpm
+    repoid: ubi-9-baseos-rpms
+    size: 466434
+    checksum: sha256:fc593dc18f73c296df4fa808341cb2dbee7e5082fb872b79e7984c3b24279d3b
+    name: libibverbs
+    evr: 54.0-1.el9
+    sourcerpm: rdma-core-54.0-1.el9.src.rpm
   - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/l/libnl3-3.11.0-1.el9.x86_64.rpm
     repoid: ubi-9-baseos-rpms
     size: 376137
@@ -18,131 +39,68 @@ arches:
     name: libnl3
     evr: 3.11.0-1.el9
     sourcerpm: libnl3-3.11.0-1.el9.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/p/pciutils-3.7.0-7.el9.x86_64.rpm
+  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/l/librdmacm-54.0-1.el9.x86_64.rpm
     repoid: ubi-9-baseos-rpms
-    size: 98775
-    checksum: sha256:f9790ff09822692f432aa59b8e6e69620ec118fa86d99d7b15ef2f0a6569b442
-    name: pciutils
-    evr: 3.7.0-7.el9
-    sourcerpm: pciutils-3.7.0-7.el9.src.rpm
-  - url: https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/p/pciutils-libs-3.7.0-7.el9.x86_64.rpm
-    repoid: ubi-9-baseos-rpms
-    size: 43562
-    checksum: sha256:468f1102d03ebda5ff883c34fc6a76a6b72faf9f230fbcec61432631943846b9
-    name: pciutils-libs
-    evr: 3.7.0-7.el9
-    sourcerpm: pciutils-3.7.0-7.el9.src.rpm
-  - url: https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-compat-12-8-570.195.03-1.el9.x86_64.rpm
-    repoid: cuda-rhel9
-    size: 41550691
-    checksum: sha256:4d8ef3cec7d4fb686eb7a62d0b1a150b077557bcc0aaf2ad56743d61837eda3b
+    size: 75775
+    checksum: sha256:334a6ff9a86cfed3af1dc2b08b840e74c9cd84b35a8d7bfd15a0db51ca8a0d30
+    name: librdmacm
+    evr: 54.0-1.el9
+    sourcerpm: rdma-core-54.0-1.el9.src.rpm
+  - url: https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-compat-12-8-570.172.08-1.el9.x86_64.rpm
+    repoid: cuda-rhel9-x86_64
+    size: 41551977
+    checksum: sha256:624921dbca19c6631d3edf2d4b0ebb06857704bf2cbaf4f65b5692e012f21af6
     name: cuda-compat-12-8
-    evr: 3:570.195.03-1.el9
-    sourcerpm: cuda-compat-570.195.03-1.el9.src.rpm
-  - url: https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-crt-12-8-12.8.93-1.x86_64.rpm
-    repoid: cuda-rhel9
-    size: 121292
-    checksum: sha256:cf4550488f5ab0021c48d1dbd1fca6c0b6f8d94d15a9313bfd302092562bf4cc
+    evr: 3:570.172.08-1.el9
+    sourcerpm: cuda-compat-570.172.08-1.el9.src.rpm
+  - url: https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-crt-12-8-12.8.61-1.x86_64.rpm
+    repoid: cuda-rhel9-x86_64
+    size: 120930
+    checksum: sha256:f5cc007e0e0a2ae24220a158ba4212350e9de5ac6f28d9c438a027049f7392f7
     name: cuda-crt-12-8
-    evr: 12.8.93-1
-    sourcerpm: cuda-nvcc-12-8-12.8.93-1.src.rpm
-  - url: https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-cudart-12-8-12.8.90-1.x86_64.rpm
-    repoid: cuda-rhel9
-    size: 238089
-    checksum: sha256:b75b0f41cab2a624ec00b0804b83f971d4b91bb229991904ed85fbc45db79c8f
+    evr: 12.8.61-1
+    sourcerpm: cuda-nvcc-12-8-12.8.61-1.src.rpm
+  - url: https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-cudart-12-8-12.8.57-1.x86_64.rpm
+    repoid: cuda-rhel9-x86_64
+    size: 237650
+    checksum: sha256:50747916fd082321341a29f114a166e29cbe33eb9b1a575f5e319ef3eefbbc03
     name: cuda-cudart-12-8
-    evr: 12.8.90-1
-    sourcerpm: cuda-cudart-12-8-12.8.90-1.src.rpm
-  - url: https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-nvcc-12-8-12.8.93-1.x86_64.rpm
-    repoid: cuda-rhel9
-    size: 113697038
-    checksum: sha256:846307743518e376f6d1a22066c6d9a2cdc31f1c9537db274c536b2e01a905b3
+    evr: 12.8.57-1
+    sourcerpm: cuda-cudart-12-8-12.8.57-1.src.rpm
+  - url: https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-nvcc-12-8-12.8.61-1.x86_64.rpm
+    repoid: cuda-rhel9-x86_64
+    size: 113795317
+    checksum: sha256:c4ecb88e4f06051cc5c9adeb6cfaf4df3a93d6c8183d4622223a98200bec431c
     name: cuda-nvcc-12-8
-    evr: 12.8.93-1
-    sourcerpm: cuda-nvcc-12-8-12.8.93-1.src.rpm
-  - url: https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-nvvm-12-8-12.8.93-1.x86_64.rpm
-    repoid: cuda-rhel9
-    size: 61526074
-    checksum: sha256:cd7e95454c02fed165edc3363699be35f7f1c9550b02ba4c7aff628019ae4d3f
+    evr: 12.8.61-1
+    sourcerpm: cuda-nvcc-12-8-12.8.61-1.src.rpm
+  - url: https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-nvvm-12-8-12.8.61-1.x86_64.rpm
+    repoid: cuda-rhel9-x86_64
+    size: 61748517
+    checksum: sha256:4b468bd3357131ba8fb3b5ec2ac752d5645cf99dc98152a63f431212b68434a0
     name: cuda-nvvm-12-8
-    evr: 12.8.93-1
-    sourcerpm: cuda-nvcc-12-8-12.8.93-1.src.rpm
+    evr: 12.8.61-1
+    sourcerpm: cuda-nvcc-12-8-12.8.61-1.src.rpm
   - url: https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-toolkit-12-8-config-common-12.8.90-1.noarch.rpm
-    repoid: cuda-rhel9
+    repoid: cuda-rhel9-x86_64
     size: 7954
     checksum: sha256:80d7a35d74105ba2125e6bf7386cde92b6ee059c6a6ca2fbb857b833bdbbca52
     name: cuda-toolkit-12-8-config-common
     evr: 12.8.90-1
     sourcerpm: cuda-cudart-12-8-12.8.90-1.src.rpm
   - url: https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-toolkit-12-config-common-12.9.79-1.noarch.rpm
-    repoid: cuda-rhel9
+    repoid: cuda-rhel9-x86_64
     size: 8161
     checksum: sha256:aedc33aa66c8ebc1591041b4892299189d5af2490b992c4c0ddd79dfc32f8445
     name: cuda-toolkit-12-config-common
     evr: 12.9.79-1
     sourcerpm: cuda-cudart-12-9-12.9.79-1.src.rpm
   - url: https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-toolkit-config-common-13.0.88-1.noarch.rpm
-    repoid: cuda-rhel9
+    repoid: cuda-rhel9-x86_64
     size: 8148
     checksum: sha256:2f33dec2fb0453615314cfb920360b3b2552e057942b14ddfa795c7159186832
     name: cuda-toolkit-config-common
     evr: 13.0.88-1
     sourcerpm: cuda-cudart-13-0-13.0.88-1.src.rpm
-  - url: https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-1.1.4.0/rhel9.5/x86_64/infiniband-diags-2410mlnx54-1.2410068.x86_64.rpm
-    repoid: mlnx_ofed
-    size: 323004
-    checksum: sha256:c4c85cf68e9eccb3343e23e817b81969591de0661b1b6bd31ea0c9e88069b0f9
-    name: infiniband-diags
-    evr: 2410mlnx54-1.2410068
-    sourcerpm: rdma-core-2410mlnx54-1.2410068.src.rpm
-  - url: https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-1.1.4.0/rhel9.5/x86_64/libibumad-2410mlnx54-1.2410068.x86_64.rpm
-    repoid: mlnx_ofed
-    size: 25761
-    checksum: sha256:9d4fcfd213471a77c26acb094957bc3138c02a08c5bb33b75be2344bbb991c05
-    name: libibumad
-    evr: 2410mlnx54-1.2410068
-    sourcerpm: rdma-core-2410mlnx54-1.2410068.src.rpm
-  - url: https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-1.1.4.0/rhel9.5/x86_64/libibverbs-2410mlnx54-1.2410068.x86_64.rpm
-    repoid: mlnx_ofed
-    size: 284872
-    checksum: sha256:cc702466182995ddfc769153d473c03798e374bf21b75be5b843b837edc5dc14
-    name: libibverbs
-    evr: 2410mlnx54-1.2410068
-    sourcerpm: rdma-core-2410mlnx54-1.2410068.src.rpm
-  - url: https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-1.1.4.0/rhel9.5/x86_64/libibverbs-utils-2410mlnx54-1.2410068.x86_64.rpm
-    repoid: mlnx_ofed
-    size: 69176
-    checksum: sha256:7933ca6646e933796f05062987516ceecec2b5c92b584d2852c0ef8644e92f30
-    name: libibverbs-utils
-    evr: 2410mlnx54-1.2410068
-    sourcerpm: rdma-core-2410mlnx54-1.2410068.src.rpm
-  - url: https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-1.1.4.0/rhel9.5/x86_64/librdmacm-2410mlnx54-1.2410068.x86_64.rpm
-    repoid: mlnx_ofed
-    size: 71367
-    checksum: sha256:b533284010929ccaf7623ac31f192c4a58c51a04e96cb0035464f5cca55e8136
-    name: librdmacm
-    evr: 2410mlnx54-1.2410068
-    sourcerpm: rdma-core-2410mlnx54-1.2410068.src.rpm
-  - url: https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-1.1.4.0/rhel9.5/x86_64/librdmacm-utils-2410mlnx54-1.2410068.x86_64.rpm
-    repoid: mlnx_ofed
-    size: 98744
-    checksum: sha256:79f6157b13fabe3e460f8e725fcb59d37e2ca62b16c301362fff14ea7e4be00e
-    name: librdmacm-utils
-    evr: 2410mlnx54-1.2410068
-    sourcerpm: rdma-core-2410mlnx54-1.2410068.src.rpm
-  - url: https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-1.1.4.0/rhel9.5/x86_64/mlnx-tools-24.10-0.2410068.x86_64.rpm
-    repoid: mlnx_ofed
-    size: 75785
-    checksum: sha256:909e47466479405c43a4bb60d9981d5411b1f45a8bf0f31d93a2f7ef924abf19
-    name: mlnx-tools
-    evr: 24.10-0.2410068
-    sourcerpm: mlnx-tools-24.10-0.2410068.src.rpm
-  - url: https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-1.1.4.0/rhel9.5/x86_64/rdma-core-2410mlnx54-1.2410068.x86_64.rpm
-    repoid: mlnx_ofed
-    size: 47062
-    checksum: sha256:fcd496dd894a7033f8de6dcd78706916bd31c4d41e72527ecb718d5a8accefe2
-    name: rdma-core
-    evr: 2410mlnx54-1.2410068
-    sourcerpm: rdma-core-2410mlnx54-1.2410068.src.rpm
   source: []
   module_metadata: []
