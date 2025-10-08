@@ -1,6 +1,8 @@
 module github.com/opendatahub-io/distributed-workloads
 
-go 1.22.2
+go 1.23
+
+toolchain go1.24.6
 
 require (
 	github.com/kubeflow/training-operator v1.7.0
@@ -68,7 +70,7 @@ require (
 	k8s.io/kube-openapi v0.0.0-20240228011516-70dd3763d340 // indirect
 	k8s.io/utils v0.0.0-20230726121419-3b25d923346b // indirect
 	sigs.k8s.io/controller-runtime v0.18.6 // indirect
-	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
+	sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.4.1 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
 )
