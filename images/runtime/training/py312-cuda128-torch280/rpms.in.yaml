@@ -2,19 +2,15 @@ arches:
   - x86_64
 contentOrigin:
   repofiles:
-    - "./cuda-rhel9.repo"
-    - "./mellanox_mlnx_ofed.repo"
-    - "./ubi.repo"
+    - ubi.repo
 packages:
-  - cuda-cudart-12-8
-  - cuda-compat-12-8
-  - cuda-nvcc-12-8
-  - libibverbs-utils
+  - cuda-cudart-12-8-12.8.57-1
+  - cuda-compat-12-8-3:570.172.08-1.el9
+  - cuda-nvcc-12-8-12.8.61-1
+  - libibverbs
   - infiniband-diags
-  - libibumad3
+  - libibumad
   - librdmacm
-  - librdmacm-utils
-  - rdma-core
-  - mlnx-tools
+  - rdma-core-devel
 context:
   containerfile: Dockerfile
