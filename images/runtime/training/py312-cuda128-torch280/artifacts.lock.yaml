@@ -1,0 +1,87 @@
+---
+metadata:
+  version: "1.0"
+artifacts:
+  - filename: "cuda-rhel9.repo"
+    download_url: "https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-rhel9.repo"
+    checksum: sha256:2c1977ee01b56f664de5d747d90ecb7fed692be7749efed51b999f82e27e6797
+    
+  - filename: "mellanox_mlnx_ofed.repo"
+    download_url: "https://linux.mellanox.com/public/repo/mlnx_ofed/latest/rhel9.5/mellanox_mlnx_ofed.repo"
+    checksum: sha256:6175b41316e8803b913b227f7f7be36ad3c5cccdf241468008a988ba37391cb5
+
+  - filename: "cuda-cudart-12-8-12.8.90-1.x86_64.rpm"
+    download_url: "https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-cudart-12-8-12.8.90-1.x86_64.rpm"
+    checksum: sha256:b75b0f41cab2a624ec00b0804b83f971d4b91bb229991904ed85fbc45db79c8f
+    
+  - filename: "cuda-compat-12-8-570.195.03-1.el9.x86_64.rpm"
+    download_url: "https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-compat-12-8-570.195.03-1.el9.x86_64.rpm"
+    checksum: sha256:4d8ef3cec7d4fb686eb7a62d0b1a150b077557bcc0aaf2ad56743d61837eda3b
+    
+  - filename: "cuda-nvcc-12-8-12.8.93-1.x86_64.rpm"
+    download_url: "https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-nvcc-12-8-12.8.93-1.x86_64.rpm"
+    checksum: sha256:846307743518e376f6d1a22066c6d9a2cdc31f1c9537db274c536b2e01a905b3
+
+  - filename: "libibverbs-utils-2410mlnx54-1.2410068.x86_64.rpm"
+    download_url: "https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-1.1.4.0/rhel9.5/x86_64/libibverbs-utils-2410mlnx54-1.2410068.x86_64.rpm"
+    checksum: sha256:7933ca6646e933796f05062987516ceecec2b5c92b584d2852c0ef8644e92f30
+    
+  - filename: "infiniband-diags-2410mlnx54-1.2410068.x86_64.rpm"
+    download_url: "https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-1.1.4.0/rhel9.5/x86_64/infiniband-diags-2410mlnx54-1.2410068.x86_64.rpm"
+    checksum: sha256:c4c85cf68e9eccb3343e23e817b81969591de0661b1b6bd31ea0c9e88069b0f9
+    
+  - filename: "libibumad-2410mlnx54-1.2410068.x86_64.rpm"
+    download_url: "https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-1.1.4.0/rhel9.5/x86_64/libibumad-2410mlnx54-1.2410068.x86_64.rpm"
+    checksum: sha256:9d4fcfd213471a77c26acb094957bc3138c02a08c5bb33b75be2344bbb991c05
+    
+  - filename: "librdmacm-2410mlnx54-1.2410068.x86_64.rpm"
+    download_url: "https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-1.1.4.0/rhel9.5/x86_64/librdmacm-2410mlnx54-1.2410068.x86_64.rpm"
+    checksum: sha256:b533284010929ccaf7623ac31f192c4a58c51a04e96cb0035464f5cca55e8136
+    
+  - filename: "librdmacm-utils-2410mlnx54-1.2410068.x86_64.rpm"
+    download_url: "https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-1.1.4.0/rhel9.5/x86_64/librdmacm-utils-2410mlnx54-1.2410068.x86_64.rpm"
+    checksum: sha256:79f6157b13fabe3e460f8e725fcb59d37e2ca62b16c301362fff14ea7e4be00e
+    
+  - filename: "rdma-core-2410mlnx54-1.2410068.x86_64.rpm"
+    download_url: "https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-1.1.4.0/rhel9.5/x86_64/rdma-core-2410mlnx54-1.2410068.x86_64.rpm"
+    checksum: sha256:fcd496dd894a7033f8de6dcd78706916bd31c4d41e72527ecb718d5a8accefe2
+    
+  - filename: "mlnx-tools-24.10-0.2410068.x86_64.rpm"
+    download_url: "https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-1.1.4.0/rhel9.5/x86_64/mlnx-tools-24.10-0.2410068.x86_64.rpm"
+    checksum: sha256:909e47466479405c43a4bb60d9981d5411b1f45a8bf0f31d93a2f7ef924abf19
+
+  - filename: "cuda-crt-12-8-12.8.93-1.x86_64.rpm"
+    download_url: "https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-crt-12-8-12.8.93-1.x86_64.rpm"
+    checksum: sha256:cf4550488f5ab0021c48d1dbd1fca6c0b6f8d94d15a9313bfd302092562bf4cc
+    
+  - filename: "cuda-nvvm-12-8-12.8.93-1.x86_64.rpm"
+    download_url: "https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-nvvm-12-8-12.8.93-1.x86_64.rpm"
+    checksum: sha256:cd7e95454c02fed165edc3363699be35f7f1c9550b02ba4c7aff628019ae4d3f
+    
+  - filename: "cuda-toolkit-12-8-config-common-12.8.90-1.noarch.rpm"
+    download_url: "https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-toolkit-12-8-config-common-12.8.90-1.noarch.rpm"
+    checksum: sha256:80d7a35d74105ba2125e6bf7386cde92b6ee059c6a6ca2fbb857b833bdbbca52
+    
+  - filename: "cuda-toolkit-12-config-common-12.9.79-1.noarch.rpm"
+    download_url: "https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-toolkit-12-config-common-12.9.79-1.noarch.rpm"
+    checksum: sha256:aedc33aa66c8ebc1591041b4892299189d5af2490b992c4c0ddd79dfc32f8445
+    
+  - filename: "cuda-toolkit-config-common-13.0.88-1.noarch.rpm"
+    download_url: "https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-toolkit-config-common-13.0.88-1.noarch.rpm"
+    checksum: sha256:2f33dec2fb0453615314cfb920360b3b2552e057942b14ddfa795c7159186832
+
+  - filename: "hwdata-0.348-9.18.el9.noarch.rpm"
+    download_url: "https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/h/hwdata-0.348-9.18.el9.noarch.rpm"
+    checksum: sha256:3f50d2d645126aab5407531cdfa813544c85c44d312bc19dcc3378460b9eb03d
+    
+  - filename: "libnl3-3.11.0-1.el9.x86_64.rpm"
+    download_url: "https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/l/libnl3-3.11.0-1.el9.x86_64.rpm"
+    checksum: sha256:89728a253a5bf1c8e01c40573f1283d40188e003bdbd4ac565f8b0f05bced55c
+    
+  - filename: "pciutils-3.7.0-7.el9.x86_64.rpm"
+    download_url: "https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/p/pciutils-3.7.0-7.el9.x86_64.rpm"
+    checksum: sha256:f9790ff09822692f432aa59b8e6e69620ec118fa86d99d7b15ef2f0a6569b442
+    
+  - filename: "pciutils-libs-3.7.0-7.el9.x86_64.rpm"
+    download_url: "https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi9/9/x86_64/baseos/os/Packages/p/pciutils-libs-3.7.0-7.el9.x86_64.rpm"
+    checksum: sha256:468f1102d03ebda5ff883c34fc6a76a6b72faf9f230fbcec61432631943846b9
