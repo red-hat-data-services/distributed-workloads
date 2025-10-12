@@ -1,16 +1,4 @@
-## Global Args ######################################################
-ARG IMAGE_TAG=9.5-1741671866
-ARG PYTHON_VERSION=311
-
-# use UBI9 latest
-FROM registry.access.redhat.com/ubi9/python-${PYTHON_VERSION}:${IMAGE_TAG} AS base
-
-LABEL name="training:py311-rocm62-torch251" \
-      summary="ROCm 6.2 Python 3.11 PyTorch 2.5.1 image based on UBI9 for Training" \
-      description="ROCm 6.2 Python 3.11 PyTorch 2.5.1 image based on UBI9 for Training" \
-      io.k8s.display-name="ROCm 6.2 Python 3.11 PyTorch 2.5.1 base image for Training" \
-      io.k8s.description="ROCm 6.2 Python 3.11 PyTorch 2.5.1 image based on UBI9 for Training" \
-      authoritative-source-url="https://github.com/opendatahub-io/distributed-workloads"
+FROM registry.access.redhat.com/ubi9/python-311:latest AS base
 
 # Copy license
 COPY LICENSE.md /licenses/rocm-license.md
@@ -100,3 +88,11 @@ RUN chmod -R g+w /opt/app-root/lib/python3.11/site-packages && \
 USER 1001
 
 WORKDIR /opt/app-root/src
+
+LABEL name="rhoai/odh-training-rocm-torch25-py311-rhel9" \
+      com.redhat.component="odh-training-rocm-torch25-py311-rhel9" \
+      io.k8s.display-name="odh-training-rocm-torch25-py311-rhel9" \
+      summary="ROCm 6.2 Python 3.11 PyTorch 2.5.1 image based on UBI9 for Training" \
+      description="ROCm 6.2 Python 3.11 PyTorch 2.5.1 image based on UBI9 for Training" \
+      io.k8s.description="ROCm 6.2 Python 3.11 PyTorch 2.5.1 image based on UBI9 for Training" \
+      com.redhat.license_terms="https://www.redhat.com/licenses/Red_Hat_Standard_EULA_20191108.pdf"

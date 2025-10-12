@@ -1,16 +1,4 @@
-## Global Args ######################################################
-ARG IMAGE_TAG=9.6-1755735361
-ARG PYTHON_VERSION=312
-
-# use UBI9
-FROM registry.access.redhat.com/ubi9/python-${PYTHON_VERSION}:${IMAGE_TAG}
-
-LABEL name="training:py312-cuda128-torch280" \
-      summary="CUDA 12.8 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
-      description="CUDA 12.8 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
-      io.k8s.display-name="CUDA 12.8 Python 3.12 PyTorch 2.8.0 base image for Training" \
-      io.k8s.description="CUDA 12.8 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
-      authoritative-source-url="https://github.com/opendatahub-io/distributed-workloads"
+FROM registry.access.redhat.com/ubi9/python-312:latest
 
 # Copy license
 COPY LICENSE.md /licenses/cuda-license.md
@@ -104,3 +92,11 @@ RUN pip install \
 USER 1001
 
 WORKDIR /opt/app-root/src
+
+LABEL name="rhoai/odh-training-cuda-torch28-py312-rhel9" \
+      com.redhat.component="odh-training-cuda-torch28-py312-rhel9" \
+      io.k8s.display-name="odh-training-cuda-torch28-py312-rhel9" \
+      summary="CUDA 12.8 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
+      description="CUDA 12.8 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
+      io.k8s.description="CUDA 12.8 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
+      com.redhat.license_terms="https://www.redhat.com/licenses/Red_Hat_Standard_EULA_20191108.pdf"
