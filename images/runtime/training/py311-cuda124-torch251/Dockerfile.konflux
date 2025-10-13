@@ -80,9 +80,9 @@ USER 1001
 
 WORKDIR /opt/app-root/src
 
-LABEL name="rhoai/odh-training-cuda-torch25-py311-rhel9" \
-      com.redhat.component="odh-training-cuda-torch25-py311-rhel9" \
-      io.k8s.display-name="odh-training-cuda-torch25-py311-rhel9" \
+LABEL name="rhoai/odh-training-cuda124-torch25-py311-rhel9" \
+      com.redhat.component="odh-training-cuda124-torch25-py311-rhel9" \
+      io.k8s.display-name="odh-training-cuda124-torch25-py311-rhel9" \
       summary="CUDA 12.4 Python 3.11 PyTorch 2.5.1 image based on UBI9 for Training" \
       description="CUDA 12.4 Python 3.11 PyTorch 2.5.1 image based on UBI9 for Training" \
       io.k8s.description="CUDA 12.4 Python 3.11 PyTorch 2.5.1 image based on UBI9 for Training" \

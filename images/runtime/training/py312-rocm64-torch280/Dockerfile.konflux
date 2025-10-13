@@ -71,9 +71,9 @@ USER 1001
 
 WORKDIR /opt/app-root/src
 
-LABEL name="rhoai/odh-training-rocm-torch28-py312-rhel9" \
-      com.redhat.component="odh-training-rocm-torch28-py312-rhel9" \
-      io.k8s.display-name="odh-training-rocm-torch28-py312-rhel9" \
+LABEL name="rhoai/odh-training-rocm64-torch28-py312-rhel9" \
+      com.redhat.component="odh-training-rocm64-torch28-py312-rhel9" \
+      io.k8s.display-name="odh-training-rocm64-torch28-py312-rhel9" \
       summary="ROCm 6.4 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
       description="ROCm 6.4 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
       io.k8s.description="ROCm 6.4 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
