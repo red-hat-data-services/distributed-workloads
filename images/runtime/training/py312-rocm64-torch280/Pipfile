@@ -13,7 +13,7 @@ peft = "==0.17.0"
 datasets = "==4.0.0"
 liger-kernel = "==0.5.10"
 transformers = "==4.55.2"
-numpy = "<2.0.0,>=1.23.5"
+numpy = "<2.4.0,>=2.3.4"
 accelerate = "==1.10.0"
 torch = {version = "==2.8.0", index = "pytorch-rocm64"}
 pytorch-triton-rocm = {version = "*", index = "pytorch-rocm64"}
