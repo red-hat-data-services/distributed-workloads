@@ -5,11 +5,13 @@ ARG PYTHON_VERSION=312
 # use UBI9
 FROM registry.access.redhat.com/ubi9/python-${PYTHON_VERSION}:${IMAGE_TAG}
 
-LABEL name="training:py312-cuda128-torch280" \
-      summary="CUDA 12.8 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
-      description="CUDA 12.8 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
-      io.k8s.display-name="CUDA 12.8 Python 3.12 PyTorch 2.8.0 base image for Training" \
-      io.k8s.description="CUDA 12.8 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
+ARG TARGETARCH
+
+LABEL name="training:py312-cuda128-torch271" \
+      summary="CUDA 12.8 Python 3.12 PyTorch 2.7.1 image with ARM64 flash-attention based on UBI9 for Training" \
+      description="CUDA 12.8 Python 3.12 PyTorch 2.7.1 image with ARM64 flash-attention based on UBI9 for Training" \
+      io.k8s.display-name="CUDA 12.8 Python 3.12 PyTorch 2.7.1 base image for Training" \
+      io.k8s.description="CUDA 12.8 Python 3.12 PyTorch 2.7.1 image with ARM64 flash-attention based on UBI9 for Training" \
       authoritative-source-url="https://github.com/opendatahub-io/distributed-workloads"
 
 # Copy license
@@ -66,9 +68,10 @@ ENV CUDA_HOME="/usr/local/cuda" \
 
 # Install InfiniBand and RDMA packages
 RUN dnf config-manager \
-        --add-repo https://linux.mellanox.com/public/repo/mlnx_ofed/latest/rhel9.5/mellanox_mlnx_ofed.repo 
+        --add-repo https://linux.mellanox.com/public/repo/mlnx_ofed/latest/rhel9.5/mellanox_mlnx_ofed.repo
 
-RUN dnf install -y --disablerepo="*" --enablerepo="cuda-rhel9-x86_64,mlnx_ofed_24.10-1.1.4.0_base,ubi-9-appstream-rpms,ubi-9-baseos-rpms" \
+RUN if [ "${TARGETARCH}" = "arm64" ]; then CUDA_REPO="cuda-rhel9-sbsa"; else CUDA_REPO="cuda-rhel9-x86_64"; fi && \
+    dnf install -y --disablerepo="*" --enablerepo="${CUDA_REPO},mlnx_ofed_24.10-1.1.4.0_base,ubi-9-appstream-rpms,ubi-9-baseos-rpms" \
         libibverbs-utils \
         infiniband-diags \
         libibumad3 \
@@ -78,6 +81,49 @@ RUN dnf install -y --disablerepo="*" --enablerepo="cuda-rhel9-x86_64,mlnx_ofed_2
         mlnx-tools \
     && dnf clean all \
     && rm -rf /var/cache/dnf/*
+
+# Install Python packages
+
+# Install micropipenv to deploy packages from Pipfile.lock
+RUN pip install --no-cache-dir -U "micropipenv[toml]"
+
+# Install Python dependencies from Pipfile.lock file (torch and triton removed for separate installation)
+COPY Pipfile.lock ./
+
+RUN micropipenv install -- --no-cache-dir && \
+    rm -f ./Pipfile.lock && \
+    # Fix permissions to support pip in OpenShift environments \
+    chmod -R g+w /opt/app-root/lib/python3.12/site-packages && \
+    fix-permissions /opt/app-root -P
+
+# Install PyTorch with ARM64 support using pre-built wheels
+RUN pip install torch==2.7.1+cu128 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+
+# Set GPU architectures for ARM64 CUDA systems (focus on Grace Hopper H100/H200)
+ENV GPU_ARCHS="9.0" \
+    CUDA_ARCHS="9.0" \
+    TORCH_CUDA_ARCH_LIST="9.0" \
+    FORCE_CUDA="1" \
+    CUDA_HOME="/usr/local/cuda" \
+    NVCC_PREPEND_FLAGS="-ccbin /usr/bin/gcc" \
+    CC="/usr/bin/gcc" \
+    CXX="/usr/bin/g++"
+
+# Build Flash Attention from source for ARM64 compatibility
+RUN pip install wheel ninja
+
+RUN export TMP_DIR=$(mktemp -d) \
+    && cd $TMP_DIR \
+    && git clone --depth 1 --branch v2.8.3 https://github.com/Dao-AILab/flash-attention.git \
+    && cd flash-attention \
+    && git submodule update --init \
+    && export FLASH_ATTN_CUDA_ARCHS="90" \
+    && export FLASH_ATTENTION_FORCE_BUILD=TRUE \
+    && export FLASH_ATTENTION_FORCE_CXX11_ABI=TRUE \
+    && export NVCC_THREADS="2" \
+    && export TORCH_CUDA_ARCH_LIST="9.0" \
+    && MAX_JOBS="2" pip install --no-build-isolation . \
+    && rm -rf $TMP_DIR
 
 # Upgrade NCCL to a more recent version and add Training Hub NVIDIA dependencies
 RUN pip install \

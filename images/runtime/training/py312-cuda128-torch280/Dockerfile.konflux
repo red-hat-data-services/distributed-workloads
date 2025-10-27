@@ -1,51 +1,180 @@
+ARG PYTHON_VERSION="3.12" \
+    CUDA_MAJOR="12" \
+    CUDA_MINOR="8" \
+    CUDA_HOME="/usr/local/cuda" \
+    CUDA_ARCH_LIST="7.5 8.0 8.6 8.7 8.9 9.0a 10.0 10.0a 12.0+PTX" \
+    MAX_JOBS \
+    NVCC_THREADS="1" \
+    FLASH_ATTN_TAG="v2.8.3" \
+    PYTORCH_MAJOR="2" \
+    PYTORCH_MINOR="8"
+
+FROM registry.access.redhat.com/ubi9/python-312:latest AS git-clone
+
+ARG TARGETARCH \
+    FLASH_ATTN_TAG \
+    PYTORCH_MAJOR \
+    PYTORCH_MINOR
+ENV PYTORCH_TAG=v${PYTORCH_MAJOR}.${PYTORCH_MINOR}.0
+
+RUN git clone --depth 1 --branch ${PYTORCH_TAG} https://github.com/pytorch/pytorch \
+    && cd pytorch \
+    && git submodule update --init --recursive
+
+RUN git clone --depth 1 --branch ${FLASH_ATTN_TAG} https://github.com/Dao-AILab/flash-attention.git \
+    && cd flash-attention \
+    && git submodule update --init --recursive
+
+FROM registry.access.redhat.com/ubi9/python-312:latest AS source-build
+
+ARG TARGETARCH \
+    PYTHON_VERSION \
+    CUDA_MAJOR \
+    CUDA_MINOR \
+    CUDA_HOME \
+    CUDA_ARCH_LIST \
+    MAX_JOBS \
+    NVCC_THREADS \
+    FLASH_ATTN_TAG \
+    PYTORCH_MAJOR \
+    PYTORCH_MINOR
+
+USER 0
+WORKDIR /opt/app-root/bin
+
+# Ref: https://docs.nvidia.com/cuda/archive/12.8.0/cuda-toolkit-release-notes/
+ENV CUDA_="${CUDA_MAJOR}.${CUDA_MINOR}.0" \
+    NVIDIA_REQUIRE_CUDA="cuda>=${CUDA_MAJOR}.${CUDA_MINOR} brand=tesla,driver>=470,driver<471 brand=unknown,driver>=470,driver<471 brand=nvidia,driver>=470,driver<471 brand=nvidiartx,driver>=470,driver<471 brand=geforce,driver>=470,driver<471 brand=geforcertx,driver>=470,driver<471 brand=quadro,driver>=470,driver<471 brand=quadrortx,driver>=470,driver<471 brand=titan,driver>=470,driver<471 brand=titanrtx,driver>=470,driver<471 brand=tesla,driver>=525,driver<526 brand=unknown,driver>=525,driver<526 brand=nvidia,driver>=525,driver<526 brand=nvidiartx,driver>=525,driver<526 brand=geforce,driver>=525,driver<526 brand=geforcertx,driver>=525,driver<526 brand=quadro,driver>=525,driver<526 brand=quadrortx,driver>=525,driver<526 brand=titan,driver>=525,driver<526 brand=titanrtx,driver>=525,driver<526 brand=tesla,driver>=570,driver<571 brand=unknown,driver>=570,driver<571 brand=nvidia,driver>=570,driver<571 brand=nvidiartx,driver>=570,driver<571 brand=geforce,driver>=570,driver<571 brand=geforcertx,driver>=570,driver<571 brand=quadro,driver>=570,driver<571 brand=quadrortx,driver>=570,driver<571 brand=titan,driver>=570,driver<571 brand=titanrtx,driver>=570,driver<571" \
+    NV_CUDA_LIB_VERSION="${CUDA_MAJOR}.${CUDA_MINOR}.0-1" \
+    NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+# Install CUDA with build dependencies (architecture-aware)
+RUN if [ "${TARGETARCH}" = "arm64" ]; then NVARCH=sbsa; else NVARCH=x86_64; fi && \
+    dnf config-manager \
+        --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel9/${NVARCH}/cuda-rhel9.repo \
+    && dnf install -y \
+        cuda-cudart-devel-${CUDA_MAJOR}-${CUDA_MINOR} \
+        cuda-compat-${CUDA_MAJOR}-${CUDA_MINOR} \
+        cuda-nvcc-${CUDA_MAJOR}-${CUDA_MINOR} \
+        cuda-libraries-devel-${CUDA_MAJOR}-${CUDA_MINOR} \
+        cuda-minimal-build-${CUDA_MAJOR}-${CUDA_MINOR} \
+        cuda-nvml-devel-${CUDA_MAJOR}-${CUDA_MINOR} \
+        nvshmem-cuda-${CUDA_MAJOR} \
+    && echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
+    && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf \
+    && dnf clean all
+
+ENV GPU_ARCHS="${CUDA_ARCH_LIST}" \
+    CUDA_ARCHS="${CUDA_ARCH_LIST}" \
+    TORCH_CUDA_ARCH_LIST="${CUDA_ARCH_LIST}" \
+    FORCE_CUDA="1" \
+    CUDA_HOME="${CUDA_HOME}" \
+    MAX_JOBS="${MAX_JOBS}" \
+    NVCC_THREADS="${NVCC_THREADS}" \
+    NVCC_APPEND_FLAGS="-Xfatbin=--compress-all -Xfatbin=--compress-mode=speed" \
+    NVCC_PREPEND_FLAGS="-ccbin /usr/bin/gcc" \
+    CUDACXX="${CUDA_HOME}/bin/nvcc" \
+    CC="/usr/bin/gcc" \
+    CXX="/usr/bin/g++" \
+    PATH="/usr/local/nvidia/bin:${CUDA_HOME}/bin:${PATH}" \
+    LD_LIBRARY_PATH="/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${CUDA_HOME}/lib64:${CUDA_HOME}/extras/CUPTI/lib64:$LD_LIBRARY_PATH"
+
+COPY --from=git-clone --chown=root:root /opt/app-root/src/pytorch /opt/app-root/src/pytorch
+COPY --from=git-clone --chown=root:root /opt/app-root/src/flash-attention /opt/app-root/src/flash-attention
+
+# Build and install PyTorch from source
+WORKDIR /opt/app-root/src/pytorch
+RUN pip install -r requirements.txt
+RUN if [ "${TARGETARCH}" = "amd64" ]; then pip install mkl-static mkl-include; fi
+RUN pip install cmake ninja wheel
+RUN python setup.py install
+
+# Build and install flash-attention from source
+WORKDIR /opt/app-root/src/flash-attention
+ENV FLASH_ATTN_CUDA_ARCHS="${CUDA_ARCH_LIST//.}" \
+    FLASH_ATTENTION_FORCE_BUILD="TRUE" \
+    FLASH_ATTENTION_FORCE_CXX11_ABI="TRUE"
+RUN pip install --no-build-isolation .
+
+WORKDIR /opt/app-root/src/
+# Upgrade NCCL to a more recent version and add Training Hub NVIDIA dependencies
+RUN pip install \
+    nvidia-nccl-cu${CUDA_MAJOR}==2.27.5 \
+    nvidia-cublas-cu${CUDA_MAJOR}==12.8.4.1 \
+    nvidia-cuda-cupti-cu${CUDA_MAJOR}==12.8.90 \
+    nvidia-cuda-nvrtc-cu${CUDA_MAJOR}==12.8.93 \
+    nvidia-cuda-runtime-cu${CUDA_MAJOR}==12.8.90 \
+    nvidia-cudnn-cu${CUDA_MAJOR}==9.10.2.21 \
+    nvidia-cufft-cu${CUDA_MAJOR}==11.3.3.83 \
+    nvidia-cufile-cu${CUDA_MAJOR}==1.13.1.3 \
+    nvidia-curand-cu${CUDA_MAJOR}==10.3.9.90 \
+    nvidia-cusolver-cu${CUDA_MAJOR}==11.7.3.90 \
+    nvidia-cusparse-cu${CUDA_MAJOR}==12.5.8.93 \
+    nvidia-cusparselt-cu${CUDA_MAJOR}==0.7.1 \
+    nvidia-nvjitlink-cu${CUDA_MAJOR}==12.8.93 \
+    nvidia-nvtx-cu${CUDA_MAJOR}==12.8.90
+
+# LD_LIBRARY_PATH="/lib64:$(find lib/python3.12/site-packages -name '*.so*' -exec dirname {} \; | xargs realpath | sort | uniq | tr '\n' ':' | sed 's/:$//'):/opt/app-root/lib/python3.12/site-packages"
+ENV LD_LIBRARY_PATH="/lib64:/opt/app-root/lib/python3.12/site-packages/nvidia/cublas/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cuda_cupti/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cuda_nvrtc/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cuda_runtime/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cudnn/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cufft/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cufile/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/curand/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cusolver/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cusparse/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cusparselt/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/nccl/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/nvjitlink/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/nvshmem/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/nvtx/lib:${LD_LIBRARY_PATH}:/opt/app-root/lib/python3.12/site-packages"
+
+# Training Hub needs to be installed here because no torch in Pipfile,
+# and it needs nvcc to build some deps
+RUN pip install --no-build-isolation training-hub[cuda]==0.3.0
+
+## Final runtime stage
 FROM registry.access.redhat.com/ubi9/python-312:latest
+
+ARG TARGETARCH \
+    PYTHON_VERSION \
+    CUDA_MAJOR \
+    CUDA_MINOR \
+    CUDA_HOME \
+    CUDA_ARCH_LIST \
+    FLASH_ATTN_TAG \
+    PYTORCH_MAJOR \
+    PYTORCH_MINOR
+ENV PYTORCH_TAG=v${PYTORCH_MAJOR}.${PYTORCH_MINOR}.0
 
 # Copy license
 COPY LICENSE.md /licenses/cuda-license.md
 
 # Set the working directory in the container
 USER 0
-WORKDIR /app
 
-# upgrade requests package
-RUN pip install --no-cache-dir --upgrade requests==2.32.3
-
-# Install CUDA
+# Install CUDA runtime (architecture-aware)
 WORKDIR /opt/app-root/bin
 
-# Ref: https://docs.nvidia.com/cuda/archive/12.8.0/cuda-toolkit-release-notes/
-ENV CUDA_VERSION=12.8.0 \
-    NVIDIA_REQUIRE_CUDA="cuda>=12.8 brand=tesla,driver>=470,driver<471 brand=unknown,driver>=470,driver<471 brand=nvidia,driver>=470,driver<471 brand=nvidiartx,driver>=470,driver<471 brand=geforce,driver>=470,driver<471 brand=geforcertx,driver>=470,driver<471 brand=quadro,driver>=470,driver<471 brand=quadrortx,driver>=470,driver<471 brand=titan,driver>=470,driver<471 brand=titanrtx,driver>=470,driver<471 brand=tesla,driver>=525,driver<526 brand=unknown,driver>=525,driver<526 brand=nvidia,driver>=525,driver<526 brand=nvidiartx,driver>=525,driver<526 brand=geforce,driver>=525,driver<526 brand=geforcertx,driver>=525,driver<526 brand=quadro,driver>=525,driver<526 brand=quadrortx,driver>=525,driver<526 brand=titan,driver>=525,driver<526 brand=titanrtx,driver>=525,driver<526 brand=tesla,driver>=570,driver<571 brand=unknown,driver>=570,driver<571 brand=nvidia,driver>=570,driver<571 brand=nvidiartx,driver>=570,driver<571 brand=geforce,driver>=570,driver<571 brand=geforcertx,driver>=570,driver<571 brand=quadro,driver>=570,driver<571 brand=quadrortx,driver>=570,driver<571 brand=titan,driver>=570,driver<571 brand=titanrtx,driver>=570,driver<571" \
-    NV_CUDA_LIB_VERSION=12.8.0-1 \
+ENV CUDA_VERSION=${CUDA_MAJOR}.${CUDA_MINOR}.0 \
+    NVIDIA_REQUIRE_CUDA="cuda>=${CUDA_MAJOR}.${CUDA_MINOR} brand=tesla,driver>=470,driver<471 brand=unknown,driver>=470,driver<471 brand=nvidia,driver>=470,driver<471 brand=nvidiartx,driver>=470,driver<471 brand=geforce,driver>=470,driver<471 brand=geforcertx,driver>=470,driver<471 brand=quadro,driver>=470,driver<471 brand=quadrortx,driver>=470,driver<471 brand=titan,driver>=470,driver<471 brand=titanrtx,driver>=470,driver<471 brand=tesla,driver>=525,driver<526 brand=unknown,driver>=525,driver<526 brand=nvidia,driver>=525,driver<526 brand=nvidiartx,driver>=525,driver<526 brand=geforce,driver>=525,driver<526 brand=geforcertx,driver>=525,driver<526 brand=quadro,driver>=525,driver<526 brand=quadrortx,driver>=525,driver<526 brand=titan,driver>=525,driver<526 brand=titanrtx,driver>=525,driver<526 brand=tesla,driver>=570,driver<571 brand=unknown,driver>=570,driver<571 brand=nvidia,driver>=570,driver<571 brand=nvidiartx,driver>=570,driver<571 brand=geforce,driver>=570,driver<571 brand=geforcertx,driver>=570,driver<571 brand=quadro,driver>=570,driver<571 brand=quadrortx,driver>=570,driver<571 brand=titan,driver>=570,driver<571 brand=titanrtx,driver>=570,driver<571" \
+    NV_CUDA_LIB_VERSION=${CUDA_MAJOR}.${CUDA_MINOR}-1 \
     NVIDIA_VISIBLE_DEVICES=all \
     NVIDIA_DRIVER_CAPABILITIES=compute,utility \
-    NV_CUDA_CUDART_VERSION=12.8.57-1 \
-    NV_CUDA_COMPAT_VERSION=3:570.172.08-1.el9 \
-    NV_CUDA_NVCC_VERSION=12.8.61-1
+    NV_CUDA_CUDART_VERSION=${CUDA_MAJOR}.${CUDA_MINOR}.57-1 \
+    NV_CUDA_COMPAT_VERSION=3:570.172.08-1.el9
 
-# Ref: https://gitlab.com/nvidia/container-images/cuda/-/blob/master/dist/12.8.0/ubi9/base/Dockerfile
-# nvcc is required for Flash Attention
-RUN dnf config-manager \
-    --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-rhel9.repo \
- && dnf install -y \
-     --disablerepo=rhel-9-for-x86_64-baseos-rpms \
-     --disablerepo=rhel-9-for-x86_64-appstream-rpms \
-     cuda-cudart-12-8-${NV_CUDA_CUDART_VERSION} \
-     cuda-compat-12-8-${NV_CUDA_COMPAT_VERSION} \
-     cuda-nvcc-12-8-${NV_CUDA_NVCC_VERSION} \
- && echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
- && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf \
- && dnf clean all
+RUN if [ "${TARGETARCH}" = "arm64" ]; then NVARCH=sbsa; else NVARCH=x86_64; fi && \
+    dnf config-manager \
+        --add-repo https://developer.download.nvidia.com/compute/cuda/repos/rhel9/${NVARCH}/cuda-rhel9.repo \
+    && dnf install -y \
+        --disablerepo=ubi-9-baseos-rpms \
+        --disablerepo=ubi-9-appstream-rpms \
+        cuda-cudart-${CUDA_MAJOR}-${CUDA_MINOR} \
+        cuda-compat-${CUDA_MAJOR}-${CUDA_MINOR} \
+    && echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
+    && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf \
+    && dnf clean all
 
 ENV CUDA_HOME="/usr/local/cuda" \
- PATH="/usr/local/nvidia/bin:${CUDA_HOME}/bin:${PATH}" \
- LD_LIBRARY_PATH="/usr/local/nvidia/lib:/usr/local/nvidia/lib64:$CUDA_HOME/lib64:$CUDA_HOME/extras/CUPTI/lib64:$LD_LIBRARY_PATH"
+    PATH="/usr/local/nvidia/bin:${CUDA_HOME}/bin:${PATH}" \
+    LD_LIBRARY_PATH="/usr/local/nvidia/lib:/usr/local/nvidia/lib64:$CUDA_HOME/lib64:$CUDA_HOME/extras/CUPTI/lib64:$LD_LIBRARY_PATH"
 
 # Install InfiniBand and RDMA packages
 RUN dnf config-manager \
-        --add-repo https://linux.mellanox.com/public/repo/mlnx_ofed/latest/rhel9.5/mellanox_mlnx_ofed.repo 
+        --add-repo https://linux.mellanox.com/public/repo/mlnx_ofed/latest/rhel9.5/mellanox_mlnx_ofed.repo
 
-RUN dnf install -y --disablerepo="*" --enablerepo="cuda-rhel9-x86_64,mlnx_ofed_24.10-1.1.4.0_base,ubi-9-appstream-rpms,ubi-9-baseos-rpms" \
+RUN if [ "${TARGETARCH}" = "arm64" ]; then CUDA_REPO="cuda-rhel9-sbsa"; else CUDA_REPO="cuda-rhel9-x86_64"; fi && \
+    dnf install -y --disablerepo="*" --enablerepo="${CUDA_REPO},mlnx_ofed_24.10-1.1.4.0_base,ubi-9-appstream-rpms,ubi-9-baseos-rpms" \
         libibverbs-utils \
         infiniband-diags \
         libibumad3 \
@@ -63,40 +192,29 @@ RUN pip install --no-cache-dir -U "micropipenv[toml]"
 
 # Install Python dependencies from Pipfile.lock file
 COPY Pipfile.lock ./
+RUN micropipenv install -- --no-cache-dir \
+    && rm -f ./Pipfile.lock
 
-RUN micropipenv install -- --no-cache-dir && \
-    rm -f ./Pipfile.lock && \
-    # Fix permissions to support pip in OpenShift environments \
-    chmod -R g+w /opt/app-root/lib/python3.12/site-packages && \
+COPY --from=source-build \
+    /opt/app-root/lib/python${PYTHON_VERSION}/site-packages/ \
+    /opt/app-root/lib/python${PYTHON_VERSION}/site-packages/
+
+# LD_LIBRARY_PATH="/lib64:$(find lib/python3.12/site-packages -name '*.so*' -exec dirname {} \; | xargs realpath | sort | uniq | tr '\n' ':' | sed 's/:$//'):/opt/app-root/lib/python3.12/site-packages"
+ENV LD_LIBRARY_PATH="/lib64:/opt/app-root/lib/python3.12/site-packages/nvidia/cublas/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cuda_cupti/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cuda_nvrtc/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cuda_runtime/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cudnn/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cufft/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cufile/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/curand/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cusolver/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cusparse/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/cusparselt/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/nccl/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/nvjitlink/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/nvshmem/lib:/opt/app-root/lib/python3.12/site-packages/nvidia/nvtx/lib:/opt/app-root/lib/python3.12/site-packages"
+
+RUN # Fix permissions to support pip in OpenShift environments \
+    chmod -R g+w /opt/app-root/lib/python${PYTHON_VERSION}/site-packages && \
     fix-permissions /opt/app-root -P
-
-# Upgrade NCCL to a more recent version and add Training Hub NVIDIA dependencies
-RUN pip install \
-    nvidia-nccl-cu12==2.27.3 \
-    nvidia-cublas-cu12==12.8.4.1 \
-    nvidia-cuda-cupti-cu12==12.8.90 \
-    nvidia-cuda-nvrtc-cu12==12.8.93 \
-    nvidia-cuda-runtime-cu12==12.8.90 \
-    nvidia-cudnn-cu12==9.10.2.21 \
-    nvidia-cufft-cu12==11.3.3.83 \
-    nvidia-cufile-cu12==1.13.1.3 \
-    nvidia-curand-cu12==10.3.9.90 \
-    nvidia-cusolver-cu12==11.7.3.90 \
-    nvidia-cusparse-cu12==12.5.8.93 \
-    nvidia-cusparselt-cu12==0.7.1 \
-    nvidia-nvjitlink-cu12==12.8.93 \
-    nvidia-nvtx-cu12==12.8.90 \
- && fix-permissions /opt/app-root -P
 
 # Restore user workspace
 USER 1001
 
 WORKDIR /opt/app-root/src
 
-LABEL name="rhoai/odh-training-cuda128-torch28-py312-rhel9" \
-      com.redhat.component="odh-training-cuda128-torch28-py312-rhel9" \
-      io.k8s.display-name="odh-training-cuda128-torch28-py312-rhel9" \
-      summary="CUDA 12.8 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
-      description="CUDA 12.8 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
-      io.k8s.description="CUDA 12.8 Python 3.12 PyTorch 2.8.0 image based on UBI9 for Training" \
+LABEL name="rhoai/odh-training-cuda${CUDA_MAJOR}${CUDA_MINOR}-torch${PYTORCH_MAJOR}${PYTORCH_MINOR}-py${PYTHON_VERSION//.}-rhel9" \
+    com.redhat.component="odh-training-cuda${CUDA_MAJOR}${CUDA_MINOR}-torch${PYTORCH_MAJOR}${PYTORCH_MINOR}-py${PYTHON_VERSION//.}-rhel9" \
+    io.k8s.display-name="odh-training-cuda${CUDA_MAJOR}${CUDA_MINOR}-torch${PYTORCH_MAJOR}${PYTORCH_MINOR}-py${PYTHON_VERSION//.}-rhel9" \
+      summary="CUDA ${CUDA_MAJOR}.${CUDA_MINOR} Python ${PYTHON_VERSION} PyTorch ${PYTORCH_TAG#v} image based on UBI9 for Training" \
+      description="CUDA ${CUDA_MAJOR}.${CUDA_MINOR} Python ${PYTHON_VERSION} PyTorch ${PYTORCH_TAG#v} image based on UBI9 for Training" \
+      io.k8s.description="CUDA ${CUDA_MAJOR}.${CUDA_MINOR} Python ${PYTHON_VERSION} PyTorch ${PYTORCH_TAG#v} image based on UBI9 for Training" \
       com.redhat.license_terms="https://www.redhat.com/licenses/Red_Hat_Standard_EULA_20191108.pdf"
