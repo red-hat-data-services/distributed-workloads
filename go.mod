@@ -4,7 +4,7 @@ go 1.24.2
 
 require (
 	github.com/kubeflow/trainer/v2 v2.0.0
-	github.com/kubeflow/training-operator v1.7.0
+	github.com/kubeflow/training-operator v1.9.3
 	github.com/matoous/go-nanoid/v2 v2.1.0
 	github.com/onsi/gomega v1.37.0
 	github.com/openshift/api v0.0.0-20251015095338-264e80a2b6e7
