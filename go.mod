@@ -11,7 +11,7 @@ require (
 	github.com/openshift/client-go v0.0.0-20251015124057-db0dee36e235
 	github.com/prometheus/client_golang v1.22.0
 	github.com/prometheus/common v0.62.0
-	github.com/ray-project/kuberay/ray-operator v1.3.0
+	github.com/ray-project/kuberay/ray-operator v1.4.2
 	k8s.io/api v0.34.1
 	k8s.io/apimachinery v0.34.1
 	k8s.io/client-go v0.34.1
