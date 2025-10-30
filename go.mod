@@ -3,7 +3,7 @@ module github.com/opendatahub-io/distributed-workloads
 go 1.24.2
 
 require (
-	github.com/kubeflow/trainer/v2 v2.0.0
+	github.com/kubeflow/trainer/v2 v2.0.1
 	github.com/kubeflow/training-operator v1.7.0
 	github.com/matoous/go-nanoid/v2 v2.1.0
 	github.com/onsi/gomega v1.37.0
