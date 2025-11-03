@@ -1,5 +1,5 @@
 ## Global Args ######################################################
-ARG IMAGE_TAG=9.5-1741671866
+ARG IMAGE_TAG=9.6-1762197673
 ARG PYTHON_VERSION=311
 
 # use UBI9
