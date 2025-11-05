@@ -10,7 +10,7 @@ name = "pytorch-rocm64"
 
 [packages]
 peft = "==0.17.0"
-datasets = "==4.0.0"
+datasets = "==4.4.1"
 liger-kernel = "==0.5.10"
 transformers = "==4.55.2"
 numpy = "<2.0.0,>=1.23.5"
