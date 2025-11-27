@@ -40,9 +40,9 @@ RUN pip install --no-cache-dir uv
 ################################################################################
 FROM ${BASE_IMAGE} AS base
 
-LABEL name="universal:py312-cuda128-torch280" \
-      summary="Universal CUDA 12.8 Python 3.12 image with PyTorch 2.8.0" \
-      description="Universal image combining minimal Jupyter workbench and runtime ML stack (CUDA 12.8, PyTorch 2.8.0, FlashAttention 2.8.3) on UBI9" \
+LABEL name="universal:py312-cuda128-torch290" \
+      summary="Universal CUDA 12.8 Python 3.12 image with PyTorch 2.9.0" \
+      description="Universal image combining minimal Jupyter workbench and runtime ML stack (CUDA 12.8, PyTorch 2.9.0, FlashAttention 2.8.3) on UBI9" \
       io.k8s.display-name="Universal CUDA 12.8 Python 3.12 (Workbench + Runtime)" \
       io.k8s.description="Universal image: Jupyter workbench by default; runtime when command provided."
 
