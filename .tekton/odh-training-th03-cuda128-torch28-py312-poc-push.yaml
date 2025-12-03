@@ -33,7 +33,7 @@ spec:
     value: quay.io/redhat-user-workloads/rhoai-tenant/odh-training-th03-cuda128-torch28-py312-poc:{{revision}}
   - name: build-platforms
     value:
-    - linux/x86_64
+    - linux-extra-fast/amd64
     # - linux-m2xlarge/arm64
   - name: dockerfile
     value: Dockerfile
