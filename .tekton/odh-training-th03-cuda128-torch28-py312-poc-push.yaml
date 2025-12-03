@@ -630,6 +630,10 @@ spec:
       optional: true
     - name: netrc
       optional: true
+  timeouts:
+    pipeline: "8h0m0s" 
+    tasks: "4h0m0s" 
+    finally: "4h0m0s"
   taskRunTemplate:
     serviceAccountName: build-pipeline-odh-training-th03-cuda128-torch28-py312-poc
   workspaces:
