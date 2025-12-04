@@ -42,7 +42,7 @@ FROM ${BASE_IMAGE} AS base
 
 LABEL name="universal:py312-cuda128-torch290" \
       summary="Universal CUDA 12.8 Python 3.12 image with PyTorch 2.9.0" \
-      description="Universal image combining minimal Jupyter workbench and runtime ML stack (CUDA 12.8, PyTorch 2.9.0, FlashAttention 2.8.3) on UBI9" \
+      description="Universal image combining minimal Jupyter workbench and runtime ML stack (CUDA 12.8, PyTorch 2.9.0, FlashAttention 2.8.2) on UBI9" \
       io.k8s.display-name="Universal CUDA 12.8 Python 3.12 (Workbench + Runtime)" \
       io.k8s.description="Universal image: Jupyter workbench by default; runtime when command provided."
 
@@ -175,6 +175,12 @@ RUN pip install --retries 5 --timeout 300 --no-cache-dir \
 
 # Copy requirements-special.txt for installation
 COPY --chown=1001:0 requirements-special.txt /tmp/deps/
+
+# To avoid out-of-memory during CUDA extension builds, cap parallel jobs
+# These environment variables are respected by PyTorch/ninja/CMake builds
+ENV MAX_JOBS=4 \
+    CMAKE_BUILD_PARALLEL_LEVEL=4 \
+    NINJA_FLAGS=-j4
 
 # 1. Flash Attention (standalone, needs --no-build-isolation --no-deps)
 RUN pip install --no-build-isolation --no-cache-dir --no-deps \
