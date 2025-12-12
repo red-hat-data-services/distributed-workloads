@@ -27,9 +27,9 @@ RUN pip install --no-cache-dir uv
 ################################################################################
 FROM ${BASE_IMAGE} AS base
 
-LABEL name="rocm:py312-rocm64-torch280" \
-      summary="ROCm 6.4 Python 3.12 image with PyTorch 2.8.0" \
-      description="ROCm image combining minimal Jupyter workbench and runtime ML stack (ROCm 6.4, PyTorch 2.8.0) on UBI9" \
+LABEL name="rocm:py312-rocm64-torch290" \
+      summary="ROCm 6.4 Python 3.12 image with PyTorch 2.9.0" \
+      description="ROCm image combining minimal Jupyter workbench and runtime ML stack (ROCm 6.4, PyTorch 2.9.0) on UBI9" \
       io.k8s.display-name="ROCm 6.4 Python 3.12 (Workbench + Runtime)" \
       io.k8s.description="ROCm image: Jupyter workbench by default; runtime when command provided."
 
@@ -39,10 +39,13 @@ COPY LICENSE.md /licenses/rocm-license.md
 USER 0
 WORKDIR /opt/app-root/bin
 
-# Environment variables for ROCm
+# Environment variables for ROCm (full paths for HIP/ROCm toolchain)
 ENV ROCM_HOME=/opt/rocm \
-    PATH=/opt/rocm/bin:$PATH \
-    LD_LIBRARY_PATH=/opt/rocm/lib:$LD_LIBRARY_PATH
+    ROCM_PATH=/opt/rocm \
+    HIP_PATH=/opt/rocm \
+    PATH=/opt/rocm/bin:/opt/rocm/llvm/bin:$PATH \
+    LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/lib64:$LD_LIBRARY_PATH \
+    CMAKE_PREFIX_PATH=/opt/rocm
 
 ################################################################################
 # System Dependencies Stage
@@ -57,21 +60,49 @@ COPY mellanox.repo rocm.repo /etc/yum.repos.d/
 
 # Install ROCm development tools
 # Using individual packages instead of metapackages to avoid python3-wheel dependency issue
-# hipcc is the HIP compiler needed for flash-attention build
-# rocm-device-libs provides the GPU device library required by clang for ROCm compilation
+# - rocm-llvm: LLVM compiler required by hipcc (provides /opt/rocm/llvm/bin/clang++)
+# - hipcc: HIP compiler wrapper
+# - hip-devel: HIP development headers
+# - rocm-device-libs: GPU device library required by clang for ROCm compilation
 RUN dnf install -y --setopt=install_weak_deps=False \
+    rocm-llvm \
     hipcc \
     hip-devel \
     hip-runtime-amd \
+    rocthrust \
+    hipsparse-devel \
+    hipsparse \
+    hipcub-devel \
+    rocprim-devel \
+    hipblaslt-devel \
+    rocrand \
+    hipfft \
+    rocfft \
     rocm-cmake \
     rocm-device-libs \
     rocblas-devel \
     hipblas-devel \
     rocsolver-devel \
     hipsolver-devel && \
-    dnf clean all && rm -rf /var/cache/dnf/* && \
-    # hipcc installs to /opt/rocm-X.Y.Z/bin but we need /opt/rocm/bin/hipcc
-    ln -sf /opt/rocm-*/bin/hipcc /opt/rocm/bin/hipcc
+    dnf clean all && rm -rf /var/cache/dnf/*
+
+# Fix /opt/rocm symlink - base image has it pointing to /etc/alternatives/rocm
+# which doesn't contain the full ROCm installation. We need it to point to /opt/rocm-6.4.3
+RUN echo "=== Fixing ROCm symlink ===" && \
+    echo "Current /opt/rocm points to:" && readlink /opt/rocm && \
+    rm -f /opt/rocm && \
+    ln -sf /opt/rocm-6.4.3 /opt/rocm && \
+    echo "Fixed /opt/rocm now points to:" && readlink /opt/rocm && \
+    ls -la /opt/rocm/ && \
+    echo "=== ROCm symlink fixed ==="
+
+# Verify ROCm/HIP toolchain is properly installed
+RUN echo "=== Verifying ROCm/HIP installation ===" && \
+    echo "hipcc:" && ls -la /opt/rocm/bin/hipcc && \
+    echo "clang++:" && ls -la /opt/rocm/lib/llvm/bin/clang++ && \
+    echo "Testing hipcc:" && /opt/rocm/bin/hipcc --version && \
+    echo "ROCm device libs:" && ls /opt/rocm/amdgcn/bitcode/ | head -5 && \
+    echo "=== ROCm verification complete ==="
 
 # Install system packages (RDMA and build toolchain)
 #
@@ -121,7 +152,8 @@ COPY --from=builder /opt/app-root/bin/uv /usr/local/bin/uv
 
 # Copy dependency files
 # pylock.toml: All dependencies including ROCm PyTorch (compiled with --find-links)
-COPY --chown=1001:0 pyproject.toml pylock.toml ./
+# requirements-special.txt: Packages needing --no-build-isolation (flash-attn)
+COPY --chown=1001:0 pyproject.toml pylock.toml requirements-special.txt ./
 
 # Switch to user 1001 for pip installations
 USER 1001
@@ -140,18 +172,46 @@ ENV UV_NO_CACHE=
 RUN pip install --retries 5 --timeout 300 --no-cache-dir \
     "git+https://github.com/opendatahub-io/kubeflow-sdk@main"
 
-# TODO: Re-enable Flash Attention after confirming base image works
-# Install Flash Attention from original Dao-AILab repo
-# --no-build-isolation: Use already-installed torch instead of isolated env
-# USER 0
-# ENV GPU_ARCHS="gfx90a;gfx942"
-# RUN cd /tmp \
-#     && git clone --depth 1 --branch v2.8.3 https://github.com/Dao-AILab/flash-attention.git \
-#     && cd flash-attention \
-#     && git submodule update --init \
-#     && MAX_JOBS="16" pip install --no-build-isolation --no-cache-dir --no-deps . \
-#     && cd / && rm -rf /tmp/flash-attention
+# Install flash-attn from requirements-special.txt
+# Requires:
+# - GPU_ARCHS: tells flash-attn which ROCm architectures to build for (no GPU needed at build time)
+# - PYTORCH_ROCM_ARCH: additional hint for PyTorch/ROCm
+# - MAX_JOBS/CMAKE_BUILD_PARALLEL_LEVEL: parallel kernel compilation (can be overridden via build-args)
+# - --no-build-isolation: use pre-installed torch for the build
+# - --no-deps: flash-attn deps already satisfied by pylock.toml
 
+# Accept build args for parallelism (can be overridden by argfile.konflux.conf)
+ARG MAX_JOBS=16
+ARG CMAKE_BUILD_PARALLEL_LEVEL=8
+
+# Set environment for flash-attn build
+ENV GPU_ARCHS="gfx90a;gfx942" \
+    PYTORCH_ROCM_ARCH="gfx90a;gfx942" \
+    MAX_JOBS=${MAX_JOBS} \
+    CMAKE_BUILD_PARALLEL_LEVEL=${CMAKE_BUILD_PARALLEL_LEVEL}
+
+# Verify ROCm tools are accessible before building flash-attn
+# This runs in python-deps stage to ensure symlinks from system-deps are inherited
+RUN echo "=== Pre-build verification in python-deps stage ===" && \
+    echo "Checking /opt/rocm/bin/hipcc:" && \
+    ls -la /opt/rocm/bin/hipcc && \
+    echo "Checking symlink target exists:" && \
+    readlink -f /opt/rocm/bin/hipcc && \
+    ls -la $(readlink -f /opt/rocm/bin/hipcc) && \
+    echo "Testing hipcc execution:" && \
+    /opt/rocm/bin/hipcc --version && \
+    echo "=== Pre-build verification passed ==="
+
+# Build flash-attn with verbose output to capture any errors
+RUN echo "=== Starting flash-attn build ===" && \
+    echo "MAX_JOBS=${MAX_JOBS}" && \
+    echo "CMAKE_BUILD_PARALLEL_LEVEL=${CMAKE_BUILD_PARALLEL_LEVEL}" && \
+    echo "GPU_ARCHS=${GPU_ARCHS}" && \
+    echo "ROCM_HOME=${ROCM_HOME}" && \
+    echo "HIP_PATH=${HIP_PATH}" && \
+    pip install --no-build-isolation --no-cache-dir --no-deps --verbose \
+    $(grep "^flash-attn" /tmp/deps/requirements-special.txt) 2>&1 | tee /tmp/flash-attn-build.log && \
+    echo "=== flash-attn build complete ==="
 
 # Fix permissions for OpenShift
 ARG PYTHON_VERSION
@@ -189,10 +249,12 @@ RUN ldconfig
 # FIPS-friendly: Remove uv from final image
 RUN rm -f /opt/app-root/bin/uv
 
-# Environment variables for ROCm
+# Environment variables for ROCm (full paths for HIP/ROCm toolchain)
 ENV ROCM_HOME=/opt/rocm \
-    PATH=/opt/rocm/bin:$PATH \
-    LD_LIBRARY_PATH=/opt/rocm/lib:$LD_LIBRARY_PATH
+    ROCM_PATH=/opt/rocm \
+    HIP_PATH=/opt/rocm \
+    PATH=/opt/rocm/bin:/opt/rocm/llvm/bin:$PATH \
+    LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/lib64:$LD_LIBRARY_PATH
 
 # Copy license file
 COPY LICENSE.md /licenses/rocm-license.md
