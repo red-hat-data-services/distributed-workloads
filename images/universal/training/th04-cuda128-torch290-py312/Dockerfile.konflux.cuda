@@ -1,0 +1,266 @@
+# Konflux CUDA Training Image Dockerfile (based on universal CUDA image)
+#
+# Notes:
+# - Uses subscription-gated RHAI base image; requires RHSM registration before dnf.
+# - Keeps notebook-style PDF deps (install_pdf_deps.sh only; no pandoc/texlive split).
+# - Maintains CUDA/RDMA copy-through to final stage (same as main universal Dockerfile).
+
+################################################################################
+# Build Arguments
+################################################################################
+# Align base with notebooks minimal CUDA (RHAI gated)
+ARG BASE_IMAGE=registry.redhat.io/rhai/base-image-cuda-rhel9:3.2.0-1765367347
+# CUDA_VERSION: Used for environment variables and documentation purposes
+ARG CUDA_VERSION=12.8
+ARG PYTHON_VERSION=3.12
+ARG SRC_DIR=th04-cuda128-torch290-py312
+
+################################################################################
+# Builder Stage - Install uv for dependency resolution
+################################################################################
+FROM ${BASE_IMAGE} AS builder
+
+USER 0
+WORKDIR /tmp/builder
+
+# Install latest version of uv in builder stage
+RUN pip install --no-cache-dir uv
+
+################################################################################
+# Base Stage
+################################################################################
+FROM ${BASE_IMAGE} AS base
+
+LABEL name="universal:py312-cuda128-torch290" \
+      summary="Universal CUDA 12.8 Python 3.12 image with PyTorch 2.9.0" \
+      description="Universal image combining minimal Jupyter workbench and runtime ML stack (CUDA 12.8, PyTorch 2.9.0, FlashAttention 2.8.2) on UBI9" \
+      io.k8s.display-name="Universal CUDA 12.8 Python 3.12 (Workbench + Runtime)" \
+      io.k8s.description="Universal image: Jupyter workbench by default; runtime when command provided."
+
+# Fallback public indexes if RHOAI index lacks a package
+ENV PIP_INDEX_URL=https://pypi.org/simple \
+    UV_INDEX_URL=https://pypi.org/simple \
+    UV_DEFAULT_INDEX=https://pypi.org/simple
+
+# Copy license file
+ARG SRC_DIR
+COPY ${SRC_DIR}/LICENSE.md /licenses/cuda-license.md
+
+USER 0
+WORKDIR /opt/app-root/bin
+
+# Environment variables for NVIDIA and CUDA
+ENV NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    CUDA_VERSION=${CUDA_VERSION} \
+    CUDA_HOME=/usr/local/cuda \
+    PATH=/usr/local/cuda/bin:$PATH \
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH \
+    TORCH_CUDA_ARCH_LIST="8.0;8.6;8.9;9.0" \
+    XLA_FLAGS=--xla_gpu_cuda_data_dir=/usr/local/cuda
+
+################################################################################
+# System Dependencies Stage
+################################################################################
+FROM base AS system-deps
+
+ARG SRC_DIR
+USER 0
+WORKDIR /opt/app-root/bin
+
+# Register and refresh subscription for RHEL base
+RUN /bin/bash <<'EOF'
+set -Eeuxo pipefail
+subscription-manager register --org 18631088 --activationkey thisisunsafe
+if command -v subscription-manager &> /dev/null; then
+  subscription-manager identity &>/dev/null && subscription-manager refresh || echo "No identity, skipping refresh."
+fi
+EOF
+
+# Core OS packages (minimal, keep from notebooks)
+RUN dnf install -y --setopt=install_weak_deps=False \
+    perl \
+    mesa-libGL \
+    skopeo && \
+    dnf clean all && rm -rf /var/cache/dnf/*
+
+# Install the oc client (matches notebooks)
+RUN /bin/bash <<'EOF'
+set -Eeuxo pipefail
+curl -L https://mirror.openshift.com/pub/openshift-v4/$(uname -m)/clients/ocp/stable/openshift-client-linux.tar.gz \
+    -o /tmp/openshift-client-linux.tar.gz
+tar -xzvf /tmp/openshift-client-linux.tar.gz oc
+rm -f /tmp/openshift-client-linux.tar.gz
+EOF
+
+# Copy repository configuration files
+COPY ${SRC_DIR}/cuda.repo ${SRC_DIR}/mellanox.repo /etc/yum.repos.d/
+
+# Notebook utils and PDF deps (local copy)
+COPY utils/ /opt/app-root/bin/utils/
+RUN chmod -R 0755 /opt/app-root/bin/utils && \
+    /opt/app-root/bin/utils/install_pdf_deps.sh
+
+# Copy notebook entry script and entrypoint
+COPY utils/start-notebook.sh /opt/app-root/bin/start-notebook.sh
+COPY utils/entrypoint-universal.sh /usr/local/bin/entrypoint-universal.sh
+RUN chmod 0755 /opt/app-root/bin/start-notebook.sh /usr/local/bin/entrypoint-universal.sh
+
+# Install system packages (RDMA, CUDA tools, build toolchain)
+RUN dnf install -y --setopt=install_weak_deps=False \
+    libibverbs-utils \
+    infiniband-diags \
+    libibumad \
+    librdmacm \
+    librdmacm-utils \
+    rdma-core \
+    cuda-command-line-tools-12-8 \
+    cuda-cudart-devel-12-8 \
+    cuda-nvcc-12-8-12.8.93-1 \
+    gcc \
+    gcc-c++ \
+    make \
+    python3-devel \
+    cmake \
+    git && dnf clean all && rm -rf /var/cache/dnf/*
+
+# Verify CUDA toolkit
+RUN /usr/local/cuda/bin/nvcc -V
+RUN ldconfig -p | grep -E 'libcudart|libcublas|libcudnn' || \
+    (echo "[fail-fast] CUDA libs not found" >&2; exit 1)
+
+# Bundle RDMA runtime libs to a staging dir
+RUN mkdir -p /opt/rdma-runtime \
+ && cp -a /usr/lib64/libibverbs* /opt/rdma-runtime/ || true \
+ && cp -a /usr/lib64/librdmacm* /opt/rdma-runtime/ || true \
+ && cp -a /usr/lib64/libibumad* /opt/rdma-runtime/ || true \
+ && cp -a /usr/lib64/libmlx* /opt/rdma-runtime/ || true \
+ && cp -a /usr/lib64/libibnetdisc* /opt/rdma-runtime/ || true
+
+################################################################################
+# Python Dependencies Stage
+################################################################################
+FROM system-deps AS python-deps
+
+ARG SRC_DIR
+USER 0
+WORKDIR /tmp/deps
+
+# Ensure python version arg available in this stage
+ARG PYTHON_VERSION
+
+# Copy uv from builder stage (FIPS: uv only used during build, not in runtime)
+COPY --from=builder /opt/app-root/bin/uv /usr/local/bin/uv
+
+# Copy pyproject.toml, pylock.toml, and requirements-special.txt
+COPY --chown=1001:0 ${SRC_DIR}/pyproject.toml ${SRC_DIR}/pylock.toml ${SRC_DIR}/requirements-special.txt ./
+
+# Switch to user 1001 for pip installations
+USER 1001
+WORKDIR /opt/app-root/src
+
+# Install main dependencies from pylock.toml using uv pip sync
+ENV UV_NO_CACHE=1
+RUN uv pip sync --python-platform=linux --python-version=3.12 /tmp/deps/pylock.toml
+ENV UV_NO_CACHE=
+
+# Install kubeflow-sdk from Git (not in pylock.toml or requirements-special.txt)
+RUN pip install --retries 5 --timeout 300 --no-cache-dir \
+    "git+https://github.com/opendatahub-io/kubeflow-sdk@main"
+
+# Apply notebook customizations (match notebooks minimal)
+RUN /bin/bash <<'EOF'
+set -Eeuo pipefail
+jupyter labextension disable "@jupyterlab/apputils-extension:announcements" || true
+sed -i -e "s/Python.*/$(python --version | cut -d '.' -f-2)\",/" /opt/app-root/share/jupyter/kernels/python3/kernel.json
+mkdir -p /opt/app-root/etc/jupyter
+cp /opt/app-root/bin/utils/jupyter_server_config.py /opt/app-root/etc/jupyter
+/opt/app-root/bin/utils/addons/apply.sh
+cp /opt/app-root/bin/utils/usercustomize.pth /opt/app-root/lib/python${PYTHON_VERSION}/site-packages/
+cp /opt/app-root/bin/utils/monkey_patch_protobuf_6x.py /opt/app-root/lib/python${PYTHON_VERSION}/site-packages/
+EOF
+
+# Install special packages with proper flags
+ENV MAX_JOBS=4 \
+    CMAKE_BUILD_PARALLEL_LEVEL=4 \
+    NINJA_FLAGS=-j4
+
+# Flash Attention
+RUN pip install --no-build-isolation --no-cache-dir --no-deps \
+    $(grep "^flash-attn" /tmp/deps/requirements-special.txt)
+
+# Mamba SSM dependencies
+RUN pip install --no-build-isolation --no-cache-dir \
+    $(grep "^causal-conv1d" /tmp/deps/requirements-special.txt) \
+ && pip install --no-build-isolation --no-cache-dir --no-deps \
+    $(grep "^mamba-ssm" /tmp/deps/requirements-special.txt)
+
+# Fix permissions for OpenShift
+ARG PYTHON_VERSION
+USER 0
+RUN chmod -R g+w /opt/app-root/lib/python${PYTHON_VERSION}/site-packages \
+ && fix-permissions /opt/app-root -P
+
+# Clean up uv and build artifacts (FIPS: remove build-only tools)
+RUN rm -f /usr/local/bin/uv \
+ && rm -rf /tmp/deps \
+ && dnf remove -y gcc gcc-c++ cmake python3-devel \
+ && dnf clean all \
+ && rm -rf /var/cache/dnf/*
+
+################################################################################
+# Final Stage - FIPS-friendly Runtime
+################################################################################
+FROM ${BASE_IMAGE} AS final
+
+USER 0
+WORKDIR /opt/app-root/src
+
+# Copy Python site-packages and CLI entry points from python-deps stage
+ARG PYTHON_VERSION
+ARG SRC_DIR
+COPY --from=python-deps /opt/app-root/lib/python${PYTHON_VERSION}/site-packages /opt/app-root/lib/python${PYTHON_VERSION}/site-packages
+COPY --from=python-deps /opt/app-root/bin /opt/app-root/bin
+# Copy Jupyter shared assets (lab static files, etc.)
+COPY --from=python-deps /opt/app-root/share/jupyter /opt/app-root/share/jupyter
+# Copy Jupyter etc configs (server extensions, settings)
+COPY --from=python-deps /opt/app-root/etc/jupyter /opt/app-root/etc/jupyter
+
+# Copy CUDA runtime from system-deps (built Python packages need CUDA libs)
+COPY --from=system-deps /usr/local/cuda /usr/local/cuda
+
+# Copy RDMA runtime libraries from system-deps
+COPY --from=system-deps /opt/rdma-runtime/ /usr/lib64/
+
+# Update dynamic linker cache for CUDA libraries
+RUN ldconfig
+
+# FIPS-friendly: Remove uv from final image
+RUN rm -f /opt/app-root/bin/uv
+
+# Environment variables for NVIDIA and CUDA
+ENV NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    CUDA_VERSION=${CUDA_VERSION} \
+    CUDA_HOME=/usr/local/cuda \
+    PATH=/usr/local/cuda/bin:$PATH \
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH \
+    TORCH_CUDA_ARCH_LIST="8.0;8.6;8.9;9.0" \
+    XLA_FLAGS=--xla_gpu_cuda_data_dir=/usr/local/cuda
+
+# Copy license file
+COPY ${SRC_DIR}/LICENSE.md /licenses/cuda-license.md
+
+# Copy entrypoint
+COPY --chmod=0755 utils/entrypoint-universal.sh /usr/local/bin/entrypoint-universal.sh
+
+# Fix permissions for OpenShift (final stage)
+RUN fix-permissions /opt/app-root -P \
+ && chmod -R g+w /opt/app-root/lib/python${PYTHON_VERSION}/site-packages
+
+USER 1001
+WORKDIR /opt/app-root/src
+
+ENTRYPOINT ["/usr/local/bin/entrypoint-universal.sh"]
+CMD ["start-notebook.sh"]
+
