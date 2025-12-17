@@ -1,0 +1,277 @@
+# Konflux ROCm Training Image Dockerfile (based on universal ROCm image)
+#
+# Notes:
+# - Uses subscription-gated RHAI base image; requires RHSM registration before dnf.
+# - Keeps notebook-style PDF deps (install_pdf_deps.sh only; no pandoc/texlive split).
+# - Maintains ROCm/RDMA copy-through to final stage (same as main universal Dockerfile).
+
+################################################################################
+# Build Arguments
+################################################################################
+# Align base with notebooks minimal ROCm (RHAI gated)
+ARG BASE_IMAGE=registry.redhat.io/rhai/base-image-rocm-rhel9:3.2.0-1764877298
+ARG PYTHON_VERSION=3.12
+ARG SRC_DIR=rocm64-torch290-py312
+
+################################################################################
+# Builder Stage - Install uv for dependency resolution
+################################################################################
+FROM ${BASE_IMAGE} AS builder
+
+USER 0
+WORKDIR /tmp/builder
+
+# Install latest version of uv in builder stage
+RUN pip install --no-cache-dir uv
+
+################################################################################
+# Base Stage
+################################################################################
+FROM ${BASE_IMAGE} AS base
+
+LABEL name="rocm:py312-rocm64-torch290" \
+      summary="ROCm 6.4 Python 3.12 image with PyTorch 2.9.0" \
+      description="ROCm image combining minimal Jupyter workbench and runtime ML stack (ROCm 6.4, PyTorch 2.9.0) on UBI9" \
+      io.k8s.display-name="ROCm 6.4 Python 3.12 (Workbench + Runtime)" \
+      io.k8s.description="ROCm image: Jupyter workbench by default; runtime when command provided."
+
+# Fallback public indexes if RHOAI index lacks a package
+ENV PIP_INDEX_URL=https://pypi.org/simple \
+    UV_INDEX_URL=https://pypi.org/simple \
+    UV_DEFAULT_INDEX=https://pypi.org/simple
+
+# Copy license file
+ARG SRC_DIR
+COPY ${SRC_DIR}/LICENSE.md /licenses/rocm-license.md
+
+USER 0
+WORKDIR /opt/app-root/bin
+
+# Environment variables for ROCm (full paths for HIP/ROCm toolchain)
+ENV ROCM_HOME=/opt/rocm \
+    ROCM_PATH=/opt/rocm \
+    HIP_PATH=/opt/rocm \
+    PATH=/opt/rocm/bin:/opt/rocm/llvm/bin:$PATH \
+    LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/lib64:$LD_LIBRARY_PATH \
+    CMAKE_PREFIX_PATH=/opt/rocm
+
+################################################################################
+# System Dependencies Stage
+################################################################################
+FROM base AS system-deps
+
+ARG SRC_DIR
+USER 0
+WORKDIR /opt/app-root/bin
+
+# Register and refresh subscription for RHEL base
+RUN /bin/bash <<'EOF'
+set -Eeuxo pipefail
+subscription-manager register --org 18631088 --activationkey thisisunsafe
+if command -v subscription-manager &> /dev/null; then
+  subscription-manager identity &>/dev/null && subscription-manager refresh || echo "No identity, skipping refresh."
+fi
+EOF
+
+# Core OS packages (minimal)
+RUN dnf install -y --setopt=install_weak_deps=False \
+    perl \
+    mesa-libGL \
+    skopeo && \
+    dnf clean all && rm -rf /var/cache/dnf/*
+
+# Install the oc client (matches notebooks)
+RUN /bin/bash <<'EOF'
+set -Eeuxo pipefail
+curl -L https://mirror.openshift.com/pub/openshift-v4/$(uname -m)/clients/ocp/stable/openshift-client-linux.tar.gz \
+    -o /tmp/openshift-client-linux.tar.gz
+tar -xzvf /tmp/openshift-client-linux.tar.gz oc
+rm -f /tmp/openshift-client-linux.tar.gz
+EOF
+
+# Notebook utils and PDF deps (moved local)
+COPY utils/ /opt/app-root/bin/utils/
+RUN chmod -R 0755 /opt/app-root/bin/utils && \
+    /opt/app-root/bin/utils/install_pdf_deps.sh
+
+# Copy notebook entry script and entrypoint
+COPY utils/start-notebook.sh /opt/app-root/bin/start-notebook.sh
+COPY utils/entrypoint-universal.sh /usr/local/bin/entrypoint-universal.sh
+RUN chmod 0755 /opt/app-root/bin/start-notebook.sh /usr/local/bin/entrypoint-universal.sh
+
+# Copy repository configuration files
+COPY ${SRC_DIR}/mellanox.repo ${SRC_DIR}/rocm.repo /etc/yum.repos.d/
+
+# Install ROCm development tools
+RUN dnf install -y --setopt=install_weak_deps=False \
+    rocm-llvm \
+    hipcc \
+    hip-devel \
+    hip-runtime-amd \
+    rocthrust \
+    hipsparse-devel \
+    hipsparse \
+    hipcub-devel \
+    rocprim-devel \
+    hipblaslt-devel \
+    rocrand \
+    hipfft \
+    rocfft \
+    rocm-cmake \
+    rocm-device-libs \
+    rocblas-devel \
+    hipblas-devel \
+    rocsolver-devel \
+    hipsolver-devel && \
+    dnf clean all && rm -rf /var/cache/dnf/*
+
+# Fix /opt/rocm symlink - base image has it pointing to /etc/alternatives/rocm
+RUN rm -f /opt/rocm && ln -sf /opt/rocm-6.4.3 /opt/rocm
+
+# Verify ROCm/HIP toolchain is properly installed
+RUN /opt/rocm/bin/hipcc --version
+
+# Install system packages (RDMA and build toolchain)
+RUN dnf install -y --setopt=install_weak_deps=False \
+    libibverbs-utils \
+    infiniband-diags \
+    libibumad \
+    librdmacm \
+    librdmacm-utils \
+    rdma-core \
+    gcc \
+    gcc-c++ \
+    make \
+    python3-devel \
+    cmake \
+    git && dnf clean all && rm -rf /var/cache/dnf/*
+
+# Bundle RDMA runtime libs to a staging dir
+RUN mkdir -p /opt/rdma-runtime \
+ && cp -a /usr/lib64/libibverbs* /opt/rdma-runtime/ || true \
+ && cp -a /usr/lib64/librdmacm* /opt/rdma-runtime/ || true \
+ && cp -a /usr/lib64/libibumad* /opt/rdma-runtime/ || true \
+ && cp -a /usr/lib64/libmlx* /opt/rdma-runtime/ || true \
+ && cp -a /usr/lib64/libibnetdisc* /opt/rdma-runtime/ || true
+
+################################################################################
+# Python Dependencies Stage
+################################################################################
+FROM system-deps AS python-deps
+
+ARG SRC_DIR
+USER 0
+WORKDIR /tmp/deps
+
+# Ensure python version arg available in this stage
+ARG PYTHON_VERSION
+
+# Copy uv from builder stage (FIPS: uv only used during build, not in runtime)
+COPY --from=builder /opt/app-root/bin/uv /usr/local/bin/uv
+
+# Copy dependency files
+COPY --chown=1001:0 ${SRC_DIR}/pyproject.toml ${SRC_DIR}/pylock.toml ${SRC_DIR}/requirements-special.txt ./
+
+# Switch to user 1001 for pip installations
+USER 1001
+WORKDIR /opt/app-root/src
+
+# Install main dependencies from pylock.toml using uv pip sync
+ENV UV_NO_CACHE=1
+RUN uv pip sync --python-platform=linux --python-version=3.12 /tmp/deps/pylock.toml
+ENV UV_NO_CACHE=
+
+# Install kubeflow-sdk from Git (not in pylock.toml or requirements-special.txt)
+RUN pip install --retries 5 --timeout 300 --no-cache-dir \
+    "git+https://github.com/opendatahub-io/kubeflow-sdk@main"
+
+# Apply notebook customizations (match notebooks minimal)
+RUN /bin/bash <<'EOF'
+set -Eeuo pipefail
+jupyter labextension disable "@jupyterlab/apputils-extension:announcements" || true
+sed -i -e "s/Python.*/$(python --version | cut -d '.' -f-2)\",/" /opt/app-root/share/jupyter/kernels/python3/kernel.json
+mkdir -p /opt/app-root/etc/jupyter
+cp /opt/app-root/bin/utils/jupyter_server_config.py /opt/app-root/etc/jupyter
+/opt/app-root/bin/utils/addons/apply.sh
+cp /opt/app-root/bin/utils/usercustomize.pth /opt/app-root/lib/python${PYTHON_VERSION}/site-packages/
+cp /opt/app-root/bin/utils/monkey_patch_protobuf_6x.py /opt/app-root/lib/python${PYTHON_VERSION}/site-packages/
+EOF
+
+# FlashAttention build environment
+ARG MAX_JOBS=16
+ARG CMAKE_BUILD_PARALLEL_LEVEL=8
+ENV GPU_ARCHS="gfx90a;gfx942" \
+    PYTORCH_ROCM_ARCH="gfx90a;gfx942" \
+    MAX_JOBS=${MAX_JOBS} \
+    CMAKE_BUILD_PARALLEL_LEVEL=${CMAKE_BUILD_PARALLEL_LEVEL}
+
+# Verify ROCm tools before building flash-attn
+RUN /opt/rocm/bin/hipcc --version
+
+# Build flash-attn
+RUN pip install --no-build-isolation --no-cache-dir --no-deps --verbose \
+    $(grep "^flash-attn" /tmp/deps/requirements-special.txt) 2>&1 | tee /tmp/flash-attn-build.log
+
+# Fix permissions for OpenShift
+ARG PYTHON_VERSION
+USER 0
+RUN chmod -R g+w /opt/app-root/lib/python${PYTHON_VERSION}/site-packages \
+ && fix-permissions /opt/app-root -P
+
+# Clean up uv and build artifacts
+RUN rm -f /usr/local/bin/uv \
+ && rm -rf /tmp/deps \
+ && dnf remove -y gcc gcc-c++ cmake python3-devel \
+ && dnf clean all \
+ && rm -rf /var/cache/dnf/*
+
+################################################################################
+# Final Stage - FIPS-friendly Runtime
+################################################################################
+FROM ${BASE_IMAGE} AS final
+
+USER 0
+WORKDIR /opt/app-root/src
+
+# Copy Python site-packages and CLI entry points from python-deps stage
+ARG PYTHON_VERSION
+ARG SRC_DIR
+COPY --from=python-deps /opt/app-root/lib/python${PYTHON_VERSION}/site-packages /opt/app-root/lib/python${PYTHON_VERSION}/site-packages
+COPY --from=python-deps /opt/app-root/bin /opt/app-root/bin
+# Copy Jupyter shared assets (lab static files, etc.)
+COPY --from=python-deps /opt/app-root/share/jupyter /opt/app-root/share/jupyter
+# Copy Jupyter etc configs (server extensions, settings)
+COPY --from=python-deps /opt/app-root/etc/jupyter /opt/app-root/etc/jupyter
+
+# Copy RDMA runtime libraries from system-deps
+COPY --from=system-deps /opt/rdma-runtime/ /usr/lib64/
+
+# Update dynamic linker cache
+RUN ldconfig
+
+# FIPS-friendly: Remove uv from final image
+RUN rm -f /opt/app-root/bin/uv
+
+# Environment variables for ROCm
+ENV ROCM_HOME=/opt/rocm \
+    ROCM_PATH=/opt/rocm \
+    HIP_PATH=/opt/rocm \
+    PATH=/opt/rocm/bin:/opt/rocm/llvm/bin:$PATH \
+    LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/lib64:$LD_LIBRARY_PATH
+
+# Copy license file
+COPY ${SRC_DIR}/LICENSE.md /licenses/rocm-license.md
+
+# Copy entrypoint
+COPY --chmod=0755 utils/entrypoint-universal.sh /usr/local/bin/entrypoint-universal.sh
+
+# Fix permissions for OpenShift (final stage)
+RUN fix-permissions /opt/app-root -P \
+ && chmod -R g+w /opt/app-root/lib/python${PYTHON_VERSION}/site-packages
+
+USER 1001
+WORKDIR /opt/app-root/src
+
+ENTRYPOINT ["/usr/local/bin/entrypoint-universal.sh"]
+CMD ["start-notebook.sh"]
+
