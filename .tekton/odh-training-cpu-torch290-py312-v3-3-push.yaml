@@ -38,9 +38,9 @@ spec:
     - linux-d160-m8xlarge/amd64
     - linux-extra-fast/amd64
   - name: dockerfile
-    value: Dockerfile.konflux.cpu
+    value: cpu-torch290-py312/Dockerfile.konflux.cpu
   - name: path-context
-    value: images/universal/training/cpu-torch290-py312
+    value: images/universal/training
   - name: hermetic
     value: false
   - name: build-image-index
