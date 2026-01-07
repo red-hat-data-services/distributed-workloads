@@ -31,11 +31,13 @@ RUN pip install --no-cache-dir uv
 ################################################################################
 FROM ${BASE_IMAGE} AS base
 
-LABEL name="universal:py312-cuda128-torch290" \
+LABEL name="odh-training-th04-cuda128-torch29-py312-rhel9 " \
+      com.redhat.component="odh-training-th04-cuda128-torch29-py312-rhel9 " \
+      io.k8s.display-name="odh-training-th04-cuda128-torch29-py312-rhel9 " \
       summary="Universal CUDA 12.8 Python 3.12 image with PyTorch 2.9.0" \
       description="Universal image combining minimal Jupyter workbench and runtime ML stack (CUDA 12.8, PyTorch 2.9.0, FlashAttention 2.8.2) on UBI9" \
-      io.k8s.display-name="Universal CUDA 12.8 Python 3.12 (Workbench + Runtime)" \
-      io.k8s.description="Universal image: Jupyter workbench by default; runtime when command provided."
+      io.k8s.description="Universal image: Jupyter workbench by default; runtime when command provided." \
+      com.redhat.license_terms="https://www.redhat.com/licenses/Red_Hat_Standard_EULA_20191108.pdf"
 
 # Fallback public indexes if RHOAI index lacks a package
 ENV PIP_INDEX_URL=https://pypi.org/simple \
