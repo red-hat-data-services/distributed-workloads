@@ -42,7 +42,9 @@ spec:
   - name: path-context
     value: images/runtime/training/py312-rocm64-torch290
   - name: hermetic
-    value: false
+    value: true
+  - name: prefetch-input
+    value: '{"type": "pip", "path": ".", "requirements_files": ["requirements.txt"]}'
   - name: build-image-index
     value: true
   pipelineRef:
