@@ -42,9 +42,7 @@ spec:
   - name: path-context
     value: images/runtime/training/py312-cuda128-torch290
   - name: hermetic
-    value: true
-  - name: prefetch-input
-    value: '{"type": "pip", "path": "images/runtime/training/py312-cuda128-torch290", "requirements_files": ["requirements.txt"]}'
+    value: false
   - name: build-image-index
     value: true
   pipelineRef:
