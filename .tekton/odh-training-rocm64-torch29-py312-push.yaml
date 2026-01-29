@@ -12,7 +12,7 @@ metadata:
       || ".tekton/odh-training-rocm64-torch29-py312-push.yaml".pathChanged()
       )
   labels:
-    appstudio.openshift.io/application: rhoai-builds
+    appstudio.openshift.io/application: opendatahub-builds
     appstudio.openshift.io/component: odh-training-rocm64-torch29-py312-ci
     pipelines.appstudio.openshift.io/type: build
   name: odh-training-rocm64-torch29-py312-on-push
@@ -35,6 +35,23 @@ spec:
     value: Dockerfile
   - name: path-context
     value: images/runtime/training/py312-rocm64-torch290
+  taskRunSpecs:
+    - pipelineTaskName: build-images
+      computeResources:
+        requests:
+          cpu: '8'
+          memory: 16Gi
+        limits:
+          cpu: '16'
+          memory: 32Gi
+    - pipelineTaskName: clair-scan
+      computeResources:
+        requests:
+          cpu: '8'
+          memory: 32Gi
+        limits:
+          cpu: '8'
+          memory: 32Gi
   pipelineRef:
     resolver: git
     params:
