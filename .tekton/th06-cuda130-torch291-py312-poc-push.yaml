@@ -30,7 +30,7 @@ spec:
     - linux-extra-fast/amd64
     - linux-d160-m8xlarge/arm64
   - name: prefetch-input
-    value: '[{"type": "pip", "path": "images/universal/training/th06-cuda130-torch291-py312", "requirements_files": ["requirements.txt"]}]'
+    value: '[{"type": "pip", "path": "images/universal/training/th06-cuda130-torch291-py312", "requirements_files": ["requirements.txt"], "binary": {"arch": "x86_64,aarch64", "os": "linux"}}]'
   - name: dockerfile
     value: Dockerfile.konflux.cuda
   - name: path-context
