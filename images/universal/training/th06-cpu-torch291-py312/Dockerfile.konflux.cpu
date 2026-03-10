@@ -32,8 +32,10 @@ USER 1001
 WORKDIR /opt/app-root/src
 
 # Install main dependencies from cachi2 prefetched packages
-# Strict AIPCC-only - no fallback indexes (request missing packages be added to AIPCC)
+# cachi2.env sets PIP_FIND_LINKS and PIP_NO_INDEX, but uv ignores PIP_* vars,
+# so we pass them explicitly as CLI flags
 RUN . /cachi2/cachi2.env && uv pip install --no-cache --require-hashes \
+    --no-index --find-links "${PIP_FIND_LINKS}" \
     -r /tmp/deps/requirements.txt
 
 # Fix permissions for OpenShift
