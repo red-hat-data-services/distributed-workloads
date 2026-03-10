@@ -13,7 +13,7 @@
 ################################################################################
 # Build Arguments
 ################################################################################
-ARG BASE_IMAGE=quay.io/opendatahub/odh-workbench-jupyter-minimal-cuda-py312-ubi9:3.4_ea2-v1.42
+ARG BASE_IMAGE=quay.io/rhoai/odh-workbench-jupyter-minimal-cuda-py312-rhel9@sha256:a37fedf26ad8fef67eba9a637eda6ea9f63db3911281c77d675dafca0905c784
 ARG PYTHON_VERSION=3.12
 ARG DOWNSTREAM=false
 
@@ -32,15 +32,10 @@ COPY --chown=1001:0 pyproject.toml requirements.txt ./
 USER 1001
 WORKDIR /opt/app-root/src
 
-# Install main dependencies from AIPCC index
+# Install main dependencies from cachi2 prefetched packages
 # All packages (including flash-attn, mamba-ssm) are pre-built wheels in AIPCC
-RUN uv pip install --no-cache-dir --require-hashes \
-    --index-url=https://console.redhat.com/api/pypi/public-rhai/rhoai/3.4-EA2/cuda13.0-ubi9-test/simple/ \
+RUN . /cachi2/cachi2.env && uv pip install --no-cache-dir --require-hashes \
     -r /tmp/deps/requirements.txt
-
-# TODO: Remove once s3fs is available in AIPCC with compatible fsspec version
-# Installing without deps since fsspec is already installed from AIPCC
-RUN pip install --no-cache-dir --no-deps s3fs
 
 # Fix permissions for OpenShift
 ARG PYTHON_VERSION
