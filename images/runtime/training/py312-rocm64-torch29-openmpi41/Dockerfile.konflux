@@ -1,12 +1,13 @@
-FROM quay.io/aipcc/base-images/cuda-13.0-el9.6:3.4.0-ea.2-1772829888
+# ROCm MPI Training Runtime - AIPCC base, UV for deps
+FROM quay.io/aipcc/base-images/rocm-6.4-el9.6:3.4.0-ea.1-1772615238
 
 ARG SSH_PORT=2222
 
-LABEL name="training:py312-cuda130-torch29-openmpi41" \
-      summary="CUDA 13.0 Python 3.12 PyTorch 2.9.0 OpenMPI 4.1 image based on UBI9 for Training" \
-      description="CUDA 13.0 Python 3.12 PyTorch 2.9.0 OpenMPI 4.1 image based on UBI9 for Training" \
-      io.k8s.display-name="CUDA 13.0 Python 3.12 PyTorch 2.9.0 OpenMPI 4.1 base image for Training" \
-      io.k8s.description="CUDA 13.0 Python 3.12 PyTorch 2.9.0 OpenMPI 4.1 image based on UBI9 for Training" \
+LABEL name="training:py312-rocm64-torch29-openmpi41" \
+      summary="ROCm 6.4 Python 3.12 PyTorch 2.9.1 OpenMPI 4.1 image based on UBI9 for Training" \
+      description="ROCm 6.4 Python 3.12 PyTorch 2.9.1 OpenMPI 4.1 image based on UBI9 for Training" \
+      io.k8s.display-name="ROCm 6.4 Python 3.12 PyTorch 2.9.1 OpenMPI 4.1 base image for Training" \
+      io.k8s.description="ROCm 6.4 Python 3.12 PyTorch 2.9.1 OpenMPI 4.1 image based on UBI9 for Training" \
       authoritative-source-url="https://github.com/opendatahub-io/distributed-workloads"
 
 USER 0
@@ -31,7 +32,7 @@ RUN printf '#!/bin/sh\nexec /opt/app-root/bin/python "$@"\n' > /usr/local/bin/py
     && chmod +x /usr/local/bin/python
 
 # Set LD_LIBRARY_PATH in /etc/environment for SSH sessions (loaded by PAM, not inherited from container).
-# CUDA and cuDNN are registered in ldconfig; only OpenMPI lib needs an explicit entry.
+# ROCm is registered in ldconfig; only OpenMPI lib needs an explicit entry.
 RUN echo "LD_LIBRARY_PATH=/usr/lib64/openmpi/lib" >> /etc/environment
 
 RUN mkdir -p /var/run/sshd
@@ -77,8 +78,10 @@ WORKDIR /opt/app-root/bin
 COPY requirements.txt ./
 
 RUN uv pip install --no-cache --require-hashes \
-        --python /opt/app-root/bin/python3.12 \
-        -r requirements.txt && \
+    --index-url=https://console.redhat.com/api/pypi/public-rhai/rhoai/3.4-EA2/rocm6.4-ubi9-test/simple/ \
+    --extra-index-url=https://pypi.org/simple \
+    --python /opt/app-root/bin/python3.12 \
+    -r requirements.txt && \
     rm -f ./requirements.txt && \
     chmod -R g+w /opt/app-root/lib/python3.12/site-packages
 
