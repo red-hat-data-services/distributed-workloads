@@ -223,7 +223,7 @@ spec:
           value: task
         resolver: bundles
     - name: build-image-index
-      value: true
+      params:
       - name: build-platforms
         value: 
         - linux/x86_64
