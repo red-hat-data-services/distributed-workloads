@@ -13,11 +13,11 @@ This guide covers setting up and running trainer v2/SDK tests in a disconnected 
 - **Notebook image with Python 3.9+** (required for kubeflow-trainer-api>=2.0.0)
 
 > **Note on PyPI**: The `kubeflow` package is **not on public PyPI** - it's only available on Red Hat indexes:
-> - CPU: `https://console.redhat.com/api/pypi/public-rhai/rhoai/3.3/cpu-ubi9/simple/`
-> - CUDA: `https://console.redhat.com/api/pypi/public-rhai/rhoai/3.3/cuda12.9-ubi9/simple/`
-> - ROCm: `https://console.redhat.com/api/pypi/public-rhai/rhoai/3.3/rocm6.4-ubi9/simple/`
+> - CPU: `https://console.redhat.com/api/pypi/public-rhai/rhoai/3.4-EA2/cpu-ubi9/simple/`
+> - CUDA: `https://console.redhat.com/api/pypi/public-rhai/rhoai/3.4-EA2/cuda12.9-ubi9/simple/`
+> - ROCm: `https://console.redhat.com/api/pypi/public-rhai/rhoai/3.4-EA2/rocm6.4-ubi9/simple/`
 >
-> Tests automatically use the correct Red Hat index based on accelerator type. For fully disconnected environments, mirror these indexes or use the S3 wheel fallback.
+> Tests automatically use the correct Red Hat index (3.4-EA2) based on accelerator type. For fully disconnected environments, mirror these indexes or use the S3 wheel fallback.
 
 ## Overview
 
@@ -177,7 +177,7 @@ The prestage script creates this structure:
 │   ├── dataset_dict.json
 │   └── dataset_info.json
 └── wheels/
-    └── kubeflow-0.2.1+rhai0-py3-none-any.whl  # See Step 3
+    └── kubeflow-0.3.0+rhaiv.1-2-py3-none-any.whl  # See Step 3
 ```
 
 ---
@@ -192,12 +192,12 @@ The RHAI features require a specific version of the Kubeflow SDK that may not be
 # Clone and build the wheel
 git clone https://github.com/opendatahub-io/kubeflow-sdk.git
 cd kubeflow-sdk
-git checkout v0.2.1+rhai0
+git checkout v0.3.0+rhaiv.1
 pip install build
 python -m build --wheel
 
 # Or download pre-built wheel
-pip download "kubeflow @ git+https://github.com/opendatahub-io/kubeflow-sdk.git@v0.2.1+rhai0" \
+pip download "kubeflow @ git+https://github.com/opendatahub-io/kubeflow-sdk.git@v0.3.0+rhaiv.1" \
   --no-deps -d /tmp/wheels
 ```
 
@@ -205,7 +205,7 @@ pip download "kubeflow @ git+https://github.com/opendatahub-io/kubeflow-sdk.git@
 
 ```bash
 # Upload wheel to S3
-mc cp kubeflow-0.2.1+rhai0-py3-none-any.whl myminio/<bucket>/wheels/
+mc cp kubeflow-0.3.0+rhaiv.1-2-py3-none-any.whl myminio/<bucket>/wheels/
 ```
 
 ### 3.3 (Alternative) Upload to PyPI Mirror
@@ -214,7 +214,7 @@ If you have a PyPI mirror (Nexus, DevPI):
 
 ```bash
 twine upload --repository-url https://<pypi-mirror>/repository/pypi/ \
-  dist/kubeflow-0.2.1+rhai0-py3-none-any.whl
+  dist/kubeflow-0.3.0+rhaiv.1-2-py3-none-any.whl
 ```
 
 ---
@@ -251,8 +251,8 @@ export MODEL_S3_PREFIX="models/distilgpt2"
 export DATASET_S3_PREFIX="alpaca-cleaned-datasets"
 
 # Kubeflow wheel S3 path (default shown)
-export KUBEFLOW_WHEEL_S3_KEY="wheels/kubeflow-0.2.1+rhai0-py3-none-any.whl"
-export KUBEFLOW_REQUIRED_VERSION="0.2.1"
+export KUBEFLOW_WHEEL_S3_KEY="wheels/kubeflow-0.3.0+rhaiv.1-2-py3-none-any.whl"
+export KUBEFLOW_REQUIRED_VERSION="0.3.0+rhaiv.1"
 
 # SSL verification (set to "false" for self-signed certs on S3)
 export VERIFY_SSL="false"
@@ -341,7 +341,7 @@ ModuleNotFoundError: No module named 'kubeflow.trainer'
 **Fix:** 
 1. Upload correct wheel to S3:
    ```bash
-   mc cp kubeflow-0.2.1+rhai0-py3-none-any.whl myminio/<bucket>/wheels/
+   mc cp kubeflow-0.3.0+rhaiv.1-2-py3-none-any.whl myminio/<bucket>/wheels/
    ```
 2. Verify `KUBEFLOW_WHEEL_S3_KEY` points to correct path
 
