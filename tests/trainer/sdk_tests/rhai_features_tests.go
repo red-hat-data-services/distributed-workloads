@@ -381,7 +381,7 @@ func runRhaiFeaturesTestWithConfig(t *testing.T, config RhaiFeatureConfig) {
 
 		dataConnectionExports = fmt.Sprintf(
 			"export DATA_CONNECTION_NAME='%s'; "+
-				"export KUBEFLOW_INSTALL_FROM_GIT='true'; ",
+				"export KUBEFLOW_INSTALL_FROM_GIT='false'; ",
 			secret.Name,
 		)
 		test.T().Logf("Data Connection configured for cloud checkpointing: %s", config.CheckpointOutputDir)
