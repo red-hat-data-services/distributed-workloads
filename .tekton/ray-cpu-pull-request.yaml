@@ -44,8 +44,6 @@ spec:
     value: true
   - name: skip-checks
     value: true
-  - name: build-args-file
-    value: argfile.conf
   - name: fetch-git-tags
     value: true
   - name: clone-depth
