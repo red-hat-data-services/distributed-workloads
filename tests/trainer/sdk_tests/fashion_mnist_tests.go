@@ -114,7 +114,7 @@ func RunFashionMnistCpuDistributedTraining(t *testing.T) {
 	command := []string{"/bin/sh", "-c", shellCmd}
 
 	// Create Notebook CR using the RWX PVC
-	common.CreateNotebook(test, namespace, userToken, command, cm.Name, notebookName, 0, rwxPvc, common.ContainerSizeSmall)
+	common.CreateNotebook(test, namespace, userToken, command, cm.Name, notebookName, 0, rwxPvc, common.ContainerSizeSmall, common.GetRecommendedNotebookImageFromImageStream(test, common.NotebookImageStreamTrainingHubCPU))
 
 	// Cleanup - use longer timeout due to large runtime images
 	defer func() {
@@ -243,7 +243,7 @@ func RunFashionMnistKueueCpuDistributedTraining(t *testing.T) {
 	command := []string{"/bin/sh", "-c", shellCmd}
 
 	// Create Notebook CR using the RWX PVC
-	common.CreateNotebook(test, namespace, userToken, command, cm.Name, notebookName, 0, rwxPvc, common.ContainerSizeSmall)
+	common.CreateNotebook(test, namespace, userToken, command, cm.Name, notebookName, 0, rwxPvc, common.ContainerSizeSmall, common.GetRecommendedNotebookImageFromImageStream(test, common.NotebookImageStreamTrainingHubCPU))
 
 	// Cleanup - use longer timeout due to large runtime images
 	defer func() {
