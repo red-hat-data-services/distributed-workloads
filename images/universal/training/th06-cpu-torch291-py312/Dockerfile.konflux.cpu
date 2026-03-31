@@ -25,7 +25,7 @@ USER 0
 WORKDIR /tmp/deps
 
 # Copy requirements files
-COPY --chown=1001:0 pyproject.toml requirements.txt ./
+COPY --chown=1001:0 pyproject.toml requirements.txt requirements-ea2.txt ./
 
 # Switch to user 1001 for pip installations
 USER 1001
@@ -34,9 +34,10 @@ WORKDIR /opt/app-root/src
 # Install main dependencies from cachi2 prefetched packages
 # cachi2.env sets PIP_FIND_LINKS and PIP_NO_INDEX, but uv ignores PIP_* vars,
 # so we pass them explicitly as CLI flags
-RUN . /cachi2/cachi2.env && uv pip install --no-cache --require-hashes \
+RUN . /cachi2/cachi2.env && uv pip install --no-cache \
     --no-index --find-links "${PIP_FIND_LINKS}" \
-    -r /tmp/deps/requirements.txt
+    -r /tmp/deps/requirements.txt \
+    -r /tmp/deps/requirements-ea2.txt
 
 # Fix permissions for OpenShift
 ARG PYTHON_VERSION
