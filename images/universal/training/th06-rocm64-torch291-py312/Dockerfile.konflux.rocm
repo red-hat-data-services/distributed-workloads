@@ -35,7 +35,7 @@ WORKDIR /opt/app-root/src
 # All packages (including flash-attn) are pre-built wheels in AIPCC
 # cachi2.env sets PIP_FIND_LINKS and PIP_NO_INDEX, but uv ignores PIP_* vars,
 # so we pass them explicitly as CLI flags
-RUN . /cachi2/cachi2.env && uv pip install --no-cache-dir --require-hashes \
+RUN . /cachi2/cachi2.env && uv pip install --no-cache-dir \
     --no-index --find-links "${PIP_FIND_LINKS}" \
     -r /tmp/deps/requirements.txt
 
