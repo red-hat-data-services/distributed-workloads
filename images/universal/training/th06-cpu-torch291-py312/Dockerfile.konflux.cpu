@@ -37,6 +37,8 @@ WORKDIR /opt/app-root/src
 RUN . /cachi2/cachi2.env && uv pip install --no-cache \
     --no-index --find-links "${PIP_FIND_LINKS}" \
     -r /tmp/deps/requirements.txt \
+ && . /cachi2/cachi2.env && uv pip install --no-cache \
+    --no-index --find-links "${PIP_FIND_LINKS}" \
     -r /tmp/deps/requirements-ea2.txt
 
 # Fix permissions for OpenShift
