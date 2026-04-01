@@ -22,6 +22,7 @@ RUN yum upgrade -y && \
         openblas-devel \
         make \
         findutils \
+        cmake \
     && yum clean all && \
     rm -rf /var/cache/yum/*
 
@@ -31,7 +32,21 @@ COPY ${CONSTRAINTS_FILE} .
 RUN pip install --no-cache-dir \
     -c ${CONSTRAINTS_FILE} \
     ray[default,data,train,tune,serve]==2.52.1 \
+    sentencepiece==0.1.99 \
+    transformers==4.34.0 \
+    torch==2.6.0 \
+    torchvision==0.21.0 \
     --extra-index-url https://wheels.developerfirst.ibm.com/ppc64le/linux/+simple/
+
+# Configure Hugging Face cache directory and set proper permissions
+# Required because the container runs as non-root (UID 1001),
+# and transformers need write access to download/cache models
+ENV HF_HOME=/opt/app-root/src/.cache/huggingface \
+    TRANSFORMERS_CACHE=/opt/app-root/src/.cache/huggingface
+
+RUN mkdir -p $HF_HOME && \
+    chown -R 1001:0 /opt/app-root/src/.cache && \
+    chmod -R g+rwX /opt/app-root/src/.cache
 
 # Restore user workspace
 USER 1001
