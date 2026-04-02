@@ -43,22 +43,22 @@ func TestPyTorchDDPMultiNodeMultiCPUWithTorchCuda28(t *testing.T) {
 
 func TestPyTorchDDPSingleNodeSingleGPUWithTorchCuda(t *testing.T) {
 	Tags(t, KftoCuda)
-	runPyTorchDDPMultiNodeJob(t, NVIDIA, trainerutils.DefaultClusterTrainingRuntimeCUDA, "resources/requirements-cuda.txt", 1, 1)
+	runPyTorchDDPMultiNodeJob(t, NVIDIA, trainerutils.DefaultClusterTrainingRuntime, "resources/requirements-cuda.txt", 1, 1)
 }
 
 func TestPyTorchDDPSingleNodeMultiGPUWithTorchCuda(t *testing.T) {
 	Tags(t, KftoCuda)
-	runPyTorchDDPMultiNodeJob(t, NVIDIA, trainerutils.DefaultClusterTrainingRuntimeCUDA, "resources/requirements-cuda.txt", 1, 2)
+	runPyTorchDDPMultiNodeJob(t, NVIDIA, trainerutils.DefaultClusterTrainingRuntime, "resources/requirements-cuda.txt", 1, 2)
 }
 
 func TestPyTorchDDPMultiNodeSingleGPUWithTorchCuda(t *testing.T) {
 	Tags(t, KftoCuda)
-	runPyTorchDDPMultiNodeJob(t, NVIDIA, trainerutils.DefaultClusterTrainingRuntimeCUDA, "resources/requirements-cuda.txt", 2, 1)
+	runPyTorchDDPMultiNodeJob(t, NVIDIA, trainerutils.DefaultClusterTrainingRuntime, "resources/requirements-cuda.txt", 2, 1)
 }
 
 func TestPyTorchDDPMultiNodeMultiGPUWithTorchCuda(t *testing.T) {
 	Tags(t, KftoCuda)
-	runPyTorchDDPMultiNodeJob(t, NVIDIA, trainerutils.DefaultClusterTrainingRuntimeCUDA, "resources/requirements-cuda.txt", 2, 2)
+	runPyTorchDDPMultiNodeJob(t, NVIDIA, trainerutils.DefaultClusterTrainingRuntime, "resources/requirements-cuda.txt", 2, 2)
 }
 
 func TestPyTorchDDPSingleNodeSingleGPUWithTorchRocm(t *testing.T) {
