@@ -152,10 +152,10 @@ func TestRhaiS3CheckpointingCPU(t *testing.T) {
 	sdktests.RunRhaiS3CheckpointTest(t, support.CPU, 1)
 }
 
-// FSDP Full State Checkpoint tests (CPU only, auto-skip if S3 not configured)
-func TestRhaiS3FsdpFullStateCheckpointingCPU(t *testing.T) {
-	Tags(t, Tier1)
-	sdktests.RunRhaiS3FsdpFullStateTest(t, support.CPU, 1)
+// FSDP Full State Checkpoint tests (GPU required, auto-skip if S3 not configured)
+func TestRhaiS3FsdpFullStateCheckpointingCuda(t *testing.T) {
+	Tags(t, KftoCuda, Gpu(support.NVIDIA))
+	sdktests.RunRhaiS3FsdpFullStateTest(t, support.NVIDIA, 1)
 }
 
 // FSDP Full State Checkpoint tests (2 nodes, 2 processes per node)
