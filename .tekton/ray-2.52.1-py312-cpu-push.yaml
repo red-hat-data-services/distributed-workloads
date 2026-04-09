@@ -24,8 +24,9 @@ spec:
       value: "{{revision}}"
     - name: output-image
       value: quay.io/modh/ray:2.52.1-py312-cpu
-    - name: additional-tag
-      value: 2.52.1-py312-cpu-{{revision}}
+    - name: additional-tags
+      value:
+        - 2.52.1-py312-cpu-{{revision}}
     - name: dockerfile
       value: Dockerfile
     - name: path-context
@@ -38,9 +39,10 @@ spec:
       Builds a linux/ppc64le image via buildah-remote (multi-platform controller), merges manifests with
       build-image-index, then apply-tags. Clone and prefetch provide OCI trusted artifacts for the build.
     params:
-      - name: additional-tag
-        type: string
-        description: Additional fixed tag for the image
+      - name: additional-tags
+        type: array
+        default: []
+        description: Additional tags to push for build image
       - description: Source Repository URL
         name: git-url
         type: string
@@ -267,11 +269,13 @@ spec:
               - "true"
       - name: apply-tags
         params:
-          - name: IMAGE
+          - name: IMAGE_URL
             value: $(tasks.build-image-index.results.IMAGE_URL)
+          - name: IMAGE_DIGEST
+            value: $(tasks.build-image-index.results.IMAGE_DIGEST)
           - name: ADDITIONAL_TAGS
             value:
-              - "$(params.additional-tag)"
+              - $(params.additional-tags[*])
         runAfter:
           - build-image-index
         taskRef:
@@ -279,7 +283,7 @@ spec:
             - name: name
               value: apply-tags
             - name: bundle
-              value: quay.io/konflux-ci/tekton-catalog/task-apply-tags:0.1@sha256:e6beb161ed59d7be26317da03e172137b31b26648d3e139558e9a457bc56caff
+              value: quay.io/konflux-ci/tekton-catalog/task-apply-tags:0.2@sha256:8d40376257a36842f7b7eedaf4f56ca3fb40582f01b9bfe3b56e19fcc1d7c9ee
             - name: kind
               value: task
           resolver: bundles
