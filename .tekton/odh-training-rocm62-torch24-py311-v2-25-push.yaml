@@ -1,6 +1,6 @@
 apiVersion: tekton.dev/v1
 kind: PipelineRun
-# konflux build manual retrigger - 2026-04-15 14:16:12
+# konflux build manual retrigger - 2026-04-25 08:13:22
 metadata:
   annotations:
     build.appstudio.openshift.io/repo: https://github.com/red-hat-data-services/distributed-workloads?rev={{revision}}
@@ -31,7 +31,7 @@ spec:
     value:
     - '{{target_branch}}-{{revision}}'
   - name: rhoai-version
-    value: "2.25.5"
+    value: "2.25.6"
   - name: output-image
     value: quay.io/rhoai/odh-training-rocm62-torch24-py311-rhel9:{{target_branch}}
   - name: dockerfile
@@ -47,23 +47,6 @@ spec:
   - name: build-platforms
     value:
     - linux-extra-fast/amd64
-  taskRunSpecs:
-    - pipelineTaskName: build-images
-      computeResources:
-        requests:
-          cpu: '8'
-          memory: 16Gi
-        limits:
-          cpu: '16'
-          memory: 32Gi
-    - pipelineTaskName: clair-scan
-      computeResources:
-        requests:
-          cpu: '8'
-          memory: 32Gi
-        limits:
-          cpu: '8'
-          memory: 32Gi
   pipelineRef:
     resolver: git
     params:
