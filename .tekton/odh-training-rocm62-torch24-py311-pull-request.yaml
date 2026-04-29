@@ -46,7 +46,7 @@ spec:
     value: true
   - name: build-platforms
     value:
-    - linux-extra-fast/amd64
+    - linux-d160-m4xlarge/amd64
   - name: image-expires-after
     value: 5d
   - name: enable-slack-failure-notification
@@ -55,11 +55,11 @@ spec:
     - pipelineTaskName: build-images
       computeResources:
         requests:
-          cpu: '8'
-          memory: 16Gi
-        limits:
           cpu: '16'
           memory: 32Gi
+        limits:
+          cpu: '32'
+          memory: 64Gi
     - pipelineTaskName: clair-scan
       computeResources:
         requests:
