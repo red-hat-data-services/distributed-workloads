@@ -13,7 +13,7 @@
 ################################################################################
 # Build Arguments
 ################################################################################
-ARG BASE_IMAGE=quay.io/rhoai/odh-workbench-jupyter-minimal-cuda-py312-rhel9@sha256:d87912c4e9aa207325a8f19e26fddf123c2706812aafb98dfcb6c75b54ac7b8f
+ARG BASE_IMAGE=quay.io/opendatahub/odh-workbench-jupyter-minimal-cuda-py312-ubi9:3.4-v1.43
 ARG PYTHON_VERSION=3.12
 ARG DOWNSTREAM=false
 
@@ -26,21 +26,17 @@ USER 0
 WORKDIR /tmp/deps
 
 # Copy requirements files
-COPY --chown=1001:0 pyproject.toml requirements.txt requirements-ga.txt ./
+COPY --chown=1001:0 pyproject.toml requirements.txt ./
 
 # Switch to user 1001 for pip installations
 USER 1001
 WORKDIR /opt/app-root/src
 
-# Install dependencies from cachi2 prefetched packages
-# cachi2.env sets PIP_FIND_LINKS and PIP_NO_INDEX, but uv ignores PIP_* vars,
-# so we pass them explicitly as CLI flags
-RUN . /cachi2/cachi2.env && uv pip install --no-cache-dir \
-    --no-index --find-links "${PIP_FIND_LINKS}" \
-    -r /tmp/deps/requirements.txt \
- && . /cachi2/cachi2.env && uv pip install --no-cache-dir \
-    --no-index --find-links "${PIP_FIND_LINKS}" \
-    -r /tmp/deps/requirements-ga.txt
+# Install dependencies from AIPCC GA index
+RUN uv pip install --no-cache-dir \
+    --index-strategy=unsafe-best-match \
+    --index-url=https://console.redhat.com/api/pypi/public-rhai/rhoai/3.4/cuda13.0-ubi9/simple/ \
+    -r /tmp/deps/requirements.txt
 
 # Fix permissions for OpenShift
 ARG PYTHON_VERSION
@@ -56,9 +52,9 @@ RUN rm -rf /tmp/deps
 ################################################################################
 FROM ${BASE_IMAGE} AS final
 
-LABEL name="universal:th06-cuda130-py312-torch291" \
-      summary="TH06 CUDA 13.0 Python 3.12 image with PyTorch 2.9.1" \
-      description="Universal image combining minimal Jupyter workbench and runtime ML stack (CUDA 13.0, PyTorch 2.9.1, FlashAttention 2.8.3) on UBI9" \
+LABEL name="universal:th06-cuda130-py312-torch210" \
+      summary="TH06 CUDA 13.0 Python 3.12 image with PyTorch 2.10.0" \
+      description="Universal image combining minimal Jupyter workbench and runtime ML stack (CUDA 13.0, PyTorch 2.10.0, FlashAttention 2.8.3) on UBI9" \
       io.k8s.display-name="TH06 CUDA 13.0 Python 3.12 (Workbench + Runtime)" \
       io.k8s.description="Universal image: Jupyter workbench by default; runtime when command provided."
 
@@ -90,7 +86,7 @@ ENV NVIDIA_VISIBLE_DEVICES=all \
 
 # System packages (MIDSTREAM ONLY - skipped when DOWNSTREAM=true)
 # Repo files for CUDA and RDMA packages
-# COPY cuda.repo mellanox.repo /etc/yum.repos.d/
+COPY cuda.repo mellanox.repo /etc/yum.repos.d/
 
 RUN if [ "${DOWNSTREAM}" != "true" ]; then \
     echo "MIDSTREAM BUILD: Installing system packages..." && \
@@ -104,6 +100,7 @@ RUN if [ "${DOWNSTREAM}" != "true" ]; then \
         librdmacm \
         librdmacm-utils \
         rdma-core \
+        protobuf \
         cuda-cudart-devel-13-0 \
         cuda-nvcc-13-0 && \
     dnf clean all && rm -rf /var/cache/dnf/*; \
