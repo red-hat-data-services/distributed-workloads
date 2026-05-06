@@ -62,7 +62,9 @@ RUN mkdir -p /home/mpiuser /home/mpiuser/.openmpi && \
 WORKDIR /opt/app-root/bin
 COPY requirements.txt ./
 
-RUN uv pip install --no-cache \
+RUN . /cachi2/cachi2.env && \
+    uv pip install --no-cache \
+        --no-index --find-links "${PIP_FIND_LINKS}" \
         --python /opt/app-root/bin/python3.12 \
         -r requirements.txt && \
     rm -f ./requirements.txt && \
