@@ -12,7 +12,7 @@
 ################################################################################
 # Build Arguments
 ################################################################################
-ARG BASE_IMAGE=registry.redhat.io/rhoai/odh-workbench-jupyter-minimal-rocm-py312-rhel9:v3.4.0-1777507213
+ARG BASE_IMAGE=registry.redhat.io/rhoai/odh-workbench-jupyter-minimal-rocm-py312-rhel9@sha256:496b9ff80594d486f594bba69652c3ae4445265b94a44995b25f5ebd1e5767b3
 ARG PYTHON_VERSION=3.12
 ARG DOWNSTREAM=false
 
