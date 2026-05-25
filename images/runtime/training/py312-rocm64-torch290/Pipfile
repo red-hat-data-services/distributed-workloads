@@ -41,6 +41,7 @@ huggingface-hub = "==0.35.3"
 hf-xet = "==1.2.0"
 trl = "==0.24.0"
 training-hub = {version = "==0.5.0", extras = ["lora"]}
+urllib3 = ">=2.7.0"
 
 [dev-packages]
 
