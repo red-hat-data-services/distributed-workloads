@@ -39,6 +39,7 @@ hf-xet = "==1.1.8"
 huggingface-hub = "==0.34.4"
 psutil = "==7.0.0"
 wheel = ">=0.46.2"
+urllib3 = ">=2.7.0"
 
 [dev-packages]
 
