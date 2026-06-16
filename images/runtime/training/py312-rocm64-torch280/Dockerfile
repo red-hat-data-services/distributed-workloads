@@ -50,6 +50,9 @@ RUN dnf install -y cmake rocm-developer-tools rocm-ml-sdk rocm-openmp-sdk rocm-u
 
 # Install Python packages
 
+# Upgrade pip to fix CVE-2026-8643 (path traversal via malicious wheel entry point)
+RUN pip install --no-cache-dir --upgrade "pip>=26.1.2"
+
 # Install micropipenv to deploy packages from Pipfile.lock
 RUN pip install --no-cache-dir -U "micropipenv[toml]"
 
