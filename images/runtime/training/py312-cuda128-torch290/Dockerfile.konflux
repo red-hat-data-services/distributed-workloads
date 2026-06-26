@@ -16,6 +16,8 @@ USER 0
 WORKDIR /app
 
 # upgrade requests package
+RUN pip install --no-cache-dir --upgrade "pip>=26.1.2"
+
 RUN pip install --no-cache-dir --upgrade requests==2.32.3
 
 # Install CUDA
