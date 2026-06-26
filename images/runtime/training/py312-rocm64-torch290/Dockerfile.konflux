@@ -75,6 +75,8 @@ RUN dnf install -y --setopt=install_weak_deps=False \
 # Install Python packages
 
 # Install micropipenv to deploy packages from Pipfile.lock
+RUN pip install --no-cache-dir --upgrade "pip>=26.1.2"
+
 RUN pip install --no-cache-dir -U "micropipenv[toml]"
 
 # Install Python dependencies from Pipfile.lock file

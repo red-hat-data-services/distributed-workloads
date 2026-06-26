@@ -126,6 +126,8 @@ COPY LICENSE.md /licenses/rocm-license.md
 # Copy entrypoint
 COPY --chmod=0755 entrypoint-universal.sh /usr/local/bin/entrypoint-universal.sh
 
+RUN . /cachi2/cachi2.env && pip install --no-cache-dir --no-index --find-links "${PIP_FIND_LINKS}" --upgrade "pip>=26.1.2"
+
 # Fix permissions for OpenShift (final stage)
 RUN fix-permissions /opt/app-root -P \
  && chmod -R g+w /opt/app-root/lib/python${PYTHON_VERSION}/site-packages
