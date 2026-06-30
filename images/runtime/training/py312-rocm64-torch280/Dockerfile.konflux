@@ -46,6 +46,17 @@ RUN pip install --no-cache-dir -U "micropipenv[toml]"
 # Install Python dependencies from Pipfile.lock file
 COPY Pipfile.lock ./
 
+# Keep downstream scope to konflux by removing flash-attn from lockfile at build-time.
+RUN python - <<'PY'
+import json
+from pathlib import Path
+
+lock_path = Path("Pipfile.lock")
+lock_data = json.loads(lock_path.read_text())
+lock_data.get("default", {}).pop("flash-attn", None)
+lock_path.write_text(json.dumps(lock_data, indent=4) + "\n")
+PY
+
 RUN PIP_NO_BUILD_ISOLATION=1 micropipenv install -- --no-cache-dir && \
     rm -f ./Pipfile.lock && \
     # Fix permissions to support pip in OpenShift environments \
@@ -66,6 +77,10 @@ RUN export TMP_DIR=$(mktemp -d) \
 
 # Reapply write permissions on site‑packages
 RUN chmod -R g+w /opt/app-root/lib/python3.12/site-packages && \
+    fix-permissions /opt/app-root -P
+
+# Install flash-attn after torch is available in the active environment.
+RUN pip install --no-build-isolation --no-cache-dir --no-deps flash-attn==2.8.3 && \
     fix-permissions /opt/app-root -P
 
 # Restore user workspace
