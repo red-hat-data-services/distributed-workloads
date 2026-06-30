@@ -68,6 +68,10 @@ RUN export TMP_DIR=$(mktemp -d) \
 RUN chmod -R g+w /opt/app-root/lib/python3.12/site-packages && \
     fix-permissions /opt/app-root -P
 
+# Install flash-attn after torch is available in the active environment.
+RUN pip install --no-build-isolation --no-cache-dir --no-deps flash-attn==2.8.3 && \
+    fix-permissions /opt/app-root -P
+
 # Restore user workspace
 USER 1001
 
