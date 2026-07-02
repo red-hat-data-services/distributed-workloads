@@ -63,6 +63,7 @@ dependencies = [
     "deepspeed>=0.18.4",
     
     # Networking
+    "aiohttp~=3.14.0",
     "async-timeout==5.0.1",
     
     # HuggingFace
