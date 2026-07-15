@@ -17,6 +17,8 @@ limitations under the License.
 package trainer
 
 import (
+	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -38,11 +40,15 @@ import (
 )
 
 var (
-	upgradeNamespaceName = "test-trainer-upgrade"
-	resourceFlavorName   = "rf-trainer-upgrade"
-	clusterQueueName     = "cq-trainer-upgrade"
-	localQueueName       = "lq-trainer-upgrade"
-	upgradeTrainJobName  = "trainjob-upgrade"
+	upgradeNamespaceName   = "test-trainer-upgrade"
+	resourceFlavorName     = "rf-trainer-upgrade"
+	clusterQueueName       = "cq-trainer-upgrade"
+	localQueueName         = "lq-trainer-upgrade"
+	upgradeTrainJobName    = "trainjob-upgrade"
+	upgradeConfigMapName   = "default-runtime-upgrade-baseline"
+	upgradeTrainJobGenKey  = "trainjob-generation"
+	upgradeTrainJobSpecKey = "trainjob-spec"
+	rhoaiVersionKey        = "rhoai-version"
 
 	// Specific runtime upgrade test variables
 	specificRuntimeNamespaceName  = "test-trainer-upgrade-specific"
@@ -52,6 +58,10 @@ var (
 	specificRuntimeTrainJobName   = "trainjob-upgrade-specific"
 	specificRuntimeConfigMapName  = "specific-runtime-upgrade"
 	specificRuntimeConfigMapKey   = "runtime-name"
+	specificRuntimeGenerationKey  = "runtime-generation"
+	specificRuntimeSpecKey        = "runtime-spec"
+	specificTrainJobGenerationKey = "trainjob-generation"
+	specificTrainJobSpecKey       = "trainjob-spec"
 
 	// Custom runtime upgrade test variables
 	customRuntimeNamespaceName  = "test-trainer-upgrade-custom-rt"
@@ -60,6 +70,11 @@ var (
 	customRuntimeLocalQueue     = "lq-trainer-upgrade-custom-rt"
 	customRuntimeTrainJobName   = "trainjob-upgrade-custom-rt"
 	customRuntimeCTRName        = "custom-upgrade-runtime"
+	customRuntimeConfigMapName  = "custom-runtime-upgrade-baseline"
+	customRuntimeGenerationKey  = "ctr-generation"
+	customRuntimeSpecKey        = "ctr-spec"
+	customTrainJobGenerationKey = "trainjob-generation"
+	customTrainJobSpecKey       = "trainjob-spec"
 )
 
 func TestSetupUpgradeTrainJob(t *testing.T) {
@@ -129,6 +144,13 @@ func TestSetupUpgradeTrainJob(t *testing.T) {
 	test.Eventually(TrainJob(test, trainJob.Namespace, upgradeTrainJobName), TestTimeoutShort).
 		Should(WithTransform(TrainJobConditionSuspended, Equal(metav1.ConditionTrue)))
 	test.T().Logf("TrainJob %s/%s is suspended, waiting for ClusterQueue to be enabled after upgrade", trainJob.Namespace, upgradeTrainJobName)
+
+	// Store TrainJob baseline for post-upgrade integrity check
+	trainJob, err = test.Client().Trainer().TrainerV1alpha1().TrainJobs(upgradeNamespaceName).Get(test.Ctx(), upgradeTrainJobName, metav1.GetOptions{})
+	test.Expect(err).NotTo(HaveOccurred())
+	data := map[string]string{}
+	addResourceBaseline(test, data, upgradeTrainJobGenKey, upgradeTrainJobSpecKey, trainJob.Generation, trainJob.Spec)
+	storeUpgradeBaseline(test, upgradeNamespaceName, upgradeConfigMapName, data)
 }
 
 func TestRunUpgradeTrainJob(t *testing.T) {
@@ -185,8 +207,11 @@ func TestSetupSpecificRuntimeUpgradeTrainJob(t *testing.T) {
 	CreateOrGetTestNamespaceWithName(test, specificRuntimeNamespaceName, WithKueueManaged())
 	test.T().Logf("Created Kueue-managed namespace: %s", specificRuntimeNamespaceName)
 
-	// Store the runtime name in ConfigMap for post-upgrade verification
-	storeSpecificRuntimeInConfigMap(test, specificRuntime)
+	// Store the runtime baseline in ConfigMap for post-upgrade verification
+	ctr, err := test.Client().Trainer().TrainerV1alpha1().ClusterTrainingRuntimes().Get(test.Ctx(), specificRuntime, metav1.GetOptions{})
+	test.Expect(err).NotTo(HaveOccurred())
+	baselineData := map[string]string{specificRuntimeConfigMapKey: specificRuntime}
+	addResourceBaseline(test, baselineData, specificRuntimeGenerationKey, specificRuntimeSpecKey, ctr.Generation, ctr.Spec)
 
 	// Create Kueue resources with StopPolicy=Hold
 	resourceFlavor := kueueacv1beta1.ResourceFlavor(specificRuntimeResourceFlavor)
@@ -244,6 +269,12 @@ func TestSetupSpecificRuntimeUpgradeTrainJob(t *testing.T) {
 	test.Eventually(TrainJob(test, trainJob.Namespace, specificRuntimeTrainJobName), TestTimeoutShort).
 		Should(WithTransform(TrainJobConditionSuspended, Equal(metav1.ConditionTrue)))
 	test.T().Logf("TrainJob %s/%s using runtime %s is suspended, waiting for upgrade", trainJob.Namespace, specificRuntimeTrainJobName, specificRuntime)
+
+	// Store TrainJob baseline and persist ConfigMap
+	trainJob, err = test.Client().Trainer().TrainerV1alpha1().TrainJobs(specificRuntimeNamespaceName).Get(test.Ctx(), specificRuntimeTrainJobName, metav1.GetOptions{})
+	test.Expect(err).NotTo(HaveOccurred())
+	addResourceBaseline(test, baselineData, specificTrainJobGenerationKey, specificTrainJobSpecKey, trainJob.Generation, trainJob.Spec)
+	storeUpgradeBaseline(test, specificRuntimeNamespaceName, specificRuntimeConfigMapName, baselineData)
 }
 
 // TestRunSpecificRuntimeUpgradeTrainJob verifies that a TrainJob using a specific cluster training runtime
@@ -368,8 +399,8 @@ func TestSetupCustomRuntimeUpgradeTrainJob(t *testing.T) {
 	test.Expect(err).NotTo(HaveOccurred())
 	test.T().Logf("Applied Kueue LocalQueue %s/%s successfully", appliedLocalQueue.Namespace, appliedLocalQueue.Name)
 
-	// Create TrainJob using the custom CTR
-	trainJob := createUpgradeTrainJob(test, customRuntimeNamespaceName, appliedLocalQueue.Name, customRuntimeTrainJobName, customRuntimeCTRName)
+	// Create TrainJob using the custom CTR with PodTemplateOverrides to exercise API surface coverage
+	trainJob := createCustomRuntimeUpgradeTrainJob(test, customRuntimeNamespaceName, appliedLocalQueue.Name)
 
 	// Verify Kueue Workload is Inadmissible
 	var workloadName string
@@ -388,6 +419,17 @@ func TestSetupCustomRuntimeUpgradeTrainJob(t *testing.T) {
 	test.Eventually(TrainJob(test, trainJob.Namespace, customRuntimeTrainJobName), TestTimeoutShort).
 		Should(WithTransform(TrainJobConditionSuspended, Equal(metav1.ConditionTrue)))
 	test.T().Logf("TrainJob %s/%s using custom runtime %s is suspended, waiting for upgrade", trainJob.Namespace, customRuntimeTrainJobName, customRuntimeCTRName)
+
+	// Store baselines for post-upgrade integrity check
+	ctr, err := test.Client().Trainer().TrainerV1alpha1().ClusterTrainingRuntimes().Get(test.Ctx(), customRuntimeCTRName, metav1.GetOptions{})
+	test.Expect(err).NotTo(HaveOccurred())
+	trainJob, err = test.Client().Trainer().TrainerV1alpha1().TrainJobs(customRuntimeNamespaceName).Get(test.Ctx(), customRuntimeTrainJobName, metav1.GetOptions{})
+	test.Expect(err).NotTo(HaveOccurred())
+
+	data := map[string]string{}
+	addResourceBaseline(test, data, customRuntimeGenerationKey, customRuntimeSpecKey, ctr.Generation, ctr.Spec)
+	addResourceBaseline(test, data, customTrainJobGenerationKey, customTrainJobSpecKey, trainJob.Generation, trainJob.Spec)
+	storeUpgradeBaseline(test, customRuntimeNamespaceName, customRuntimeConfigMapName, data)
 }
 
 func TestRunCustomRuntimeUpgradeTrainJob(t *testing.T) {
@@ -473,6 +515,65 @@ func createUpgradeTrainJob(test Test, namespace, localQueueName, jobName, runtim
 	return trainJob
 }
 
+func createCustomRuntimeUpgradeTrainJob(test Test, namespace, localQueueName string) *trainerv1alpha1.TrainJob {
+	_, err := test.Client().Trainer().TrainerV1alpha1().TrainJobs(namespace).Get(test.Ctx(), customRuntimeTrainJobName, metav1.GetOptions{})
+	if err == nil {
+		err := test.Client().Trainer().TrainerV1alpha1().TrainJobs(namespace).Delete(test.Ctx(), customRuntimeTrainJobName, metav1.DeleteOptions{})
+		test.Expect(err).NotTo(HaveOccurred())
+		test.Eventually(TrainJobs(test, namespace), TestTimeoutShort).Should(BeEmpty())
+	} else if !errors.IsNotFound(err) {
+		test.T().Fatalf("Error retrieving TrainJob with name `%s`: %v", customRuntimeTrainJobName, err)
+	}
+
+	trainJob := &trainerv1alpha1.TrainJob{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: customRuntimeTrainJobName,
+			Labels: map[string]string{
+				"kueue.x-k8s.io/queue-name": localQueueName,
+			},
+		},
+		Spec: trainerv1alpha1.TrainJobSpec{
+			RuntimeRef: trainerv1alpha1.RuntimeRef{
+				Name: customRuntimeCTRName,
+			},
+			Trainer: &trainerv1alpha1.Trainer{
+				Command: []string{
+					"python",
+					"-c",
+					"import torch; print(f'PyTorch version: {torch.__version__}'); import time; time.sleep(5); print('Training completed successfully')",
+				},
+			},
+			PodTemplateOverrides: []trainerv1alpha1.PodTemplateOverride{
+				{
+					TargetJobs: []trainerv1alpha1.PodTemplateOverrideTargetJob{
+						{Name: "node"},
+					},
+					Metadata: &metav1.ObjectMeta{
+						Labels: map[string]string{
+							"upgrade-test": "custom-runtime",
+						},
+					},
+					Spec: &trainerv1alpha1.PodTemplateSpecOverride{
+						Tolerations: []corev1.Toleration{
+							{
+								Key:      "upgrade-test",
+								Operator: corev1.TolerationOpExists,
+								Effect:   corev1.TaintEffectNoSchedule,
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	trainJob, err = test.Client().Trainer().TrainerV1alpha1().TrainJobs(namespace).Create(test.Ctx(), trainJob, metav1.CreateOptions{})
+	test.Expect(err).NotTo(HaveOccurred())
+	test.T().Logf("Created TrainJob %s/%s with runtime %s and PodTemplateOverrides", trainJob.Namespace, trainJob.Name, customRuntimeCTRName)
+
+	return trainJob
+}
+
 func findSpecificRuntime(test Test) string {
 	runtimes, err := test.Client().Trainer().TrainerV1alpha1().ClusterTrainingRuntimes().List(test.Ctx(), metav1.ListOptions{})
 	test.Expect(err).NotTo(HaveOccurred(), "Failed to list ClusterTrainingRuntimes")
@@ -494,24 +595,26 @@ func findSpecificRuntime(test Test) string {
 	return specificRuntimes[0]
 }
 
-// storeSpecificRuntimeInConfigMap stores the specific runtime name for post-upgrade verification
-func storeSpecificRuntimeInConfigMap(test Test, runtimeName string) {
+func addResourceBaseline(test Test, data map[string]string, genKey, specKey string, generation int64, spec interface{}) {
+	specJSON, err := json.Marshal(spec)
+	test.Expect(err).NotTo(HaveOccurred())
+	data[genKey] = fmt.Sprintf("%d", generation)
+	data[specKey] = string(specJSON)
+}
+
+func storeUpgradeBaseline(test Test, namespace, configMapName string, data map[string]string) {
+	data[rhoaiVersionKey] = GetRHOAIVersionFromDSCI(test)
 	configMap := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      specificRuntimeConfigMapName,
-			Namespace: specificRuntimeNamespaceName,
+			Name:      configMapName,
+			Namespace: namespace,
 		},
-		Data: map[string]string{
-			specificRuntimeConfigMapKey: runtimeName,
-		},
+		Data: data,
 	}
-
-	// Delete existing ConfigMap if present
-	_ = test.Client().Core().CoreV1().ConfigMaps(specificRuntimeNamespaceName).Delete(test.Ctx(), specificRuntimeConfigMapName, metav1.DeleteOptions{})
-
-	_, err := test.Client().Core().CoreV1().ConfigMaps(specificRuntimeNamespaceName).Create(test.Ctx(), configMap, metav1.CreateOptions{})
-	test.Expect(err).NotTo(HaveOccurred(), "Failed to create ConfigMap for specific runtime")
-	test.T().Logf("Stored specific runtime name in ConfigMap %s/%s: %s", specificRuntimeNamespaceName, specificRuntimeConfigMapName, runtimeName)
+	_ = test.Client().Core().CoreV1().ConfigMaps(namespace).Delete(test.Ctx(), configMapName, metav1.DeleteOptions{})
+	_, err := test.Client().Core().CoreV1().ConfigMaps(namespace).Create(test.Ctx(), configMap, metav1.CreateOptions{})
+	test.Expect(err).NotTo(HaveOccurred())
+	test.T().Logf("Stored upgrade baseline in ConfigMap %s/%s", namespace, configMapName)
 }
 
 // getSpecificRuntimeFromConfigMap retrieves the specific runtime name from ConfigMap

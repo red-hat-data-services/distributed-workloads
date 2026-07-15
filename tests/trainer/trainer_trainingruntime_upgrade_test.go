@@ -35,6 +35,9 @@ import (
 var (
 	runtimeNamespaceName = "test-trainer-upgrade-runtime"
 	customRuntimeName    = "custom-sleep-runtime"
+	runtimeConfigMapName = "runtime-upgrade-baseline"
+	runtimeGenerationKey = "runtime-generation"
+	runtimeSpecKey       = "runtime-spec"
 )
 
 func TestSetupTrainingRuntime(t *testing.T) {
@@ -53,6 +56,11 @@ func TestSetupTrainingRuntime(t *testing.T) {
 	test.Expect(err).NotTo(HaveOccurred())
 	test.Expect(runtime.Name).To(Equal(customRuntimeName))
 	test.T().Logf("Custom TrainingRuntime %s/%s created successfully", runtimeNamespaceName, customRuntimeName)
+
+	// Store baseline for post-upgrade verification
+	data := map[string]string{}
+	addResourceBaseline(test, data, runtimeGenerationKey, runtimeSpecKey, runtime.Generation, runtime.Spec)
+	storeUpgradeBaseline(test, runtimeNamespaceName, runtimeConfigMapName, data)
 }
 
 func TestVerifyTrainingRuntime(t *testing.T) {
