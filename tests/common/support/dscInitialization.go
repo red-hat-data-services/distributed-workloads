@@ -18,11 +18,14 @@ package support
 
 import (
 	"fmt"
+	"os"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
+
+const ApplicationsNamespaceEnvVar = "APPLICATIONS_NAMESPACE"
 
 const DefaultDSCIName = "default-dsci"
 
@@ -34,6 +37,32 @@ var DsciGVR = schema.GroupVersionResource{
 
 func GetDSCI(test Test, name string) (*unstructured.Unstructured, error) {
 	return test.Client().Dynamic().Resource(DsciGVR).Get(test.Ctx(), name, metav1.GetOptions{})
+}
+
+func GetApplicationsNamespace(test Test) (string, error) {
+	if ns := os.Getenv(ApplicationsNamespaceEnvVar); ns != "" {
+		test.T().Logf("Using applications namespace from env var %s: %s", ApplicationsNamespaceEnvVar, ns)
+		return ns, nil
+	}
+	return GetApplicationsNamespaceFromDSCI(test, DefaultDSCIName)
+}
+
+func GetRHOAIVersionFromDSCI(test Test) string {
+	dsci, err := GetDSCI(test, DefaultDSCIName)
+	if err != nil {
+		test.T().Logf("Failed to get DSCI for version: %v", err)
+		return ""
+	}
+	version, found, err := unstructured.NestedString(dsci.Object, "status", "release", "version")
+	if err != nil {
+		test.T().Logf("Failed to read status.release.version from DSCI %s: %v", DefaultDSCIName, err)
+		return ""
+	}
+	if !found {
+		test.T().Logf("DSCI %s is missing status.release.version", DefaultDSCIName)
+		return ""
+	}
+	return version
 }
 
 func GetApplicationsNamespaceFromDSCI(test Test, dsciName string) (string, error) {
