@@ -139,7 +139,7 @@ fsspec==2025.9.0
     #   training-hub
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.46
+gitpython==3.1.50
     # via mlflow-skinny
 google-auth==2.49.2
     # via databricks-sdk
@@ -351,7 +351,7 @@ peft==0.18.1
     #   th06-cpu-universal-image (pyproject.toml)
     #   instructlab-training
     #   training-hub
-pillow==12.2.0
+pillow==12.3.0
     # via
     #   matplotlib
     #   tensorboard
