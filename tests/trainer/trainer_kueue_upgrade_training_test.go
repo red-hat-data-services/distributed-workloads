@@ -322,7 +322,7 @@ func TestSetupCustomRuntimeUpgradeTrainJob(t *testing.T) {
 	SetupKueue(test, initialKueueState, TrainJobFramework)
 
 	// Get image from the default CUDA runtime to use in our custom CTR
-	image, err := trainerutils.GetImageFromClusterTrainingRuntime(test, trainerutils.DefaultClusterTrainingRuntimeCUDA)
+	image, err := trainerutils.GetImageFromClusterTrainingRuntime(test, trainerutils.DefaultClusterTrainingRuntime)
 	test.Expect(err).NotTo(HaveOccurred())
 
 	// Create custom ClusterTrainingRuntime
