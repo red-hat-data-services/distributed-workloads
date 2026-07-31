@@ -16,6 +16,15 @@ limitations under the License.
 
 package trainer
 
+import (
+	"errors"
+	"fmt"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/opendatahub-io/distributed-workloads/tests/common/support"
+)
+
 // ClusterTrainingRuntime represents a ClusterTrainingRuntime with its expected RHOAI image
 type ClusterTrainingRuntime struct {
 	Name       string
@@ -46,6 +55,25 @@ func IsDefaultRuntime(name string) bool {
 		}
 	}
 	return false
+}
+
+func GetImageFromClusterTrainingRuntime(test support.Test, runtimeName string) (string, error) {
+	runtime, err := test.Client().Trainer().TrainerV1alpha1().ClusterTrainingRuntimes().Get(
+		test.Ctx(),
+		runtimeName,
+		metav1.GetOptions{},
+	)
+	if err != nil {
+		return "", fmt.Errorf("failed to get ClusterTrainingRuntime %q: %w", runtimeName, err)
+	}
+	for _, replicatedJob := range runtime.Spec.Template.Spec.ReplicatedJobs {
+		for _, container := range replicatedJob.Template.Spec.Template.Spec.Containers {
+			if container.Image != "" {
+				return container.Image, nil
+			}
+		}
+	}
+	return "", errors.New("no container image found in ClusterTrainingRuntime " + runtimeName)
 }
 
 // ExpectedRuntimes is the list of expected ClusterTrainingRuntimes on the cluster
