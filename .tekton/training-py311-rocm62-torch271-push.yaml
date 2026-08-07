@@ -10,13 +10,13 @@ metadata:
     pipelinesascode.tekton.dev/on-cel-expression: |
       event == "push" 
       && target_branch == "main" 
-      && ( "images/runtime/training/py311-rocm62-torch251/**".pathChanged() || ".tekton/training-py311-rocm62-torch251-push.yaml".pathChanged() )
+      && ( "images/runtime/training/py311-rocm62-torch271/**".pathChanged() || ".tekton/training-py311-rocm62-torch271-push.yaml".pathChanged() )
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: runtime-training
-    appstudio.openshift.io/component: training-py311-rocm62-torch251
+    appstudio.openshift.io/component: training-py311-rocm62-torch271
     pipelines.appstudio.openshift.io/type: build
-  name: training-py311-rocm62-torch251-on-push
+  name: training-py311-rocm62-torch271-on-push
   namespace: rhoai-tenant
 spec:
   timeouts:
@@ -27,16 +27,16 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/modh/training:py311-rocm62-torch251
+    value: quay.io/modh/training:py311-rocm62-torch271
   - name: additional-tag
-    value: py311-rocm62-torch251-{{revision}}
+    value: py311-rocm62-torch271-{{revision}}
   - name: build-platforms
     value:
     - linux-extra-fast/amd64
   - name: dockerfile
     value: Dockerfile
   - name: path-context
-    value: images/runtime/training/py311-rocm62-torch251
+    value: images/runtime/training/py311-rocm62-torch271
   pipelineSpec:
     description: |
       This pipeline is ideal for building multi-arch container images from a Containerfile while maintaining trust after pipeline customization.
