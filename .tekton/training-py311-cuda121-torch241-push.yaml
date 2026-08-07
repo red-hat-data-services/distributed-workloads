@@ -7,10 +7,9 @@ metadata:
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/cancel-in-progress: "false"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: |
-      event == "push" 
-      && target_branch == "main" 
-      && ( "images/runtime/training/py311-cuda121-torch241/**".pathChanged() || ".tekton/training-py311-cuda121-torch241-push.yaml".pathChanged() )
+    pipelinesascode.tekton.dev/on-cel-expression: "event == \"push\" \n&& target_branch
+      == \"main\" \n&& ( \"images/runtime/training/py311-cuda121-torch241/**\".pathChanged()
+      || \".tekton/training-py311-cuda121-torch241-push.yaml\".pathChanged() )\n"
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: runtime-training
@@ -32,22 +31,6 @@ spec:
     value: Dockerfile
   - name: path-context
     value: images/runtime/training/py311-cuda121-torch241
-  taskRunSpecs:
-    - pipelineTaskName: build-container
-      stepSpecs:
-        - name: build
-          computeResources:
-            requests:
-              memory: 10Gi
-            limits:
-              memory: 10Gi
-    - pipelineTaskName: prefetch-dependencies
-      computeResources:
-        requests:
-          cpu: '1'
-          memory: 2Gi
-        limits:
-          memory: 2Gi
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while maintaining trust after pipeline customization.
@@ -69,9 +52,9 @@ spec:
           value: task
         resolver: bundles
     params:
-    - name: additional-tag
+    - description: Additional fixed tag for the image
+      name: additional-tag
       type: string
-      description: Additional fixed tag for the image
     - description: Source Repository URL
       name: git-url
       type: string
@@ -555,7 +538,7 @@ spec:
         value: $(tasks.build-image-index.results.IMAGE_URL)
       - name: ADDITIONAL_TAGS
         value:
-          - "$(params.additional-tag)"
+        - $(params.additional-tag)
       runAfter:
       - build-image-index
       taskRef:
@@ -617,7 +600,24 @@ spec:
       optional: true
     - name: netrc
       optional: true
-  taskRunTemplate: {}
+  taskRunSpecs:
+  - pipelineTaskName: build-container
+    stepSpecs:
+    - computeResources:
+        limits:
+          memory: 10Gi
+        requests:
+          memory: 10Gi
+      name: build
+  - computeResources:
+      limits:
+        memory: 2Gi
+      requests:
+        cpu: "1"
+        memory: 2Gi
+    pipelineTaskName: prefetch-dependencies
+  taskRunTemplate:
+    serviceAccountName: build-pipeline-training-py311-cuda121-torch241
   workspaces:
   - name: git-auth
     secret:
