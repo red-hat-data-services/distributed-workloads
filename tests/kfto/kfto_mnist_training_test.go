@@ -81,30 +81,17 @@ func TestPyTorchJobMnistMultiNodeMultiGpuWithCudaPyTorch28(t *testing.T) {
 	runKFTOPyTorchMnistJob(test, NVIDIA, GetTrainingCudaPyTorch28Image(test), "resources/requirements.txt", 1, 2)
 }
 
-func TestPyTorchJobMnistMultiNodeSingleGpuWithROCmPyTorch241(t *testing.T) {
+func TestPyTorchJobMnistMultiNodeSingleGpuWithROCmPyTorch271(t *testing.T) {
 	Tags(t, KftoRocm)
 	test := With(t)
-	runKFTOPyTorchMnistJob(test, AMD, GetTrainingROCmPyTorch241Image(test), "resources/requirements-rocm.txt", 1, 1)
+	runKFTOPyTorchMnistJob(test, AMD, GetTrainingROCmPyTorch271Image(test), "resources/requirements-rocm.txt", 1, 1)
 }
 
-func TestPyTorchJobMnistMultiNodeSingleGpuWithROCmPyTorch251(t *testing.T) {
-	Tags(t, KftoRocm)
-	test := With(t)
-	runKFTOPyTorchMnistJob(test, AMD, GetTrainingROCmPyTorch251Image(test), "resources/requirements-rocm.txt", 1, 1)
-}
-
-func TestPyTorchJobMnistMultiNodeMultiGpuWithROCmPyTorch241(t *testing.T) {
-	t.Skip("RHOAIENG-76553: ROCm 6.2 + PyTorch 2.4.1 RCCL is unstable for multi-node multi-GPU, causes cross-node communication hangs")
-	Tags(t, KftoRocm)
-	test := With(t)
-	runKFTOPyTorchMnistJob(test, AMD, GetTrainingROCmPyTorch241Image(test), "resources/requirements-rocm.txt", 1, 2)
-}
-
-func TestPyTorchJobMnistMultiNodeMultiGpuWithROCmPyTorch251(t *testing.T) {
+func TestPyTorchJobMnistMultiNodeMultiGpuWithROCmPyTorch271(t *testing.T) {
 	t.Skip("RHOAIENG-76553: ROCm multi-node multi-GPU RCCL is unstable, causes cross-node communication hangs")
 	Tags(t, KftoRocm)
 	test := With(t)
-	runKFTOPyTorchMnistJob(test, AMD, GetTrainingROCmPyTorch251Image(test), "resources/requirements-rocm.txt", 1, 2)
+	runKFTOPyTorchMnistJob(test, AMD, GetTrainingROCmPyTorch271Image(test), "resources/requirements-rocm.txt", 1, 2)
 }
 
 func TestPyTorchJobMnistMultiNodeMultiGpuWithROCmPyTorch28(t *testing.T) {

@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [[source]]
-url = "https://download.pytorch.org/whl/"
+url = "https://download.pytorch.org/whl/rocm6.2.4"
 verify_ssl = true
 name = "pytorch"
 
@@ -15,8 +15,8 @@ liger-kernel = "==0.5.4"
 transformers = "~=5.5.0"
 numpy = "<2.0.0,>=1.23.5"
 accelerate = ">=1.6.0"
-torch = {version = "==2.5.1+rocm6.2", index = "pytorch"}
-pytorch-triton-rocm = {version = "*", index = "pytorch"}
+torch = {version = "==2.7.1+rocm6.2.4", index = "pytorch"}
+pytorch-triton-rocm = {version = "==3.3.1", index = "pytorch"}
 sentencepiece = "<0.3,>=0.2.1"
 tokenizers = "<1.0,>=0.13.3"
 tqdm = "<5.0,>=4.66.2"

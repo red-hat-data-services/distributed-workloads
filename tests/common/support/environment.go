@@ -30,8 +30,7 @@ const (
 	TestTrainingCudaPyTorch241Image = "TEST_TRAINING_CUDA_PYTORCH_241_IMAGE"
 	TestTrainingCudaPyTorch251Image = "TEST_TRAINING_CUDA_PYTORCH_251_IMAGE"
 	TestTrainingCudaPyTorch28Image  = "TEST_TRAINING_CUDA_PYTORCH_28_IMAGE"
-	TestTrainingRocmPyTorch241Image = "TEST_TRAINING_ROCM_PYTORCH_241_IMAGE"
-	TestTrainingRocmPyTorch251Image = "TEST_TRAINING_ROCM_PYTORCH_251_IMAGE"
+	TestTrainingRocmPyTorch271Image = "TEST_TRAINING_ROCM_PYTORCH_271_IMAGE"
 	TestTrainingRocmPyTorch28Image  = "TEST_TRAINING_ROCM_PYTORCH_28_IMAGE"
 
 	TestRayTrainingHubImage = "TEST_RAY_TRAINING_HUB_IMAGE"
@@ -120,12 +119,8 @@ func GetTrainingCudaPyTorch28Image(test Test) string {
 	return lookupTrainingImage(test, TestTrainingCudaPyTorch28Image, RelatedImageTrainingCudaPyTorch28, TrainingCudaPyTorch28Image)
 }
 
-func GetTrainingROCmPyTorch241Image(test Test) string {
-	return lookupTrainingImage(test, TestTrainingRocmPyTorch241Image, RelatedImageTrainingRocmPyTorch241, TrainingRocmPyTorch241Image)
-}
-
-func GetTrainingROCmPyTorch251Image(test Test) string {
-	return lookupTrainingImage(test, TestTrainingRocmPyTorch251Image, RelatedImageTrainingRocmPyTorch251, TrainingRocmPyTorch251Image)
+func GetTrainingROCmPyTorch271Image(test Test) string {
+	return lookupTrainingImage(test, TestTrainingRocmPyTorch271Image, RelatedImageTrainingRocmPyTorch271, TrainingRocmPyTorch271Image)
 }
 
 func GetTrainingRocmPyTorch28Image(test Test) string {

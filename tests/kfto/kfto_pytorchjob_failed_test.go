@@ -27,16 +27,10 @@ func TestPyTorchJobFailureWithCudaPyTorch251(t *testing.T) {
 	runFailedPyTorchJobTest(test, GetTrainingCudaPyTorch251Image(test))
 }
 
-func TestPyTorchJobFailureWithROCmPyTorch241(t *testing.T) {
+func TestPyTorchJobFailureWithROCmPyTorch271(t *testing.T) {
 	Tags(t, Tier2)
 	test := With(t)
-	runFailedPyTorchJobTest(test, GetTrainingROCmPyTorch241Image(test))
-}
-
-func TestPyTorchJobFailureWithROCmPyTorch251(t *testing.T) {
-	Tags(t, Tier2)
-	test := With(t)
-	runFailedPyTorchJobTest(test, GetTrainingROCmPyTorch251Image(test))
+	runFailedPyTorchJobTest(test, GetTrainingROCmPyTorch271Image(test))
 }
 
 func runFailedPyTorchJobTest(test Test, image string) {
