@@ -43,10 +43,10 @@ func TestKftoSftLlmLlama3_1_8BInstructWithCudaPyTorch251(t *testing.T) {
 	kftoSftLlm(test, GetTrainingCudaPyTorch251Image(test), NVIDIA, "meta-llama/Llama-3.1-8B-Instruct")
 }
 
-func TestKftoSftLlmLlama3_1_8BInstructWithROCmPyTorch251(t *testing.T) {
+func TestKftoSftLlmLlama3_1_8BInstructWithROCmPyTorch271(t *testing.T) {
 	Tags(t, ExamplesRocm)
 	test := With(t)
-	kftoSftLlm(test, GetTrainingROCmPyTorch251Image(test), AMD, "meta-llama/Llama-3.1-8B-Instruct")
+	kftoSftLlm(test, GetTrainingROCmPyTorch271Image(test), AMD, "meta-llama/Llama-3.1-8B-Instruct")
 }
 
 func kftoSftLlm(test Test, image string, gpu Accelerator, modelName string) {

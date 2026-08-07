@@ -25,8 +25,7 @@ const (
 	TrainingCudaPyTorch241Image = "quay.io/rhoai/odh-training-cuda121-torch24-py311-rhel9:rhoai-3.4"
 	TrainingCudaPyTorch251Image = "quay.io/rhoai/odh-training-cuda124-torch25-py311-rhel9:rhoai-3.4"
 	TrainingCudaPyTorch28Image  = "quay.io/rhoai/odh-training-cuda128-torch28-py312-rhel9:rhoai-3.4"
-	TrainingRocmPyTorch241Image = "quay.io/rhoai/odh-training-rocm62-torch24-py311-rhel9:rhoai-3.4"
-	TrainingRocmPyTorch251Image = "quay.io/rhoai/odh-training-rocm62-torch25-py311-rhel9:rhoai-3.4"
+	TrainingRocmPyTorch271Image = "quay.io/rhoai/odh-training-rocm62-torch27-py311-rhel9:rhoai-3.5"
 	TrainingRocmPyTorch28Image  = "quay.io/rhoai/odh-training-rocm64-torch28-py312-rhel9:rhoai-3.4"
 
 	// quay.io/modh/ray:2.55.1-py312-cu129-th081
@@ -36,7 +35,6 @@ const (
 	RelatedImageTrainingCudaPyTorch241 = "RELATED_IMAGE_ODH_TRAINING_CUDA121_TORCH24_PY311_IMAGE"
 	RelatedImageTrainingCudaPyTorch251 = "RELATED_IMAGE_ODH_TRAINING_CUDA124_TORCH25_PY311_IMAGE"
 	RelatedImageTrainingCudaPyTorch28  = "RELATED_IMAGE_ODH_TRAINING_CUDA128_TORCH28_PY312_IMAGE"
-	RelatedImageTrainingRocmPyTorch241 = "RELATED_IMAGE_ODH_TRAINING_ROCM62_TORCH24_PY311_IMAGE"
-	RelatedImageTrainingRocmPyTorch251 = "RELATED_IMAGE_ODH_TRAINING_ROCM62_TORCH25_PY311_IMAGE"
+	RelatedImageTrainingRocmPyTorch271 = "RELATED_IMAGE_ODH_TRAINING_ROCM62_TORCH27_PY311_IMAGE"
 	RelatedImageTrainingRocmPyTorch28  = "RELATED_IMAGE_ODH_TRAINING_ROCM64_TORCH28_PY312_IMAGE"
 )

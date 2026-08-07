@@ -15,7 +15,6 @@ liger-kernel = "==0.5.4"
 transformers = "~=5.5.0"
 numpy = "<2.0.0,>=1.23.5"
 accelerate = ">=1.6.0"
-# CVE-2025-32434 / RHOAIENG-80821 / RHOAIENG-80822: torch>=2.6; 2.7.1 clears additional High PYSECs
 torch = {version = "==2.7.1+rocm6.2.4", index = "pytorch"}
 pytorch-triton-rocm = {version = "==3.3.1", index = "pytorch"}
 sentencepiece = "<0.3,>=0.2.1"
