@@ -8,15 +8,15 @@ metadata:
     pipelinesascode.tekton.dev/cancel-in-progress: "false"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
-      == "stable" && ( "images/runtime/training/py311-cuda121-torch241/**".pathChanged()
-      || ".tekton/odh-training-cuda121-torch24-py311-push.yaml".pathChanged()
+      == "stable" && ( "images/runtime/training/py311-cuda124-torch260/**".pathChanged()
+      || ".tekton/odh-training-cuda124-torch26-py311-push.yaml".pathChanged()
       )
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: opendatahub-builds
-    appstudio.openshift.io/component: odh-training-cuda121-torch24-py311-ci
+    appstudio.openshift.io/component: odh-training-cuda124-torch26-py311-ci
     pipelines.appstudio.openshift.io/type: build
-  name: odh-training-cuda121-torch24-py311-on-push
+  name: odh-training-cuda124-torch26-py311-on-push
   namespace: open-data-hub-tenant
 spec:
   params:
@@ -25,11 +25,20 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/opendatahub/odh-training-cuda121-torch24-py311:odh-stable
+    value: quay.io/opendatahub/odh-training-cuda124-torch26-py311:odh-stable
   - name: dockerfile
     value: Dockerfile
   - name: path-context
-    value: images/runtime/training/py311-cuda121-torch241
+    value: images/runtime/training/py311-cuda124-torch260
+  taskRunSpecs:
+    - pipelineTaskName: clair-scan
+      computeResources:
+        requests:
+          cpu: '8'
+          memory: 32Gi
+        limits:
+          cpu: '8'
+          memory: 32Gi
   pipelineRef:
     resolver: git
     params:
@@ -40,7 +49,7 @@ spec:
     - name: pathInRepo
       value: pipeline/multi-arch-container-build.yaml
   taskRunTemplate:
-    serviceAccountName: build-pipeline-odh-training-cuda121-torch24-py311-poc
+    serviceAccountName: build-pipeline-odh-training-cuda124-torch26-py311-poc
   workspaces:
   - name: git-auth
     secret:

@@ -37,10 +37,10 @@ import (
 	. "github.com/opendatahub-io/distributed-workloads/tests/common/support"
 )
 
-func TestKftoSftLlmLlama3_1_8BInstructWithCudaPyTorch251(t *testing.T) {
+func TestKftoSftLlmLlama3_1_8BInstructWithCudaPyTorch260(t *testing.T) {
 	Tags(t, ExamplesCuda)
 	test := With(t)
-	kftoSftLlm(test, GetTrainingCudaPyTorch251Image(test), NVIDIA, "meta-llama/Llama-3.1-8B-Instruct")
+	kftoSftLlm(test, GetTrainingCudaPyTorch260Image(test), NVIDIA, "meta-llama/Llama-3.1-8B-Instruct")
 }
 
 func TestKftoSftLlmLlama3_1_8BInstructWithROCmPyTorch251(t *testing.T) {
@@ -129,7 +129,7 @@ func kftoSftLlm(test Test, image string, gpu Accelerator, modelName string) {
 		"name=\\\"sft\\\"":                                                fmt.Sprintf("name=\\\"sft-%s\\\"", namespace.Name),
 		"train_func=main,":                                                fmt.Sprintf("labels= {\\n\",\n\t\"            \\\"kueue.x-k8s.io/queue-name\\\": \\\"%s\\\"\\n\",\n\t\"    },\\n\",\n\t\"    train_func=main,", localQueue.Name),
 		"        \\\"nvidia.com/gpu\\\"":                                  fmt.Sprintf("        \\\"%s\\\"", gpu.ResourceLabel),
-		"base_image=\\\"quay.io/modh/training:py311-cuda124-torch251\\\"": fmt.Sprintf("base_image=\\\"%s\\\"", image),
+		"base_image=\\\"quay.io/modh/training:py311-cuda124-torch260\\\"": fmt.Sprintf("base_image=\\\"%s\\\"", image),
 		"\"HF_TOKEN\\\": \\\"\\\"":                                        fmt.Sprintf("\"HF_TOKEN\\\": \\\"%s\\\"", hfToken),
 		"claim_name=\\\"shared\\\"":                                       fmt.Sprintf("claim_name=\\\"%s\\\"", notebookPVC.Name),
 		"\"_ = client.get_job_logs(\\n\",":                                "\"client.wait_for_job_conditions(\\n\",",

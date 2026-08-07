@@ -32,16 +32,10 @@ import (
 	. "github.com/opendatahub-io/distributed-workloads/tests/common/support"
 )
 
-func TestPyTorchJobSingleNodeSingleGpuWithCudaPyTorch241(t *testing.T) {
+func TestPyTorchJobSingleNodeSingleGpuWithCudaPyTorch260(t *testing.T) {
 	Tags(t, Tier2, Gpu(NVIDIA))
 	test := With(t)
-	runKFTOPyTorchJob(test, GetTrainingCudaPyTorch241Image(test), NVIDIA, 1, 0)
-}
-
-func TestPyTorchJobSingleNodeSingleGpuWithCudaPyTorch251(t *testing.T) {
-	Tags(t, Tier2, Gpu(NVIDIA))
-	test := With(t)
-	runKFTOPyTorchJob(test, GetTrainingCudaPyTorch251Image(test), NVIDIA, 1, 0)
+	runKFTOPyTorchJob(test, GetTrainingCudaPyTorch260Image(test), NVIDIA, 1, 0)
 }
 
 func TestPyTorchJobSingleNodeSingleGpuWithCudaPyTorch28(t *testing.T) {
@@ -50,16 +44,10 @@ func TestPyTorchJobSingleNodeSingleGpuWithCudaPyTorch28(t *testing.T) {
 	runKFTOPyTorchJob(test, GetTrainingCudaPyTorch28Image(test), NVIDIA, 1, 0)
 }
 
-func TestPyTorchJobSingleNodeMultiGpuWithCudaPyTorch241(t *testing.T) {
+func TestPyTorchJobSingleNodeMultiGpuWithCudaPyTorch260(t *testing.T) {
 	Tags(t, KftoCuda)
 	test := With(t)
-	runKFTOPyTorchJob(test, GetTrainingCudaPyTorch241Image(test), NVIDIA, 2, 0)
-}
-
-func TestPyTorchJobSingleNodeMultiGpuWithCudaPyTorch251(t *testing.T) {
-	Tags(t, KftoCuda)
-	test := With(t)
-	runKFTOPyTorchJob(test, GetTrainingCudaPyTorch251Image(test), NVIDIA, 2, 0)
+	runKFTOPyTorchJob(test, GetTrainingCudaPyTorch260Image(test), NVIDIA, 2, 0)
 }
 
 func TestPyTorchJobSingleNodeMultiGpuWithCudaPyTorch28(t *testing.T) {
@@ -68,16 +56,10 @@ func TestPyTorchJobSingleNodeMultiGpuWithCudaPyTorch28(t *testing.T) {
 	runKFTOPyTorchJob(test, GetTrainingCudaPyTorch28Image(test), NVIDIA, 2, 0)
 }
 
-func TestPyTorchJobMultiNodeSingleGpuWithCudaPyTorch241(t *testing.T) {
+func TestPyTorchJobMultiNodeSingleGpuWithCudaPyTorch260(t *testing.T) {
 	Tags(t, KftoCuda)
 	test := With(t)
-	runKFTOPyTorchJob(test, GetTrainingCudaPyTorch241Image(test), NVIDIA, 1, 1)
-}
-
-func TestPyTorchJobMultiNodeSingleGpuWithCudaPyTorch251(t *testing.T) {
-	Tags(t, KftoCuda)
-	test := With(t)
-	runKFTOPyTorchJob(test, GetTrainingCudaPyTorch251Image(test), NVIDIA, 1, 1)
+	runKFTOPyTorchJob(test, GetTrainingCudaPyTorch260Image(test), NVIDIA, 1, 1)
 }
 
 func TestPyTorchJobMultiNodeSingleGpuWithCudaPyTorch28(t *testing.T) {
@@ -86,16 +68,10 @@ func TestPyTorchJobMultiNodeSingleGpuWithCudaPyTorch28(t *testing.T) {
 	runKFTOPyTorchJob(test, GetTrainingCudaPyTorch28Image(test), NVIDIA, 1, 1)
 }
 
-func TestPyTorchJobMultiNodeMultiGpuWithCudaPyTorch241(t *testing.T) {
+func TestPyTorchJobMultiNodeMultiGpuWithCudaPyTorch260(t *testing.T) {
 	Tags(t, KftoCuda)
 	test := With(t)
-	runKFTOPyTorchJob(test, GetTrainingCudaPyTorch241Image(test), NVIDIA, 2, 1)
-}
-
-func TestPyTorchJobMultiNodeMultiGpuWithCudaPyTorch251(t *testing.T) {
-	Tags(t, KftoCuda)
-	test := With(t)
-	runKFTOPyTorchJob(test, GetTrainingCudaPyTorch251Image(test), NVIDIA, 2, 1)
+	runKFTOPyTorchJob(test, GetTrainingCudaPyTorch260Image(test), NVIDIA, 2, 1)
 }
 
 func TestPyTorchJobMultiNodeMultiGpuWithCudaPyTorch28(t *testing.T) {

@@ -36,25 +36,19 @@ import (
 func TestPyTorchJobMnistMultiNodeSingleCpu(t *testing.T) {
 	Tags(t, Tier1, MultiNode(3))
 	test := With(t)
-	runKFTOPyTorchMnistJob(test, CPU, GetTrainingCudaPyTorch251Image(test), "resources/requirements.txt", 2, 1)
+	runKFTOPyTorchMnistJob(test, CPU, GetTrainingCudaPyTorch260Image(test), "resources/requirements.txt", 2, 1)
 }
 
 func TestPyTorchJobMnistMultiNodeMultiCpu(t *testing.T) {
 	Tags(t, Tier2, MultiNode(3))
 	test := With(t)
-	runKFTOPyTorchMnistJob(test, CPU, GetTrainingCudaPyTorch251Image(test), "resources/requirements.txt", 2, 2)
+	runKFTOPyTorchMnistJob(test, CPU, GetTrainingCudaPyTorch260Image(test), "resources/requirements.txt", 2, 2)
 }
 
-func TestPyTorchJobMnistMultiNodeSingleGpuWithCudaPyTorch241(t *testing.T) {
+func TestPyTorchJobMnistMultiNodeSingleGpuWithCudaPyTorch260(t *testing.T) {
 	Tags(t, KftoCuda)
 	test := With(t)
-	runKFTOPyTorchMnistJob(test, NVIDIA, GetTrainingCudaPyTorch241Image(test), "resources/requirements.txt", 1, 1)
-}
-
-func TestPyTorchJobMnistMultiNodeSingleGpuWithCudaPyTorch251(t *testing.T) {
-	Tags(t, KftoCuda)
-	test := With(t)
-	runKFTOPyTorchMnistJob(test, NVIDIA, GetTrainingCudaPyTorch251Image(test), "resources/requirements.txt", 1, 1)
+	runKFTOPyTorchMnistJob(test, NVIDIA, GetTrainingCudaPyTorch260Image(test), "resources/requirements.txt", 1, 1)
 }
 
 func TestPyTorchJobMnistMultiNodeSingleGpuWithCudaPyTorch28(t *testing.T) {
@@ -63,16 +57,10 @@ func TestPyTorchJobMnistMultiNodeSingleGpuWithCudaPyTorch28(t *testing.T) {
 	runKFTOPyTorchMnistJob(test, NVIDIA, GetTrainingCudaPyTorch28Image(test), "resources/requirements.txt", 1, 1)
 }
 
-func TestPyTorchJobMnistMultiNodeMultiGpuWithCudaPyTorch241(t *testing.T) {
+func TestPyTorchJobMnistMultiNodeMultiGpuWithCudaPyTorch260(t *testing.T) {
 	Tags(t, KftoCuda)
 	test := With(t)
-	runKFTOPyTorchMnistJob(test, NVIDIA, GetTrainingCudaPyTorch241Image(test), "resources/requirements.txt", 1, 2)
-}
-
-func TestPyTorchJobMnistMultiNodeMultiGpuWithCudaPyTorch251(t *testing.T) {
-	Tags(t, KftoCuda)
-	test := With(t)
-	runKFTOPyTorchMnistJob(test, NVIDIA, GetTrainingCudaPyTorch251Image(test), "resources/requirements.txt", 1, 2)
+	runKFTOPyTorchMnistJob(test, NVIDIA, GetTrainingCudaPyTorch260Image(test), "resources/requirements.txt", 1, 2)
 }
 
 func TestPyTorchJobMnistMultiNodeMultiGpuWithCudaPyTorch28(t *testing.T) {

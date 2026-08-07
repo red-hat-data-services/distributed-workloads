@@ -69,11 +69,11 @@ RUN micropipenv install -- --no-cache-dir && \
     chmod -R g+w /opt/app-root/lib/python3.11/site-packages && \
     fix-permissions /opt/app-root -P
 
-# Install Flash Attention
+# Install Flash Attention (2.7.4.post1 is the known-good pin for torch 2.6.0+cu124)
 RUN pip install wheel
 RUN pip install --no-cache-dir flash-attn==2.7.4.post1 --no-build-isolation
 
-# Upgrade NCCL to a more recent version until we upgrade torch
+# Upgrade NCCL beyond the torch 2.6.0 default (2.21.5)
 RUN pip install nvidia-nccl-cu12==2.26.2 && \
     fix-permissions /opt/app-root -P
 
@@ -82,10 +82,10 @@ USER 1001
 
 WORKDIR /opt/app-root/src
 
-LABEL name="rhoai/odh-training-cuda124-torch25-py311-rhel9" \
-      com.redhat.component="odh-training-cuda124-torch25-py311-rhel9" \
-      io.k8s.display-name="odh-training-cuda124-torch25-py311-rhel9" \
-      summary="CUDA 12.4 Python 3.11 PyTorch 2.5.1 image based on UBI9 for Training" \
-      description="CUDA 12.4 Python 3.11 PyTorch 2.5.1 image based on UBI9 for Training" \
-      io.k8s.description="CUDA 12.4 Python 3.11 PyTorch 2.5.1 image based on UBI9 for Training" \
+LABEL name="rhoai/odh-training-cuda124-torch26-py311-rhel9" \
+      com.redhat.component="odh-training-cuda124-torch26-py311-rhel9" \
+      io.k8s.display-name="odh-training-cuda124-torch26-py311-rhel9" \
+      summary="CUDA 12.4 Python 3.11 PyTorch 2.6.0 image based on UBI9 for Training" \
+      description="CUDA 12.4 Python 3.11 PyTorch 2.6.0 image based on UBI9 for Training" \
+      io.k8s.description="CUDA 12.4 Python 3.11 PyTorch 2.6.0 image based on UBI9 for Training" \
       com.redhat.license_terms="https://www.redhat.com/licenses/Red_Hat_Standard_EULA_20191108.pdf"

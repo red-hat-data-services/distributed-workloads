@@ -5,18 +5,17 @@ metadata:
     build.appstudio.openshift.io/repo: https://github.com/red-hat-data-services/distributed-workloads?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
-    pipelinesascode.tekton.dev/cancel-in-progress: "false"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: |
       event == "push" 
       && target_branch == "main" 
-      && ( "images/runtime/training/py311-cuda121-torch241/**".pathChanged() || ".tekton/training-py311-cuda121-torch241-push.yaml".pathChanged() )
+      && ( "images/runtime/training/py311-cuda124-torch260/**".pathChanged() || ".tekton/training-py311-cuda124-torch260-push.yaml".pathChanged() )
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: runtime-training
-    appstudio.openshift.io/component: training-py311-cuda121-torch241
+    appstudio.openshift.io/component: training-py311-cuda124-torch260
     pipelines.appstudio.openshift.io/type: build
-  name: training-py311-cuda121-torch241-on-push
+  name: training-py311-cuda124-torch260-on-push
   namespace: rhoai-tenant
 spec:
   params:
@@ -25,13 +24,13 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/modh/training:py311-cuda121-torch241
+    value: quay.io/modh/training:py311-cuda124-torch260
   - name: additional-tag
-    value: py311-cuda121-torch241-{{revision}}
+    value: py311-cuda124-torch260-{{revision}}
   - name: dockerfile
     value: Dockerfile
   - name: path-context
-    value: images/runtime/training/py311-cuda121-torch241
+    value: images/runtime/training/py311-cuda124-torch260
   taskRunSpecs:
     - pipelineTaskName: build-container
       stepSpecs:
@@ -617,7 +616,8 @@ spec:
       optional: true
     - name: netrc
       optional: true
-  taskRunTemplate: {}
+  taskRunTemplate:
+    serviceAccountName: build-pipeline-ray-rocm
   workspaces:
   - name: git-auth
     secret:
