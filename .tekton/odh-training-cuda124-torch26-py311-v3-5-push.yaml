@@ -12,12 +12,12 @@ metadata:
     pipelinesascode.tekton.dev/on-cel-expression: |
       event == "push"
       && target_branch == "rhoai-3.5"
-      && ( "images/runtime/training/py311-cuda124-torch251/**".pathChanged() || ".tekton/odh-training-cuda124-torch25-py311-v3-5-push.yaml".pathChanged() )
+      && ( "images/runtime/training/py311-cuda124-torch260/**".pathChanged() || ".tekton/odh-training-cuda124-torch26-py311-v3-5-push.yaml".pathChanged() )
   labels:
     appstudio.openshift.io/application: rhoai-v3-5
-    appstudio.openshift.io/component: odh-training-cuda124-torch25-py311-v3-5
+    appstudio.openshift.io/component: odh-training-cuda124-torch26-py311-v3-5
     pipelines.appstudio.openshift.io/type: build
-  name: odh-training-cuda124-torch25-py311-v3-5-on-push
+  name: odh-training-cuda124-torch26-py311-v3-5-on-push
   namespace: rhoai-tenant
 spec:
   timeouts:
@@ -32,13 +32,13 @@ spec:
     value:
     - '{{target_branch}}-{{revision}}'
   - name: output-image
-    value: quay.io/rhoai/odh-training-cuda124-torch25-py311-rhel9:{{target_branch}}
+    value: quay.io/rhoai/odh-training-cuda124-torch26-py311-rhel9:{{target_branch}}
   - name: rhoai-version
     value: "3.5.0"
   - name: dockerfile
     value: Dockerfile.konflux
   - name: path-context
-    value: images/runtime/training/py311-cuda124-torch251
+    value: images/runtime/training/py311-cuda124-torch260
   - name: hermetic
     value: false
   - name: build-source-image
@@ -58,7 +58,7 @@ spec:
     - name: pathInRepo
       value: pipelines/multi-arch-container-build.yaml
   taskRunTemplate:
-    serviceAccountName: build-pipeline-odh-training-cuda124-torch25-py311-v3-5
+    serviceAccountName: build-pipeline-odh-training-cuda124-torch26-py311-v3-5
   workspaces:
   - name: git-auth
     secret:

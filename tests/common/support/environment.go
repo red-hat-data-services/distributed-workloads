@@ -27,8 +27,7 @@ const (
 	TestRayVersion                  = "TEST_RAY_VERSION"
 	TestRayImage                    = "TEST_RAY_IMAGE"
 	TestPyTorchImage                = "TEST_PYTORCH_IMAGE"
-	TestTrainingCudaPyTorch241Image = "TEST_TRAINING_CUDA_PYTORCH_241_IMAGE"
-	TestTrainingCudaPyTorch251Image = "TEST_TRAINING_CUDA_PYTORCH_251_IMAGE"
+	TestTrainingCudaPyTorch260Image = "TEST_TRAINING_CUDA_PYTORCH_260_IMAGE"
 	TestTrainingCudaPyTorch28Image  = "TEST_TRAINING_CUDA_PYTORCH_28_IMAGE"
 	TestTrainingRocmPyTorch241Image = "TEST_TRAINING_ROCM_PYTORCH_241_IMAGE"
 	TestTrainingRocmPyTorch251Image = "TEST_TRAINING_ROCM_PYTORCH_251_IMAGE"
@@ -108,12 +107,8 @@ func GetRayTorchROCmImage() string {
 	return lookupEnvOrDefault(TestRayImage, RayTorchROCmImage)
 }
 
-func GetTrainingCudaPyTorch241Image(test Test) string {
-	return lookupTrainingImage(test, TestTrainingCudaPyTorch241Image, RelatedImageTrainingCudaPyTorch241, TrainingCudaPyTorch241Image)
-}
-
-func GetTrainingCudaPyTorch251Image(test Test) string {
-	return lookupTrainingImage(test, TestTrainingCudaPyTorch251Image, RelatedImageTrainingCudaPyTorch251, TrainingCudaPyTorch251Image)
+func GetTrainingCudaPyTorch260Image(test Test) string {
+	return lookupTrainingImage(test, TestTrainingCudaPyTorch260Image, RelatedImageTrainingCudaPyTorch260, TrainingCudaPyTorch260Image)
 }
 
 func GetTrainingCudaPyTorch28Image(test Test) string {

@@ -9,13 +9,13 @@ metadata:
     pipelinesascode.tekton.dev/on-cel-expression: |
       event == "push" 
       && target_branch == "main" 
-      && ( "images/runtime/training/py311-cuda124-torch251/**".pathChanged() || ".tekton/training-push-py311-cuda124-torch251.yaml".pathChanged() )
+      && ( "images/runtime/training/py311-cuda124-torch260/**".pathChanged() || ".tekton/training-push-py311-cuda124-torch260.yaml".pathChanged() )
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: runtime-training
     appstudio.openshift.io/component: training-cuda
     pipelines.appstudio.openshift.io/type: build
-  name: training-push-py311-cuda124-torch251
+  name: training-push-py311-cuda124-torch260
   namespace: rhoai-tenant
 spec:
   params:
@@ -24,13 +24,13 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/modh/training:py311-cuda124-torch251
+    value: quay.io/modh/training:py311-cuda124-torch260
   - name: additional-tag
-    value: py311-cuda124-torch251-{{revision}}
+    value: py311-cuda124-torch260-{{revision}}
   - name: dockerfile
     value: Dockerfile
   - name: path-context
-    value: images/runtime/training/py311-cuda124-torch251
+    value: images/runtime/training/py311-cuda124-torch260
   taskRunSpecs:
     - pipelineTaskName: build-container
       stepSpecs:
