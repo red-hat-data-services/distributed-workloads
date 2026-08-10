@@ -37,16 +37,16 @@ import (
 	. "github.com/opendatahub-io/distributed-workloads/tests/common/support"
 )
 
-func TestKftoSftLlmLlama3_1_8BInstructWithCudaPyTorch251(t *testing.T) {
+func TestKftoSftLlmLlama3_1_8BInstructWithCudaPyTorch28(t *testing.T) {
 	Tags(t, ExamplesCuda)
 	test := With(t)
-	kftoSftLlm(test, GetTrainingCudaPyTorch251Image(test), NVIDIA, "meta-llama/Llama-3.1-8B-Instruct")
+	kftoSftLlm(test, GetTrainingCudaPyTorch28Image(test), NVIDIA, "meta-llama/Llama-3.1-8B-Instruct")
 }
 
-func TestKftoSftLlmLlama3_1_8BInstructWithROCmPyTorch251(t *testing.T) {
+func TestKftoSftLlmLlama3_1_8BInstructWithROCmPyTorch28(t *testing.T) {
 	Tags(t, ExamplesRocm)
 	test := With(t)
-	kftoSftLlm(test, GetTrainingROCmPyTorch251Image(test), AMD, "meta-llama/Llama-3.1-8B-Instruct")
+	kftoSftLlm(test, GetTrainingRocmPyTorch28Image(test), AMD, "meta-llama/Llama-3.1-8B-Instruct")
 }
 
 func kftoSftLlm(test Test, image string, gpu Accelerator, modelName string) {
@@ -122,21 +122,21 @@ func kftoSftLlm(test Test, image string, gpu Accelerator, modelName string) {
 		"num_train_epochs: 10": "num_train_epochs: 1",
 		"eval_strategy: epoch": "eval_strategy: 'no'",
 		"logging_steps: 1":     "logging_steps: 10",
-		"output_dir: /mnt/shared/Meta-Llama-3.1-8B-Instruct":              fmt.Sprintf("output_dir: /mnt/shared/%s", modelName),
-		"%pip install -U kubeflow-training ":                              "#%pip install -U kubeflow-training ",
-		"token = \\\"<TOKEN>\\\"":                                         fmt.Sprintf("token = \\\"%s\\\"", userToken),
-		"#configuration.verify_ssl = False":                               "configuration.verify_ssl = False",
-		"name=\\\"sft\\\"":                                                fmt.Sprintf("name=\\\"sft-%s\\\"", namespace.Name),
-		"train_func=main,":                                                fmt.Sprintf("labels= {\\n\",\n\t\"            \\\"kueue.x-k8s.io/queue-name\\\": \\\"%s\\\"\\n\",\n\t\"    },\\n\",\n\t\"    train_func=main,", localQueue.Name),
-		"        \\\"nvidia.com/gpu\\\"":                                  fmt.Sprintf("        \\\"%s\\\"", gpu.ResourceLabel),
-		"base_image=\\\"quay.io/modh/training:py311-cuda124-torch251\\\"": fmt.Sprintf("base_image=\\\"%s\\\"", image),
-		"\"HF_TOKEN\\\": \\\"\\\"":                                        fmt.Sprintf("\"HF_TOKEN\\\": \\\"%s\\\"", hfToken),
-		"claim_name=\\\"shared\\\"":                                       fmt.Sprintf("claim_name=\\\"%s\\\"", notebookPVC.Name),
-		"\"_ = client.get_job_logs(\\n\",":                                "\"client.wait_for_job_conditions(\\n\",",
-		"\"    follow=True,\\n\",":                                        "\"    wait_timeout=1800,\\n\",\n\t\"    polling_interval=60,\\n\",",
-		"os.environ[\\\"TENSORBOARD_PROXY_URL\\\"]":                       "#os.environ[\\\"TENSORBOARD_PROXY_URL\\\"]",
-		"%load_ext tensorboard":                                           "#%load_ext tensorboard",
-		"%tensorboard --logdir /opt/app-root/src/shared":                  "#%tensorboard --logdir /opt/app-root/src/shared",
+		"output_dir: /mnt/shared/Meta-Llama-3.1-8B-Instruct":             fmt.Sprintf("output_dir: /mnt/shared/%s", modelName),
+		"%pip install -U kubeflow-training ":                             "#%pip install -U kubeflow-training ",
+		"token = \\\"<TOKEN>\\\"":                                        fmt.Sprintf("token = \\\"%s\\\"", userToken),
+		"#configuration.verify_ssl = False":                              "configuration.verify_ssl = False",
+		"name=\\\"sft\\\"":                                               fmt.Sprintf("name=\\\"sft-%s\\\"", namespace.Name),
+		"train_func=main,":                                               fmt.Sprintf("labels= {\\n\",\n\t\"            \\\"kueue.x-k8s.io/queue-name\\\": \\\"%s\\\"\\n\",\n\t\"    },\\n\",\n\t\"    train_func=main,", localQueue.Name),
+		"        \\\"nvidia.com/gpu\\\"":                                 fmt.Sprintf("        \\\"%s\\\"", gpu.ResourceLabel),
+		"base_image=\\\"quay.io/modh/training:py312-cuda128-torch28\\\"": fmt.Sprintf("base_image=\\\"%s\\\"", image),
+		"\"HF_TOKEN\\\": \\\"\\\"":                                       fmt.Sprintf("\"HF_TOKEN\\\": \\\"%s\\\"", hfToken),
+		"claim_name=\\\"shared\\\"":                                      fmt.Sprintf("claim_name=\\\"%s\\\"", notebookPVC.Name),
+		"\"_ = client.get_job_logs(\\n\",":                               "\"client.wait_for_job_conditions(\\n\",",
+		"\"    follow=True,\\n\",":                                       "\"    wait_timeout=1800,\\n\",\n\t\"    polling_interval=60,\\n\",",
+		"os.environ[\\\"TENSORBOARD_PROXY_URL\\\"]":                      "#os.environ[\\\"TENSORBOARD_PROXY_URL\\\"]",
+		"%load_ext tensorboard":                                          "#%load_ext tensorboard",
+		"%tensorboard --logdir /opt/app-root/src/shared":                 "#%tensorboard --logdir /opt/app-root/src/shared",
 		"pretrained_path = \\\"/opt/app-root/src/shared/.cache/hub/models--Meta-Llama--Meta-Llama-3.1-8B-Instruct/snapshots/0e9e39f249a16976918f6564b8830bc894c89659/\\\"": "pretrained_path = \\\"/opt/app-root/src/.cache/hub/models--meta-llama--Llama-3.1-8B-Instruct/snapshots/0e9e39f249a16976918f6564b8830bc894c89659/\\\"",
 		"# Test the pre-trained model": "# Test the pre-trained model\\n\",\n\"from IPython.display import Markdown, display\\n\",\n\"import os",
 		"display(Markdown(output1))":   "display(Markdown(output1))\\n\",\n\"\\n\",\n\"# Save to file\\n\",\n\"output_path = \\\"/opt/app-root/src/pretrained_output.md\\\"\\n\",\n\"os.makedirs(os.path.dirname(output_path), exist_ok=True)\\n\",\n\"with open(output_path, \\\"w\\\") as f:\\n\",\n\t\"    f.write(output1)",

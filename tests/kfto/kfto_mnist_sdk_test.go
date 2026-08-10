@@ -35,18 +35,6 @@ import (
 	. "github.com/opendatahub-io/distributed-workloads/tests/common/support"
 )
 
-func TestMnistSDKPyTorch241(t *testing.T) {
-	Tags(t, Tier2)
-	test := With(t)
-	runMnistSDK(test, GetTrainingCudaPyTorch241Image(test))
-}
-
-func TestMnistSDKPyTorch251(t *testing.T) {
-	Tags(t, Tier2)
-	test := With(t)
-	runMnistSDK(test, GetTrainingCudaPyTorch251Image(test))
-}
-
 func TestMnistSDKPyTorch28(t *testing.T) {
 	Tags(t, Tier2)
 	test := With(t)
