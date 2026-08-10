@@ -286,7 +286,7 @@ This example has been validated with the following configurations:
       "amd.com/gpu": 1
       "memory": 128Gi
       "cpu": 4
-    base_image: quay.io/modh/training:py311-rocm62-torch251
+    base_image: quay.io/modh/training:py311-rocm62-torch271
     env_vars:
       "PYTORCH_HIP_ALLOC_CONF": "expandable_segments:True"
       "NCCL_DEBUG": "INFO"

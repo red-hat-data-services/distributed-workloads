@@ -1,4 +1,16 @@
-FROM registry.access.redhat.com/ubi9/python-311:latest AS base
+## Global Args ######################################################
+ARG IMAGE_TAG=9.5-1741671866
+ARG PYTHON_VERSION=311
+
+# use UBI9 latest
+FROM registry.access.redhat.com/ubi9/python-${PYTHON_VERSION}:${IMAGE_TAG} AS base
+
+LABEL name="training:py311-rocm62-torch271" \
+      summary="ROCm 6.2 Python 3.11 PyTorch 2.7.1 image based on UBI9 for Training" \
+      description="ROCm 6.2 Python 3.11 PyTorch 2.7.1 image based on UBI9 for Training" \
+      io.k8s.display-name="ROCm 6.2 Python 3.11 PyTorch 2.7.1 base image for Training" \
+      io.k8s.description="ROCm 6.2 Python 3.11 PyTorch 2.7.1 image based on UBI9 for Training" \
+      authoritative-source-url="https://github.com/opendatahub-io/distributed-workloads"
 
 # Copy license
 COPY LICENSE.md /licenses/rocm-license.md
@@ -8,8 +20,6 @@ USER 0
 WORKDIR /app
 
 # upgrade requests package
-RUN pip install --no-cache-dir --upgrade "pip>=26.1.2"
-
 RUN pip install --no-cache-dir --upgrade requests==2.32.3
 
 # Install ROCm
@@ -64,7 +74,7 @@ RUN export TMP_DIR=$(mktemp -d) \
     && git clone --depth 1 --branch v2.7.4 https://github.com/Dao-AILab/flash-attention.git \
     && cd flash-attention \
     && git submodule update --init \
-    && MAX_JOBS="16" python3 setup.py install --verbose \
+    && MAX_JOBS="16" pip install --no-build-isolation . \
     && rm -rf $TMP_DIR
 
 # Install BitsAndBytes
@@ -76,12 +86,11 @@ RUN export TMP_DIR=$(mktemp -d) \
     && make \
     && cmake -DCOMPUTE_BACKEND=hip -DBNB_ROCM_ARCH=$GPU_ARCHS -S . \
     && make \
-    && cp bitsandbytes/libbitsandbytes_rocm62.so bitsandbytes/libbitsandbytes_rocm61.so \
     && pip install --no-deps . \
     && rm -rf $TMP_DIR
     
-# Install a compatible version of pytorch-triton-rocm
-RUN pip install --force-reinstall pytorch-triton-rocm==3.1.0 --index-url https://download.pytorch.org/whl/nightly/rocm6.2
+# Install a compatible version of pytorch-triton-rocm (matches torch 2.7.1)
+RUN pip install --force-reinstall pytorch-triton-rocm==3.3.1 --index-url https://download.pytorch.org/whl/rocm6.2.4
 
 # Reapply write permissions on site‑packages
 RUN chmod -R g+w /opt/app-root/lib/python3.11/site-packages && \
@@ -91,11 +100,3 @@ RUN chmod -R g+w /opt/app-root/lib/python3.11/site-packages && \
 USER 1001
 
 WORKDIR /opt/app-root/src
-
-LABEL name="rhoai/odh-training-rocm62-torch24-py311-rhel9" \
-      com.redhat.component="odh-training-rocm62-torch24-py311-rhel9" \
-      io.k8s.display-name="odh-training-rocm62-torch24-py311-rhel9" \
-      summary="ROCm 6.2 Python 3.11 PyTorch 2.4.1 image based on UBI9 for Training" \
-      description="ROCm 6.2 Python 3.11 PyTorch 2.4.1 image based on UBI9 for Training" \
-      io.k8s.description="ROCm 6.2 Python 3.11 PyTorch 2.4.1 image based on UBI9 for Training" \
-      com.redhat.license_terms="https://www.redhat.com/licenses/Red_Hat_Standard_EULA_20191108.pdf"
