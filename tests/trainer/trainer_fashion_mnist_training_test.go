@@ -27,7 +27,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	jobsetv1alpha2 "sigs.k8s.io/jobset/api/jobset/v1alpha2"
 	"sigs.k8s.io/kueue/apis/kueue/v1beta2"
 
@@ -37,46 +36,55 @@ import (
 )
 
 func TestPyTorchDDPMultiNodeMultiCPUWithTorchCuda28(t *testing.T) {
+	t.Skip("Skip until upstream Kueue fix is merged, see https://github.com/kubeflow/trainer/issues/3888")
 	Tags(t, Tier2, MultiNode(2))
 	runPyTorchDDPMultiNodeJob(t, CPU, trainerutils.DefaultClusterTrainingRuntimeCPU, "resources/requirements-cpu.txt", 2, 2)
 }
 
 func TestPyTorchDDPSingleNodeSingleGPUWithTorchCuda(t *testing.T) {
+	t.Skip("Skip until upstream Kueue fix is merged, see https://github.com/kubeflow/trainer/issues/3888")
 	Tags(t, KftoCuda, Gpu(NVIDIA))
 	runPyTorchDDPMultiNodeJob(t, NVIDIA, trainerutils.DefaultClusterTrainingRuntimeCUDA, "resources/requirements-cuda.txt", 1, 1)
 }
 
 func TestPyTorchDDPSingleNodeMultiGPUWithTorchCuda(t *testing.T) {
+	t.Skip("Skip until upstream Kueue fix is merged, see https://github.com/kubeflow/trainer/issues/3888")
 	Tags(t, KftoCuda, MultiGpu(NVIDIA, 2))
 	runPyTorchDDPMultiNodeJob(t, NVIDIA, trainerutils.DefaultClusterTrainingRuntimeCUDA, "resources/requirements-cuda.txt", 1, 2)
 }
 
 func TestPyTorchDDPMultiNodeSingleGPUWithTorchCuda(t *testing.T) {
+	t.Skip("Skip until upstream Kueue fix is merged, see https://github.com/kubeflow/trainer/issues/3888")
 	Tags(t, KftoCuda, MultiNodeGpu(2, NVIDIA))
 	runPyTorchDDPMultiNodeJob(t, NVIDIA, trainerutils.DefaultClusterTrainingRuntimeCUDA, "resources/requirements-cuda.txt", 2, 1)
 }
 
 func TestPyTorchDDPMultiNodeMultiGPUWithTorchCuda(t *testing.T) {
+	t.Skip("Skip until upstream Kueue fix is merged, see https://github.com/kubeflow/trainer/issues/3888")
 	Tags(t, KftoCuda, MultiNodeMultiGpu(2, NVIDIA, 2))
 	runPyTorchDDPMultiNodeJob(t, NVIDIA, trainerutils.DefaultClusterTrainingRuntimeCUDA, "resources/requirements-cuda.txt", 2, 2)
 }
 
 func TestPyTorchDDPSingleNodeSingleGPUWithTorchRocm(t *testing.T) {
+	t.Skip("Skip until upstream Kueue fix is merged, see https://github.com/kubeflow/trainer/issues/3888")
 	Tags(t, KftoRocm, Gpu(AMD))
 	runPyTorchDDPMultiNodeJob(t, AMD, trainerutils.DefaultClusterTrainingRuntimeROCm, "resources/requirements-rocm.txt", 1, 1)
 }
 
 func TestPyTorchDDPSingleNodeMultiGPUWithTorchRocm(t *testing.T) {
+	t.Skip("Skip until upstream Kueue fix is merged, see https://github.com/kubeflow/trainer/issues/3888")
 	Tags(t, KftoRocm, MultiGpu(AMD, 2))
 	runPyTorchDDPMultiNodeJob(t, AMD, trainerutils.DefaultClusterTrainingRuntimeROCm, "resources/requirements-rocm.txt", 1, 2)
 }
 
 func TestPyTorchDDPMultiNodeSingleGPUWithTorchRocm(t *testing.T) {
+	t.Skip("Skip until upstream Kueue fix is merged, see https://github.com/kubeflow/trainer/issues/3888")
 	Tags(t, KftoRocm, MultiNodeGpu(2, AMD))
 	runPyTorchDDPMultiNodeJob(t, AMD, trainerutils.DefaultClusterTrainingRuntimeROCm, "resources/requirements-rocm.txt", 2, 1)
 }
 
 func TestPyTorchDDPMultiNodeMultiGPUWithTorchRocm(t *testing.T) {
+	t.Skip("Skip until upstream Kueue fix is merged, see https://github.com/kubeflow/trainer/issues/3888")
 	Tags(t, KftoRocm, MultiNodeMultiGpu(2, AMD, 2))
 	runPyTorchDDPMultiNodeJob(t, AMD, trainerutils.DefaultClusterTrainingRuntimeROCm, "resources/requirements-rocm.txt", 2, 2)
 }
@@ -201,9 +209,7 @@ func createFashionMNISTTrainingRuntime(test Test, namespace, configMapName, pvcN
 			MLPolicy: &trainerv1alpha1.MLPolicy{
 				NumNodes: Ptr(int32(1)),
 				MLPolicySource: trainerv1alpha1.MLPolicySource{
-					Torch: &trainerv1alpha1.TorchMLPolicySource{
-						NumProcPerNode: Ptr(intstr.FromString("auto")),
-					},
+					Torch: &trainerv1alpha1.TorchMLPolicySource{},
 				},
 			},
 			Template: trainerv1alpha1.JobSetTemplateSpec{
@@ -285,7 +291,7 @@ func createFashionMNISTTrainingRuntime(test Test, namespace, configMapName, pvcN
 													Resources: datasetInitializerResources(accelerator),
 													VolumeMounts: []corev1.VolumeMount{
 														{
-															Name:      "workspace",
+															Name:      "initializer",
 															MountPath: "/workspace",
 														},
 														{
@@ -298,7 +304,7 @@ func createFashionMNISTTrainingRuntime(test Test, namespace, configMapName, pvcN
 											},
 											Volumes: []corev1.Volume{
 												{
-													Name: "workspace",
+													Name: "initializer",
 													VolumeSource: corev1.VolumeSource{
 														PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{
 															ClaimName: pvcName,
@@ -499,7 +505,7 @@ func createFashionMNISTTrainJob(test Test, namespace, runtimeName string, accele
 			},
 			Trainer: &trainerv1alpha1.Trainer{
 				NumNodes:       Ptr(numNodes),
-				NumProcPerNode: Ptr(intstr.FromInt32(numProcPerNode)),
+				NumProcPerNode: Ptr(numProcPerNode),
 				Env: []corev1.EnvVar{
 					{Name: "DATASET_PATH", Value: "/workspace/data"},
 					{Name: "LIB_PATH", Value: "/workspace/lib"},

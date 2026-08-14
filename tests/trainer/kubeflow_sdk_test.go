@@ -30,6 +30,7 @@ func TestKubeflowSdk(t *testing.T) {
 }
 
 func TestKubeflowSdkKueueIntegration(t *testing.T) {
+	t.Skip("Skip until upstream Kueue fix is merged, see https://github.com/kubeflow/trainer/issues/3888")
 	Tags(t, Tier1)
 	test := support.With(t)
 	support.SetupKueue(test, initialKueueState, support.TrainJobFramework)
@@ -228,4 +229,40 @@ func TestRhaiS3DeepspeedStage0CheckpointingCuda(t *testing.T) {
 func TestRhaiS3DeepspeedStage0CheckpointingMultiGpuCuda(t *testing.T) {
 	Tags(t, KftoCuda, MultiNodeMultiGpu(2, support.NVIDIA, 2))
 	sdktests.RunRhaiS3DeepspeedStage0MultiGpuTest(t, support.NVIDIA, 2, 2)
+}
+
+// Speculator pipeline: DATA_ONLY → TRAIN_ONLY, single GPU (1 vLLM + 1 training)
+func TestRhaiSpeculatorPipelineSingleGpuCuda(t *testing.T) {
+	Tags(t, KftoCuda, Gpu(support.NVIDIA))
+	sdktests.RunSpeculatorPipelineTest(t, 1, 1)
+}
+
+// Speculator pipeline: DATA_ONLY → TRAIN_ONLY, multi GPU (1 vLLM + 2 training)
+func TestRhaiSpeculatorPipelineMultiGpuCuda(t *testing.T) {
+	Tags(t, KftoCuda, MultiGpu(support.NVIDIA, 2))
+	sdktests.RunSpeculatorPipelineTest(t, 1, 2)
+}
+
+// Speculator OFFLINE, single GPU (1 training GPU, external vLLM)
+func TestRhaiSpeculatorOfflineSingleGpuCuda(t *testing.T) {
+	Tags(t, KftoCuda, Gpu(support.NVIDIA))
+	sdktests.RunSpeculatorOfflineTest(t, 1)
+}
+
+// Speculator OFFLINE, multi GPU (2 training GPUs, external vLLM)
+func TestRhaiSpeculatorOfflineMultiGpuCuda(t *testing.T) {
+	Tags(t, KftoCuda, MultiGpu(support.NVIDIA, 2))
+	sdktests.RunSpeculatorOfflineTest(t, 2)
+}
+
+// Speculator ONLINE, single GPU (1 training + 1 vLLM sidecar in same pod)
+func TestRhaiSpeculatorOnlineSingleGpuCuda(t *testing.T) {
+	Tags(t, KftoCuda, MultiGpu(support.NVIDIA, 2))
+	sdktests.RunSpeculatorOnlineTest(t, 1, 1)
+}
+
+// Speculator ONLINE, multi GPU (2 training + 1 vLLM sidecar in same pod)
+func TestRhaiSpeculatorOnlineMultiGpuCuda(t *testing.T) {
+	Tags(t, KftoCuda, MultiGpu(support.NVIDIA, 3))
+	sdktests.RunSpeculatorOnlineTest(t, 1, 2)
 }
