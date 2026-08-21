@@ -30,7 +30,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	jobsetv1alpha2 "sigs.k8s.io/jobset/api/jobset/v1alpha2"
-	"sigs.k8s.io/kueue/apis/kueue/v1beta2"
 
 	. "github.com/opendatahub-io/distributed-workloads/tests/common"
 	. "github.com/opendatahub-io/distributed-workloads/tests/common/support"
@@ -51,10 +50,9 @@ func runSftStockTrlTrainJob(t *testing.T, accelerator Accelerator, clusterTraini
 	test := With(t)
 	baseImage, err := trainerutils.GetImageFromClusterTrainingRuntime(test, clusterTrainingRuntime)
 	test.Expect(err).ToNot(HaveOccurred(), "Failed to get image from ClusterTrainingRuntime: %v", err)
-	SetupKueue(test, initialKueueState, TrainJobFramework)
 
-	namespace := test.NewTestNamespace(WithKueueManaged()).Name
-	test.T().Logf("Created Kueue-managed namespace: %s", namespace)
+	namespace := test.NewTestNamespace().Name
+	test.T().Logf("Created namespace: %s", namespace)
 
 	storageClass, err := GetRWXStorageClass(test)
 	test.Expect(err).ToNot(HaveOccurred(), "Failed to find an RWX supporting StorageClass")
@@ -67,54 +65,9 @@ func runSftStockTrlTrainJob(t *testing.T, accelerator Accelerator, clusterTraini
 	}
 	config := CreateConfigMap(test, namespace, files)
 
-	resourceFlavor := CreateKueueResourceFlavor(test, v1beta2.ResourceFlavorSpec{})
-	defer test.Client().Kueue().KueueV1beta2().ResourceFlavors().Delete(test.Ctx(), resourceFlavor.Name, metav1.DeleteOptions{})
-
-	numGpus := numNodes * numProcPerNode
-	cqSpec := v1beta2.ClusterQueueSpec{
-		NamespaceSelector: &metav1.LabelSelector{},
-		ResourceGroups: []v1beta2.ResourceGroup{
-			{
-				CoveredResources: []corev1.ResourceName{"cpu", "memory", corev1.ResourceName(accelerator.ResourceLabel)},
-				Flavors: []v1beta2.FlavorQuotas{
-					{
-						Name: v1beta2.ResourceFlavorReference(resourceFlavor.Name),
-						Resources: []v1beta2.ResourceQuota{
-							{
-								Name:         corev1.ResourceCPU,
-								NominalQuota: resource.MustParse("20"),
-							},
-							{
-								Name:         corev1.ResourceMemory,
-								NominalQuota: resource.MustParse("128Gi"),
-							},
-							{
-								Name:         corev1.ResourceName(accelerator.ResourceLabel),
-								NominalQuota: resource.MustParse(fmt.Sprint(numGpus)),
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-
-	clusterQueue := CreateKueueClusterQueue(test, cqSpec)
-	defer test.Client().Kueue().KueueV1beta2().ClusterQueues().Delete(test.Ctx(), clusterQueue.Name, metav1.DeleteOptions{})
-	localQueue := CreateKueueLocalQueue(test, namespace, clusterQueue.Name, AsDefaultQueue)
-
 	trainingRuntime := createSftStockTrlTrainingRuntime(test, namespace, config.Name, pvc.Name, baseImage, accelerator, numProcPerNode)
 
-	trainJob := createSftStockTrlTrainJob(test, namespace, trainingRuntime.Name, numNodes, numProcPerNode, localQueue.Name)
-
-	test.Eventually(KueueWorkloads(test, namespace), TestTimeoutMedium).
-		Should(
-			And(
-				HaveLen(1),
-				ContainElement(WithTransform(KueueWorkloadAdmitted, BeTrueBecause("Workload failed to be admitted"))),
-			),
-		)
-	test.T().Log("Kueue Workload admitted")
+	trainJob := createSftStockTrlTrainJob(test, namespace, trainingRuntime.Name, numNodes, numProcPerNode)
 
 	test.T().Logf("Verifying JobSet creation with replicated jobs...")
 	test.Eventually(SingleJobSet(test, namespace), TestTimeoutDouble).Should(
@@ -375,16 +328,13 @@ echo "==================== Training Complete ===================="
 	return runtime
 }
 
-func createSftStockTrlTrainJob(test Test, namespace, runtimeName string, numNodes, numProcPerNode int32, queueName string) *trainerv1alpha1.TrainJob {
+func createSftStockTrlTrainJob(test Test, namespace, runtimeName string, numNodes, numProcPerNode int32) *trainerv1alpha1.TrainJob {
 	test.T().Helper()
 
 	trainJob := &trainerv1alpha1.TrainJob{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: "test-sft-stock-trl-trainjob-",
 			Namespace:    namespace,
-			Labels: map[string]string{
-				"kueue.x-k8s.io/queue-name": queueName,
-			},
 		},
 		Spec: trainerv1alpha1.TrainJobSpec{
 			RuntimeRef: trainerv1alpha1.RuntimeRef{

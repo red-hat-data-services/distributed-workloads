@@ -57,6 +57,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestKueueWorkloadPreemptionSuspendsTrainJob(t *testing.T) {
+	t.Skip("Kueue is not compatible with RHOAI 3.5 Trainer")
 	Tags(t, Tier1)
 	test := With(t)
 	SetupKueue(test, initialKueueState, TrainJobFramework)
@@ -171,6 +172,7 @@ func TestKueueWorkloadPreemptionSuspendsTrainJob(t *testing.T) {
 }
 
 func TestKueueWorkloadInadmissibleWithNonExistentLocalQueue(t *testing.T) {
+	t.Skip("Kueue is not compatible with RHOAI 3.5 Trainer")
 	Tags(t, Tier2)
 	test := With(t)
 	SetupKueue(test, initialKueueState, TrainJobFramework)
