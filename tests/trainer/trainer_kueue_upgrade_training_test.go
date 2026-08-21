@@ -370,6 +370,7 @@ func TestRunSpecificRuntimeUpgradeTrainJob(t *testing.T) {
 // user-created, its spec won't change during upgrade, avoiding the immutable JobSet field issue
 // from RHOAIENG-48867.
 func TestSetupCustomRuntimeUpgradeTrainJob(t *testing.T) {
+	t.Skip("Kueue is not compatible with RHOAI 3.5 Trainer")
 	Tags(t, PreUpgrade)
 	test := With(t)
 	SetupKueue(test, initialKueueState, TrainJobFramework)
@@ -455,6 +456,7 @@ func TestSetupCustomRuntimeUpgradeTrainJob(t *testing.T) {
 }
 
 func TestRunCustomRuntimeUpgradeTrainJob(t *testing.T) {
+	t.Skip("Kueue is not compatible with RHOAI 3.5 Trainer")
 	Tags(t, PostUpgrade)
 	test := With(t)
 	SetupKueue(test, initialKueueState, TrainJobFramework)

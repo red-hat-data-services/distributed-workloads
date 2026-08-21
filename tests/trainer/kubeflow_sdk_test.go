@@ -30,6 +30,7 @@ func TestKubeflowSdk(t *testing.T) {
 }
 
 func TestKubeflowSdkKueueIntegration(t *testing.T) {
+	t.Skip("Kueue is not compatible with RHOAI 3.5 Trainer")
 	Tags(t, Tier1)
 	test := support.With(t)
 	support.SetupKueue(test, initialKueueState, support.TrainJobFramework)
