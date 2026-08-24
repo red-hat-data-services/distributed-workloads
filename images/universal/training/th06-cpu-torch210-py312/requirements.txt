@@ -21,7 +21,7 @@ aiohappyeyeballs==2.6.1
     # via aiohttp
 aiohttp==3.14.3
     # via
-    #   th06-cpu-universal-image (pyproject.toml)
+    #   -c (workspace)
     #   aiobotocore
     #   aiohttp-retry
     #   fsspec
@@ -139,8 +139,10 @@ fsspec==2025.9.0
     #   training-hub
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.50
-    # via mlflow-skinny
+gitpython==3.1.57
+    # via
+    #   -c (workspace)
+    #   mlflow-skinny
 google-auth==2.49.2
     # via databricks-sdk
 googleapis-common-protos==1.74.0
@@ -353,6 +355,7 @@ peft==0.18.1
     #   training-hub
 pillow==12.3.0
     # via
+    #   -c (workspace)
     #   matplotlib
     #   tensorboard
 pluggy==1.6.0
@@ -516,7 +519,9 @@ sqlalchemy==2.0.49
 sqlparse==0.5.5
     # via mlflow-skinny
 starlette==1.3.1
-    # via fastapi
+    # via
+    #   -c (workspace)
+    #   fastapi
 sympy==1.14.0
     # via
     #   torch
