@@ -9,7 +9,7 @@ verify_ssl = true
 name = "pytorch"
 
 [packages]
-peft = ">=0.14.0"
+peft = ">=0.20.0"
 datasets = ">=2.15.0"
 liger-kernel = "==0.5.4"
 transformers = "~=5.5.0"
