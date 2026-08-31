@@ -1517,12 +1517,12 @@
         },
         "peft": {
             "hashes": [
-                "sha256:0190c28bdbdc24c3de549f2b42cd182cbb89d3e82aa3069c6db690c4ef6fccbb",
-                "sha256:cb647a931c8da434446d6a196c402b1c2d087b12e050e098215f906f12771f1e"
+                "sha256:0fbba16ffebfad3de96e06f2da6860fd860292324b85b6141909fa1e26ea9233",
+                "sha256:4769c8093a4ca145fd6fb3fd4dd50449675f5fe46434ad1e98b285a132d4b1d0"
             ],
             "index": "pypi",
             "markers": "python_full_version >= '3.9.0'",
-            "version": "==0.17.0"
+            "version": "==0.20.0"
         },
         "pluggy": {
             "hashes": [
