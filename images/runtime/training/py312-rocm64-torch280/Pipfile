@@ -9,7 +9,7 @@ verify_ssl = true
 name = "pytorch-rocm64"
 
 [packages]
-peft = "==0.18.1"
+peft = "==0.20.0"
 datasets = "==4.0.0"
 liger-kernel = "==0.5.10"
 transformers = "~=5.5.0"
@@ -46,7 +46,7 @@ s3fs = ">=2025.3.0"
 wheel = ">=0.46.2,<1"
 simpleeval = "==1.0.7"
 urllib3 = ">=2.7.0"
-aiohttp = "~=3.14.0"
+aiohttp = "~=3.14.3"
 
 [dev-packages]
 
