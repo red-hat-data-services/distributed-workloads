@@ -187,7 +187,7 @@ func createUpgradePyTorchJob(test Test, namespace, localQueueName string, config
 							Containers: []corev1.Container{
 								{
 									Name:            "pytorch",
-									Image:           GetTrainingCudaPyTorch251Image(),
+									Image:           GetTrainingCuda128Torch29Py312Image(),
 									ImagePullPolicy: corev1.PullIfNotPresent,
 									Command: []string{
 										"/bin/bash", "-c",

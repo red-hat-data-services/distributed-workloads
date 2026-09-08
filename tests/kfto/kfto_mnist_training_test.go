@@ -35,52 +35,52 @@ import (
 
 func TestPyTorchJobMnistMultiNodeSingleCpu(t *testing.T) {
 	Tags(t, Sanity, MultiNode(3))
-	runKFTOPyTorchMnistJob(t, CPU, GetTrainingCudaPyTorch251Image(), "resources/requirements.txt", 2, 1)
+	runKFTOPyTorchMnistJob(t, CPU, GetTrainingCuda128Torch29Py312Image(), "resources/requirements.txt", 2, 1)
 }
 
 func TestPyTorchJobMnistMultiNodeMultiCpu(t *testing.T) {
 	Tags(t, Tier1, MultiNode(3))
-	runKFTOPyTorchMnistJob(t, CPU, GetTrainingCudaPyTorch251Image(), "resources/requirements.txt", 2, 2)
+	runKFTOPyTorchMnistJob(t, CPU, GetTrainingCuda128Torch29Py312Image(), "resources/requirements.txt", 2, 2)
 }
 
 func TestPyTorchJobMnistMultiNodeSingleGpuWithCudaPyTorch241(t *testing.T) {
 	Tags(t, KftoCuda)
-	runKFTOPyTorchMnistJob(t, NVIDIA, GetTrainingCudaPyTorch241Image(), "resources/requirements.txt", 1, 1)
+	runKFTOPyTorchMnistJob(t, NVIDIA, GetTrainingCuda128Torch28Py312Rhel9Image(), "resources/requirements.txt", 1, 1)
 }
 
 func TestPyTorchJobMnistMultiNodeSingleGpuWithCudaPyTorch251(t *testing.T) {
 	Tags(t, KftoCuda)
-	runKFTOPyTorchMnistJob(t, NVIDIA, GetTrainingCudaPyTorch251Image(), "resources/requirements.txt", 1, 1)
+	runKFTOPyTorchMnistJob(t, NVIDIA, GetTrainingCuda128Torch29Py312Image(), "resources/requirements.txt", 1, 1)
 }
 
 func TestPyTorchJobMnistMultiNodeMultiGpuWithCudaPyTorch241(t *testing.T) {
 	Tags(t, KftoCuda)
-	runKFTOPyTorchMnistJob(t, NVIDIA, GetTrainingCudaPyTorch241Image(), "resources/requirements.txt", 1, 2)
+	runKFTOPyTorchMnistJob(t, NVIDIA, GetTrainingCuda128Torch28Py312Rhel9Image(), "resources/requirements.txt", 1, 2)
 }
 
 func TestPyTorchJobMnistMultiNodeMultiGpuWithCudaPyTorch251(t *testing.T) {
 	Tags(t, KftoCuda)
-	runKFTOPyTorchMnistJob(t, NVIDIA, GetTrainingCudaPyTorch251Image(), "resources/requirements.txt", 1, 2)
+	runKFTOPyTorchMnistJob(t, NVIDIA, GetTrainingCuda128Torch29Py312Image(), "resources/requirements.txt", 1, 2)
 }
 
 func TestPyTorchJobMnistMultiNodeSingleGpuWithROCmPyTorch241(t *testing.T) {
 	Tags(t, KftoRocm)
-	runKFTOPyTorchMnistJob(t, AMD, GetTrainingROCmPyTorch241Image(), "resources/requirements-rocm.txt", 1, 1)
+	runKFTOPyTorchMnistJob(t, AMD, GetTrainingRocm64Torch28Py312Image(), "resources/requirements-rocm.txt", 1, 1)
 }
 
 func TestPyTorchJobMnistMultiNodeSingleGpuWithROCmPyTorch251(t *testing.T) {
 	Tags(t, KftoRocm)
-	runKFTOPyTorchMnistJob(t, AMD, GetTrainingROCmPyTorch251Image(), "resources/requirements-rocm.txt", 1, 1)
+	runKFTOPyTorchMnistJob(t, AMD, GetTrainingRocm64Torch29Py312Image(), "resources/requirements-rocm.txt", 1, 1)
 }
 
 func TestPyTorchJobMnistMultiNodeMultiGpuWithROCmPyTorch241(t *testing.T) {
 	Tags(t, KftoRocm)
-	runKFTOPyTorchMnistJob(t, AMD, GetTrainingROCmPyTorch241Image(), "resources/requirements-rocm.txt", 1, 2)
+	runKFTOPyTorchMnistJob(t, AMD, GetTrainingRocm64Torch28Py312Image(), "resources/requirements-rocm.txt", 1, 2)
 }
 
 func TestPyTorchJobMnistMultiNodeMultiGpuWithROCmPyTorch251(t *testing.T) {
 	Tags(t, KftoRocm)
-	runKFTOPyTorchMnistJob(t, AMD, GetTrainingROCmPyTorch251Image(), "resources/requirements-rocm.txt", 1, 2)
+	runKFTOPyTorchMnistJob(t, AMD, GetTrainingRocm64Torch29Py312Image(), "resources/requirements-rocm.txt", 1, 2)
 }
 
 func runKFTOPyTorchMnistJob(t *testing.T, accelerator Accelerator, image string, requirementsFile string, workerReplicas, numProcPerNode int) {
