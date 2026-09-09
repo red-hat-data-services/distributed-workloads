@@ -1,5 +1,5 @@
 ARG PYTHON_VERSION=312
-ARG IMAGE_TAG=9.7-1778488949
+ARG IMAGE_TAG=9.8-1788412553
 
 FROM registry.access.redhat.com/ubi9/python-${PYTHON_VERSION}:${IMAGE_TAG}
 
@@ -37,7 +37,10 @@ gpgkey=https://repo.radeon.com/rocm/rocm.gpg.key
 EOD
 EOF
 
-RUN yum install -y rocm-developer-tools rocm-ml-sdk rocm-openmp-sdk rocm-utils && yum clean all && rm -rf /var/cache/yum
+RUN yum install -y rocm-developer-tools rocm-ml-sdk rocm-openmp-sdk rocm-utils \
+      && yum clean all \
+      && rm -rf /var/cache/yum/* \
+      && rpm --restore redhat-rpm-config
 
 # Install Python packages
 
