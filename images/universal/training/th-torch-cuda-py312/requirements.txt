@@ -281,7 +281,7 @@ gguf==0.19.0
     # via vllm
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.52
+gitpython==3.1.59
     # via
     #   -c (workspace)
     #   mlflow-skinny
