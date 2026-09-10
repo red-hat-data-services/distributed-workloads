@@ -31,7 +31,7 @@ dependencies = [
     # ML Training and Inference Libraries
     "accelerate==1.14.0",
     "transformers==5.13.0",
-    "peft==0.19.1",
+    "peft>=0.20.0",
     "datasets==5.0.0",
     "trl==1.7.1",
     

@@ -428,7 +428,7 @@ pandas==2.3.3
     #   training-hub
 pdfminer-six==20260107
     # via polyfile-weave
-peft==0.19.1
+peft==0.20.0
     # via
     #   th-torch-cpu-universal-image (pyproject.toml)
     #   instructlab-training
