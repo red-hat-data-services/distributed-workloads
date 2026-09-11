@@ -17,22 +17,22 @@ import (
 
 func TestPyTorchJobFailureWithCudaPyTorch241(t *testing.T) {
 	Tags(t, Tier1)
-	runFailedPyTorchJobTest(t, GetTrainingCudaPyTorch241Image())
+	runFailedPyTorchJobTest(t, GetTrainingCuda128Torch28Py312Rhel9Image())
 }
 
 func TestPyTorchJobFailureWithCudaPyTorch251(t *testing.T) {
 	Tags(t, Tier1)
-	runFailedPyTorchJobTest(t, GetTrainingCudaPyTorch251Image())
+	runFailedPyTorchJobTest(t, GetTrainingCuda128Torch29Py312Image())
 }
 
 func TestPyTorchJobFailureWithROCmPyTorch241(t *testing.T) {
 	Tags(t, Tier1)
-	runFailedPyTorchJobTest(t, GetTrainingROCmPyTorch241Image())
+	runFailedPyTorchJobTest(t, GetTrainingRocm64Torch28Py312Image())
 }
 
 func TestPyTorchJobFailureWithROCmPyTorch251(t *testing.T) {
 	Tags(t, Tier1)
-	runFailedPyTorchJobTest(t, GetTrainingROCmPyTorch251Image())
+	runFailedPyTorchJobTest(t, GetTrainingRocm64Torch29Py312Image())
 }
 
 func runFailedPyTorchJobTest(t *testing.T, image string) {

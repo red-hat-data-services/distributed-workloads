@@ -37,12 +37,12 @@ import (
 
 func TestMnistSDKPyTorch241(t *testing.T) {
 	Tags(t, Tier1)
-	runMnistSDK(t, GetTrainingCudaPyTorch241Image())
+	runMnistSDK(t, GetTrainingCuda128Torch28Py312Rhel9Image())
 }
 
 func TestMnistSDKPyTorch251(t *testing.T) {
 	Tags(t, Tier1)
-	runMnistSDK(t, GetTrainingCudaPyTorch251Image())
+	runMnistSDK(t, GetTrainingCuda128Torch29Py312Image())
 }
 
 func runMnistSDK(t *testing.T, trainingImage string) {

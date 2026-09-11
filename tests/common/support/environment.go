@@ -24,13 +24,13 @@ const (
 	// The environment variables hereafter can be used to change the components
 	// used for testing.
 
-	TestRayVersion                  = "TEST_RAY_VERSION"
-	TestRayImage                    = "TEST_RAY_IMAGE"
-	TestPyTorchImage                = "TEST_PYTORCH_IMAGE"
-	TestTrainingCudaPyTorch241Image = "TEST_TRAINING_CUDA_PYTORCH_241_IMAGE"
-	TestTrainingCudaPyTorch251Image = "TEST_TRAINING_CUDA_PYTORCH_251_IMAGE"
-	TestTrainingRocmPyTorch241Image = "TEST_TRAINING_ROCM_PYTORCH_241_IMAGE"
-	TestTrainingRocmPyTorch251Image = "TEST_TRAINING_ROCM_PYTORCH_251_IMAGE"
+	TestRayVersion                            = "TEST_RAY_VERSION"
+	TestRayImage                              = "TEST_RAY_IMAGE"
+	TestPyTorchImage                          = "TEST_PYTORCH_IMAGE"
+	TestTrainingCuda128Torch28Py312Rhel9Image = "TEST_TRAINING_CUDA128_TORCH28_PY312_RHEL9_IMAGE"
+	TestTrainingCuda128Torch29Py312Image      = "TEST_TRAINING_CUDA128_TORCH29_PY312_IMAGE"
+	TestTrainingRocm64Torch28Py312Image       = "TEST_TRAINING_ROCM64_TORCH28_PY312_IMAGE"
+	TestTrainingRocm64Torch29Py312Image       = "TEST_TRAINING_ROCM64_TORCH29_PY312_IMAGE"
 
 	// The testing output directory, to write output files into.
 	TestOutputDir = "TEST_OUTPUT_DIR"
@@ -90,20 +90,20 @@ func GetRayTorchROCmImage() string {
 	return lookupEnvOrDefault(TestRayImage, RayTorchROCmImage)
 }
 
-func GetTrainingCudaPyTorch241Image() string {
-	return lookupEnvOrDefault(TestTrainingCudaPyTorch241Image, TrainingCudaPyTorch241Image)
+func GetTrainingCuda128Torch28Py312Rhel9Image() string {
+	return lookupEnvOrDefault(TestTrainingCuda128Torch28Py312Rhel9Image, TrainingCuda128Torch28Py312Rhel9Image)
 }
 
-func GetTrainingCudaPyTorch251Image() string {
-	return lookupEnvOrDefault(TestTrainingCudaPyTorch251Image, TrainingCudaPyTorch251Image)
+func GetTrainingCuda128Torch29Py312Image() string {
+	return lookupEnvOrDefault(TestTrainingCuda128Torch29Py312Image, TrainingCuda128Torch29Py312Image)
 }
 
-func GetTrainingROCmPyTorch241Image() string {
-	return lookupEnvOrDefault(TestTrainingRocmPyTorch241Image, TrainingRocmPyTorch241Image)
+func GetTrainingRocm64Torch28Py312Image() string {
+	return lookupEnvOrDefault(TestTrainingRocm64Torch28Py312Image, TrainingRocm64Torch28Py312Image)
 }
 
-func GetTrainingROCmPyTorch251Image() string {
-	return lookupEnvOrDefault(TestTrainingRocmPyTorch251Image, TrainingRocmPyTorch251Image)
+func GetTrainingRocm64Torch29Py312Image() string {
+	return lookupEnvOrDefault(TestTrainingRocm64Torch29Py312Image, TrainingRocm64Torch29Py312Image)
 }
 
 func GetClusterType(t Test) ClusterType {

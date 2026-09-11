@@ -34,82 +34,82 @@ import (
 
 func TestPyTorchJobSingleNodeSingleGpuWithCudaPyTorch241(t *testing.T) {
 	Tags(t, Tier1, Gpu(NVIDIA))
-	runKFTOPyTorchJob(t, GetTrainingCudaPyTorch241Image(), NVIDIA, 1, 0)
+	runKFTOPyTorchJob(t, GetTrainingCuda128Torch28Py312Rhel9Image(), NVIDIA, 1, 0)
 }
 
 func TestPyTorchJobSingleNodeSingleGpuWithCudaPyTorch251(t *testing.T) {
 	Tags(t, Tier1, Gpu(NVIDIA))
-	runKFTOPyTorchJob(t, GetTrainingCudaPyTorch251Image(), NVIDIA, 1, 0)
+	runKFTOPyTorchJob(t, GetTrainingCuda128Torch29Py312Image(), NVIDIA, 1, 0)
 }
 
 func TestPyTorchJobSingleNodeMultiGpuWithCudaPyTorch241(t *testing.T) {
 	Tags(t, KftoCuda)
-	runKFTOPyTorchJob(t, GetTrainingCudaPyTorch241Image(), NVIDIA, 2, 0)
+	runKFTOPyTorchJob(t, GetTrainingCuda128Torch28Py312Rhel9Image(), NVIDIA, 2, 0)
 }
 
 func TestPyTorchJobSingleNodeMultiGpuWithCudaPyTorch251(t *testing.T) {
 	Tags(t, KftoCuda)
-	runKFTOPyTorchJob(t, GetTrainingCudaPyTorch251Image(), NVIDIA, 2, 0)
+	runKFTOPyTorchJob(t, GetTrainingCuda128Torch29Py312Image(), NVIDIA, 2, 0)
 }
 
 func TestPyTorchJobMultiNodeSingleGpuWithCudaPyTorch241(t *testing.T) {
 	Tags(t, KftoCuda)
-	runKFTOPyTorchJob(t, GetTrainingCudaPyTorch241Image(), NVIDIA, 1, 1)
+	runKFTOPyTorchJob(t, GetTrainingCuda128Torch28Py312Rhel9Image(), NVIDIA, 1, 1)
 }
 
 func TestPyTorchJobMultiNodeSingleGpuWithCudaPyTorch251(t *testing.T) {
 	Tags(t, KftoCuda)
-	runKFTOPyTorchJob(t, GetTrainingCudaPyTorch251Image(), NVIDIA, 1, 1)
+	runKFTOPyTorchJob(t, GetTrainingCuda128Torch29Py312Image(), NVIDIA, 1, 1)
 }
 
 func TestPyTorchJobMultiNodeMultiGpuWithCudaPyTorch241(t *testing.T) {
 	Tags(t, KftoCuda)
-	runKFTOPyTorchJob(t, GetTrainingCudaPyTorch241Image(), NVIDIA, 2, 1)
+	runKFTOPyTorchJob(t, GetTrainingCuda128Torch28Py312Rhel9Image(), NVIDIA, 2, 1)
 }
 
 func TestPyTorchJobMultiNodeMultiGpuWithCudaPyTorch251(t *testing.T) {
 	Tags(t, KftoCuda)
-	runKFTOPyTorchJob(t, GetTrainingCudaPyTorch251Image(), NVIDIA, 2, 1)
+	runKFTOPyTorchJob(t, GetTrainingCuda128Torch29Py312Image(), NVIDIA, 2, 1)
 }
 
 func TestPyTorchJobSingleNodeSingleGpuWithROCmPyTorch241(t *testing.T) {
 	Tags(t, Tier1, Gpu(AMD))
-	runKFTOPyTorchJob(t, GetTrainingROCmPyTorch241Image(), AMD, 1, 0)
+	runKFTOPyTorchJob(t, GetTrainingRocm64Torch28Py312Image(), AMD, 1, 0)
 }
 
 func TestPyTorchJobSingleNodeSingleGpuWithROCmPyTorch251(t *testing.T) {
 	Tags(t, Tier1, Gpu(AMD))
-	runKFTOPyTorchJob(t, GetTrainingROCmPyTorch251Image(), AMD, 1, 0)
+	runKFTOPyTorchJob(t, GetTrainingRocm64Torch29Py312Image(), AMD, 1, 0)
 }
 
 func TestPyTorchJobSingleNodeMultiGpuWithROCmPyTorch241(t *testing.T) {
 	Tags(t, KftoRocm)
-	runKFTOPyTorchJob(t, GetTrainingROCmPyTorch241Image(), AMD, 2, 0)
+	runKFTOPyTorchJob(t, GetTrainingRocm64Torch28Py312Image(), AMD, 2, 0)
 }
 
 func TestPyTorchJobSingleNodeMultiGpuWithROCmPyTorch251(t *testing.T) {
 	Tags(t, KftoRocm)
-	runKFTOPyTorchJob(t, GetTrainingROCmPyTorch251Image(), AMD, 2, 0)
+	runKFTOPyTorchJob(t, GetTrainingRocm64Torch29Py312Image(), AMD, 2, 0)
 }
 
 func TestPyTorchJobMultiNodeSingleGpuWithROCmPyTorch241(t *testing.T) {
 	Tags(t, KftoRocm)
-	runKFTOPyTorchJob(t, GetTrainingROCmPyTorch241Image(), AMD, 1, 1)
+	runKFTOPyTorchJob(t, GetTrainingRocm64Torch28Py312Image(), AMD, 1, 1)
 }
 
 func TestPyTorchJobMultiNodeSingleGpuWithROCmPyTorch251(t *testing.T) {
 	Tags(t, KftoRocm)
-	runKFTOPyTorchJob(t, GetTrainingROCmPyTorch251Image(), AMD, 1, 1)
+	runKFTOPyTorchJob(t, GetTrainingRocm64Torch29Py312Image(), AMD, 1, 1)
 }
 
 func TestPyTorchJobMultiNodeMultiGpuWithROCmPyTorch241(t *testing.T) {
 	Tags(t, KftoRocm)
-	runKFTOPyTorchJob(t, GetTrainingROCmPyTorch241Image(), AMD, 2, 1)
+	runKFTOPyTorchJob(t, GetTrainingRocm64Torch28Py312Image(), AMD, 2, 1)
 }
 
 func TestPyTorchJobMultiNodeMultiGpuWithROCmPyTorch251(t *testing.T) {
 	Tags(t, KftoRocm)
-	runKFTOPyTorchJob(t, GetTrainingROCmPyTorch251Image(), AMD, 2, 1)
+	runKFTOPyTorchJob(t, GetTrainingRocm64Torch29Py312Image(), AMD, 2, 1)
 }
 
 func runKFTOPyTorchJob(t *testing.T, image string, gpu Accelerator, numGpus, numberOfWorkerNodes int) {
