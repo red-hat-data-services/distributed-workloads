@@ -89,7 +89,7 @@ dependencies = [
     "accelerate==1.10.0",
     "transformers==4.57.1",
     "peft==0.17.0",
-    "datasets==4.3.0",
+    "datasets==5.0.1",
     
     # Core Dependencies
     "tqdm==4.67.1",
