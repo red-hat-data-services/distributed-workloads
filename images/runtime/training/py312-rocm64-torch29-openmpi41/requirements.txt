@@ -98,7 +98,7 @@ databricks-sdk==0.96.0
     # via
     #   mlflow-skinny
     #   mlflow-tracing
-datasets==4.3.0
+datasets==5.0.1
     # via
     #   py312-rocm64-torch29-openmpi41 (pyproject.toml)
     #   instructlab-training
