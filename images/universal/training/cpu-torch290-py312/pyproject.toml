@@ -148,7 +148,7 @@ dependencies = [
     
     # ML Training and Inference Libraries
     "peft==0.17.0",
-    "datasets==4.0.0",
+    "datasets==5.0.1",
     "transformers==4.57.1",
     "accelerate==1.10.0",
     "trl==0.21.0",
