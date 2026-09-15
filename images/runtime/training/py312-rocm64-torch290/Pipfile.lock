@@ -408,12 +408,12 @@
         },
         "datasets": {
             "hashes": [
-                "sha256:0ea157e72138b3ca6c7d2415f19a164ecf7d4c4fa72da2a570da286882e96903",
-                "sha256:bc9118ed9afd92346c5be7ed3aaa00177eb907c25467f9d072a0d22777efbd2b"
+                "sha256:9fbf73688f8c18f7529b4fe592abd04015f81d1e58001e4bac73ffb2b39d7cc4",
+                "sha256:ce22bb851efd7494f08aad33b940803784434f6e77763d00679a0dc45fcf686a"
             ],
             "index": "pypi",
-            "markers": "python_full_version >= '3.9.0'",
-            "version": "==4.3.0"
+            "markers": "python_full_version >= '3.10.0'",
+            "version": "==5.0.1"
         },
         "deepspeed": {
             "hashes": [

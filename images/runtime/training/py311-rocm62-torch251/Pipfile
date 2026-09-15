@@ -10,7 +10,7 @@ name = "pytorch"
 
 [packages]
 peft = ">=0.15.2"
-datasets = ">=2.15.0"
+datasets = "==5.0.1"
 liger-kernel = "==0.5.4"
 transformers = "~=5.5.0"
 numpy = "<2.0.0,>=1.23.5"
