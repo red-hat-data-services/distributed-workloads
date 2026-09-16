@@ -83,3 +83,6 @@ environments = [
     "sys_platform == 'linux' and implementation_name == 'cpython'",
 ]
 index-url = "https://console.redhat.com/api/pypi/public-rhai/rhoai/3.4/cuda13.0-ubi9/simple/"
+constraint-dependencies = [
+    "gitpython>=3.1.62",
+]
