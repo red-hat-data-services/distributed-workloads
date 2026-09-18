@@ -539,6 +539,8 @@ torch==2.10.0
     #   peft
     #   rhai-innovation-mini-trainer
     #   training-hub
+tornado==6.5.8
+    # via tensorboard
 tqdm==4.67.3
     # via
     #   th06-cpu-universal-image (pyproject.toml)
