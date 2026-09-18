@@ -689,7 +689,7 @@ partial-json-parser==0.2.1.1.post7
     # via vllm
 pdfminer-six==20260107
     # via polyfile-weave
-peft==0.19.1
+peft==0.20.0
     # via
     #   th-torch-cuda-universal-image (pyproject.toml)
     #   instructlab-training
