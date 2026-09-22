@@ -167,7 +167,7 @@ gast==0.7.0
     # via tensorflow-rocm
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.52
+gitpython==3.1.62
     # via
     #   -c (workspace)
     #   mlflow-skinny
@@ -422,7 +422,7 @@ pandas==2.3.3
     #   datasets
     #   mlflow
     #   training-hub
-peft==0.19.1
+peft==0.20.0
     # via
     #   th-torch-rocm-universal-image (pyproject.toml)
     #   instructlab-training

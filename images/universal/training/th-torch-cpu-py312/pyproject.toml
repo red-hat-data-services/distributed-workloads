@@ -31,8 +31,7 @@ dependencies = [
     # ML Training and Inference Libraries
     "accelerate==1.14.0",
     "transformers==5.13.0",
-    "peft==0.19.1",
-    "datasets>=5.0.1",
+    "datasets==5.0.1",
     "trl==1.7.1",
     
     # Deep Learning Utilities (CPU-compatible)
@@ -93,7 +92,7 @@ index-strategy = "unsafe-best-match"
 index-url = "https://console.redhat.com/api/pypi/public-rhai/rhoai/3.5/cpu-ubi9/simple/"
 constraint-dependencies = [
     "aiohttp>=3.14.3",
-    "gitpython>=3.1.50",
+    "gitpython>=3.1.62",
     "pillow>=12.3.0",
     "pyasn1>=0.6.4",
     "starlette>=1.3.1",
