@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/python-312@sha256:a0a5885769d5a8c5123d3b15d5135b254541d4da8e7bc445d95e1c90595de470
+FROM registry.access.redhat.com/ubi9/python-312@sha256:bfbf12b2b49b5bd422f21ebe0643b4779303cba3e72b6c842ceeff39462c6cc8
 
 LABEL name="rhoai/odh-training-cuda128-torch29-py312-rhel9" \
     com.redhat.component="odh-training-cuda128-torch29-py312-rhel9" \
