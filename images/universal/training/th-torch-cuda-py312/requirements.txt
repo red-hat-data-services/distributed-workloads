@@ -164,7 +164,7 @@ databricks-sdk==0.120.0
     # via
     #   mlflow-skinny
     #   mlflow-tracing
-datasets==5.0.0
+datasets==5.0.1
     # via
     #   th-torch-cuda-universal-image (pyproject.toml)
     #   instructlab-training
