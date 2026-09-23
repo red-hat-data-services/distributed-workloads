@@ -7,6 +7,10 @@ COPY LICENSE.md /licenses/cuda-license.md
 USER 0
 WORKDIR /app
 
+# ubi9/python-311 base image is rebuilt infrequently; pull current RPM security
+# fixes from the UBI repos directly rather than waiting on a new base image.
+RUN dnf update -y && dnf clean all
+
 # upgrade requests package
 RUN pip install --no-cache-dir --upgrade requests==2.32.3
 
