@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "de270d1ef37bb0c1a95751ffa940d6dc614b50a8db81c0d8dca43690e54881e7"
+            "sha256": "8c69c9dd830780549f81ad640b27f0625a988f74b9ac0d03bb38f8953f93431a"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,11 @@
             {
                 "name": "pytorch-rocm64",
                 "url": "https://download.pytorch.org/whl/rocm6.4",
+                "verify_ssl": true
+            },
+            {
+                "name": "aipcc",
+                "url": "https://packages.redhat.com/api/pypi/public-rhai/rhoai/3.3/rocm6.4-ubi9/simple/",
                 "verify_ssl": true
             }
         ]
@@ -2449,16 +2454,11 @@
         },
         "torchvision": {
             "hashes": [
-                "sha256:5c2d03f42e893937ef22b91d4003ba79e6d796a6318f41aeba2f80679566e33a",
-                "sha256:64b9b9b0a7881bab5b7f8c563a4f2a9b468ddad61e22e0f6dc913d87aeb3af08",
-                "sha256:9870a33a0ea37dae934b4fe77db3f5013c224c365bdcbbd56aa8c653c0c13677",
-                "sha256:af3d3f0e3eebc04b7830dade7bd6e2be5918495a4e245cca35c439faf803bc44",
-                "sha256:becf4496872ee998db2fc59f579a9e587a7907285e957663af4e2dbcf7f605e6",
-                "sha256:f70360f9bc062620e1bb8390285bd5025e970c360c5da7ee03bdb4975d09a76e",
-                "sha256:f90084eca061a90c25057e2ad9e4b39c22bf6c4bfa955a04e44977a296b1f51b"
+                "sha256:d3d4fe55448c139145277a030cd9033e3308627ac39fe86e70fdcd637c196310"
             ],
-            "index": "pytorch-rocm64",
-            "version": "==0.24.0+rocm6.4"
+            "index": "aipcc",
+            "markers": "python_version >= '3.10'",
+            "version": "==0.24.0+rhai1"
         },
         "tqdm": {
             "hashes": [
