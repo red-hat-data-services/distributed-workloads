@@ -15,7 +15,7 @@ name = "aipcc"
 
 [packages]
 torch = {version = "==2.9.0", index = "pytorch-cu128"}
-torchvision = {version = "==0.24.1+rhai1", index = "aipcc"}
+torchvision = {version = "==0.24.0+rhai1", index = "aipcc"}
 accelerate = "==1.12.0"
 transformers = "~=5.5.0"
 peft = ">=0.20.0"
