@@ -6,6 +6,12 @@ COPY LICENSE.md /licenses/rocm-license.md
 # Set the working directory in the container
 USER 0
 
+# The base image digest and the live UBI RPM repos are not always in sync
+# (e.g. errata can land in the repos after the base image was last built);
+# pull current RPM security fixes explicitly rather than relying solely on
+# the pinned base digest.
+RUN dnf update -y && dnf clean all
+
 # Install ROCm
 WORKDIR /opt/app-root/bin
 
