@@ -8,9 +8,14 @@ url = "https://download.pytorch.org/whl/rocm6.4"
 verify_ssl = true
 name = "pytorch-rocm64"
 
+[[source]]
+url = "https://packages.redhat.com/api/pypi/public-rhai/rhoai/3.3/rocm6.4-ubi9/simple/"
+verify_ssl = true
+name = "aipcc"
+
 [packages]
 torch = {version = "==2.9.0+rocm6.4", index = "pytorch-rocm64"}
-torchvision = {version = "==0.24.0+rocm6.4", index = "pytorch-rocm64"}
+torchvision = {version = "==0.24.1+rhai1", index = "aipcc"}
 pytorch-triton-rocm = {version = "==3.5.0", index = "pytorch-rocm64"}
 accelerate = "==1.12.0"
 transformers = "~=5.5.0"

@@ -628,7 +628,7 @@ torch==2.9.1
     #   xformers
 torchao==0.17.0+git
     # via unsloth-zoo
-torchvision==0.24.1
+torchvision==0.24.1+rhai1
     # via unsloth
 tqdm==4.67.3
     # via
