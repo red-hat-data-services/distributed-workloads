@@ -88,9 +88,6 @@ environments = [
 ]
 index-strategy = "unsafe-best-match"
 index-url = "https://console.redhat.com/api/pypi/public-rhai/rhoai/3.4/rocm6.4-ubi9/simple/"
-extra-index-url = [
-    "https://packages.redhat.com/api/pypi/public-rhai/rhoai/3.3/rocm6.4-ubi9/simple/",
-]
 constraint-dependencies = [
     "aiohttp~=3.14.3",
     "gitpython>=3.1.62",
