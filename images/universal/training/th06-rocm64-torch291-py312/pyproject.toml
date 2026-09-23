@@ -94,5 +94,5 @@ constraint-dependencies = [
     "pillow~=12.3.0",
     "sqlparse>=0.6.0",
     "starlette~=1.3.1",
-    "torchvision>=0.24.1+rhaiv.1",
+    "torchvision==0.24.1+rhaiv.1",
 ]
