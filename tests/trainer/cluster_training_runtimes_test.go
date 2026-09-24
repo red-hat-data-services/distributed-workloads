@@ -35,7 +35,12 @@ func TestDefaultClusterTrainingRuntimes(t *testing.T) {
 	Tags(t, Smoke)
 	test := With(t)
 
-	imagePrefix := GetExpectedImagePrefix(test)
+	buildType, err := GetBuildType(test)
+	test.Expect(err).NotTo(HaveOccurred(), "Failed to identify installed ODH/RHOAI build")
+	imagePrefix := OdhImagePrefix
+	if buildType != "" {
+		imagePrefix = GetExpectedImagePrefix(test)
+	}
 
 	// Build a map of expected runtimes for quick lookup
 	expectedRuntimeMap := make(map[string]trainerutils.ClusterTrainingRuntime)
