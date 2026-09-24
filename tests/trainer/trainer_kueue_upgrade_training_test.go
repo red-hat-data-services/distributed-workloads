@@ -349,6 +349,7 @@ func TestRunSpecificRuntimeUpgradeTrainJob(t *testing.T) {
 // from RHOAIENG-48867.
 func TestSetupCustomRuntimeUpgradeTrainJob(t *testing.T) {
 	Tags(t, PreUpgrade)
+	t.Skip("Skip due to issue RHOAIENG-87965")
 	test := With(t)
 	SetupKueue(test, initialKueueState, TrainJobFramework)
 
@@ -434,6 +435,7 @@ func TestSetupCustomRuntimeUpgradeTrainJob(t *testing.T) {
 
 func TestRunCustomRuntimeUpgradeTrainJob(t *testing.T) {
 	Tags(t, PostUpgrade)
+	t.Skip("Skip due to issue RHOAIENG-87965")
 	test := With(t)
 	SetupKueue(test, initialKueueState, TrainJobFramework)
 
