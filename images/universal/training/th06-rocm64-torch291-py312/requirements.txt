@@ -709,11 +709,11 @@ tyro==1.0.12
     #   unsloth-zoo
 tzdata==2026.1
     # via pandas
-unsloth==2026.4.5
+unsloth==2026.6.9+rhaiv.2
     # via
     #   th06-rocm-universal-image (pyproject.toml)
     #   training-hub
-unsloth-zoo==2026.4.7
+unsloth-zoo==2026.6.7+rhaiv.1
     # via unsloth
 urllib3==2.7.0
     # via
