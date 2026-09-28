@@ -1,4 +1,4 @@
-# TH CPU Universal Image Dockerfile (torch 2.11.0)
+# TH CPU Universal Image Dockerfile (torch 2.13.0)
 #
 # FIPS-friendly Features:
 # - Build tools are isolated in intermediate stage
@@ -53,7 +53,7 @@ RUN rm -rf /tmp/deps
 FROM ${BASE_IMAGE} AS final
 
 LABEL name="th-torch-cpu-py312" \
-      summary="CPU Python 3.12 Training Hub 09 PyTorch 2.11.0 image on UBI9" \
+      summary="CPU Python 3.12 Training Hub 10 PyTorch 2.13.0 image on UBI9" \
       description="Universal CPU training image combining Jupyter workbench and runtime ML stack on UBI9" \
       io.k8s.display-name="CPU Python 3.12 Universal Training Image" \
       io.k8s.description="Universal CPU training image: Jupyter workbench by default; runtime when command provided."
