@@ -20,6 +20,9 @@ metadata:
   name: odh-th-torch-rocm-py312-on-push
   namespace: open-data-hub-tenant
 spec:
+  timeouts:
+    pipeline: 3h
+    tasks: 3h
   params:
   - name: git-url
     value: '{{source_url}}'
@@ -31,6 +34,9 @@ spec:
     value: Dockerfile
   - name: path-context
     value: images/universal/training/th-torch-rocm-py312
+  - name: build-platforms
+    value:
+    - linux-extra-fast/amd64
   pipelineRef:
     resolver: git
     params:
