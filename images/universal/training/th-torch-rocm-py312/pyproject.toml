@@ -28,7 +28,7 @@ dependencies = [
     "tensorflow_rocm==2.19.1",
     
     # ML Training and Inference Libraries
-    "accelerate==1.14.0",
+    "accelerate>=1.15.0",
     "transformers==5.13.0",
     "peft>=0.20.0",
     "datasets==5.0.1",
