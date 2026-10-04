@@ -26,6 +26,7 @@ import (
 	prometheusapiv1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prometheusconfig "github.com/prometheus/common/config"
 
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -35,17 +36,42 @@ func GetOpenShiftPrometheusApiClient(t Test) prometheusapiv1.API {
 	if prometheusApiClient == nil {
 		prometheusOpenShiftRoute := GetRoute(t, "openshift-monitoring", "prometheus-k8s")
 		routeHost := prometheusOpenShiftRoute.Status.Ingress[0].Host
+		bearerToken := t.Config().BearerToken
+		if bearerToken == "" {
+			// Konflux provisions kubeconfig credentials with a username and
+			// password, so there is no user bearer token in rest.Config. Use the
+			// Prometheus service account token as the fallback for the protected
+			// Prometheus route.
+			prometheusServiceAccount, err := t.Client().Core().CoreV1().ServiceAccounts("openshift-monitoring").Get(
+				t.Ctx(), "prometheus-k8s", metav1.GetOptions{})
+			t.Expect(err).NotTo(HaveOccurred())
+			bearerToken = CreateToken(t, "openshift-monitoring", prometheusServiceAccount)
+		}
 		routerCA, err := t.Client().Core().CoreV1().Secrets("openshift-ingress-operator").Get(
 			t.Ctx(), "router-ca", metav1.GetOptions{})
 		t.Expect(err).NotTo(HaveOccurred())
 		// Keep the system roots because the ingress controller may use a
-		// custom/public certificate (for example, Let's Encrypt) instead of
-		// the internal router CA. Append the router CA as well for clusters
-		// that use the default OpenShift ingress certificate.
+		// public certificate (for example, Let's Encrypt). The
+		// default-ingress-cert ConfigMap contains the CA bundle for custom
+		// ingress certificates used by managed OpenShift clusters. The
+		// router-ca Secret covers clusters using the operator-generated
+		// default ingress certificate.
 		rootCAs, err := x509.SystemCertPool()
 		if err != nil || rootCAs == nil {
 			rootCAs = x509.NewCertPool()
 		}
+
+		activeIngressCA, err := t.Client().Core().CoreV1().ConfigMaps("openshift-config-managed").Get(
+			t.Ctx(), "default-ingress-cert", metav1.GetOptions{})
+		if err == nil {
+			activeIngressCABundle := activeIngressCA.Data["ca-bundle.crt"]
+			if activeIngressCABundle != "" {
+				t.Expect(rootCAs.AppendCertsFromPEM([]byte(activeIngressCABundle))).To(BeTrue())
+			}
+		} else if !apierrors.IsNotFound(err) {
+			t.Expect(err).NotTo(HaveOccurred())
+		}
+
 		t.Expect(rootCAs.AppendCertsFromPEM(routerCA.Data["tls.crt"])).To(BeTrue())
 
 		tr := &http.Transport{
@@ -54,7 +80,7 @@ func GetOpenShiftPrometheusApiClient(t Test) prometheusapiv1.API {
 		}
 		client, err := prometheusapi.NewClient(prometheusapi.Config{
 			Address: "https://" + routeHost,
-			Client:  &http.Client{Transport: prometheusconfig.NewAuthorizationCredentialsRoundTripper("Bearer", prometheusconfig.NewInlineSecret(t.Config().BearerToken), tr)},
+			Client:  &http.Client{Transport: prometheusconfig.NewAuthorizationCredentialsRoundTripper("Bearer", prometheusconfig.NewInlineSecret(bearerToken), tr)},
 		})
 		t.Expect(err).NotTo(HaveOccurred())
 
