@@ -40,13 +40,13 @@ spec:
     value: "true"
   - name: prefetch-input
     value: |
-      [{"type": "pip", "path": "images/universal/training/th-torch-cuda-py312", "requirements_files": ["requirements.txt"], "binary": {"arch": "x86_64,aarch64", "os": "linux"}}]
+      [{"type": "pip", "path": "images/universal/training/th-torch-cuda-py312", "requirements_files": ["requirements.txt"], "binary": {"arch": "x86_64,aarch64", "os": "linux"}},{"type": "rpm", "path": "images/universal/training/th-torch-cuda-py312"}]
   - name: build-args
     value: ["DOWNSTREAM=true"]
   - name: build-platforms
     value:
     - linux/x86_64
-    - linux-d160-m2xlarge/arm64
+    - linux-d160-m4xlarge/arm64
   pipelineRef:
     params:
     - name: url
