@@ -2442,10 +2442,11 @@
         },
         "torchao": {
             "hashes": [
-                "sha256:2d6293a0c57c9dd505efb025a7189459d154965fbed000efd638cf299f9362dd",
-                "sha256:d0a8d773351fd17b95fee81dfbcbf98577b567dcdbec47d221b0ee258432101d"
+                "sha256:5c2b4485341bf28b7fed2c4fc95b9f298e209f41685350f067de85527a05585e",
+                "sha256:6540b148e40ba81cbd4de86392225a076a1591146e9cebb099b3b234ba9feebe"
             ],
-            "version": "==0.16.0"
+            "markers": "sys_platform != 'darwin' or platform_machine != 'arm64'",
+            "version": "==0.18.0"
         },
         "torchvision": {
             "hashes": [
@@ -2560,19 +2561,18 @@
         },
         "unsloth": {
             "hashes": [
-                "sha256:cfd15b31dcecd3c0368e00ff18b4a5646551a48c3eaa30a6a6401e2bf0e2ffb0",
-                "sha256:f2902c95c86328ddccd60be174b11ffa348ea5f69a1c60356b3c8cd4a84ac5e0"
+                "sha256:e4cf7f2fc74e0b618ad6fc8b09b43e2181569333018965918256f93c02c3820e"
             ],
-            "markers": "python_version < '3.14' and python_version >= '3.9'",
-            "version": "==2026.2.1"
+            "markers": "python_version < '3.15' and python_version >= '3.9'",
+            "version": "==2026.9.14"
         },
         "unsloth-zoo": {
             "hashes": [
-                "sha256:229520a1ead3f71ad241999bbae2691b20d7961828a1475ed5bf36b724d83f7c",
-                "sha256:ac664f54c18e343c62e5f877f71fe7517d84728bd4ccdf6114f2d08abcc29c19"
+                "sha256:4ae0cabb93c8d6755af541767a4243eee511f2ce41e36b56a8c80f15591e0663",
+                "sha256:b39098ff75f10ae79cdada0a32b2cde01bdba5ef0fd77d7a4c55e5f79e49ded0"
             ],
-            "markers": "python_version < '3.14' and python_version >= '3.9'",
-            "version": "==2026.2.1"
+            "markers": "python_version < '3.15' and python_version >= '3.9'",
+            "version": "==2026.9.9"
         },
         "urllib3": {
             "hashes": [
@@ -2984,6 +2984,30 @@
             ],
             "markers": "python_version >= '3.9'",
             "version": "==3.23.0"
+        },
+        "click": {
+            "hashes": [
+                "sha256:255bc9599cf7748b4b1a446ccc735421bd08a2ae529a8b88597d3de5664ee360",
+                "sha256:ba0d2089de75ea0310e2dde03160e6ca10009947fb95a182f9b54021bb272e34"
+            ],
+            "markers": "python_version >= '3.10'",
+            "version": "==8.5.0"
+        },
+        "nest-asyncio": {
+            "hashes": [
+                "sha256:6f172d5449aca15afd6c646851f4e31e02c598d553a667e38cafa997cfec55fe",
+                "sha256:87af6efd6b5e897c81050477ef65c62e2b2f35d51703cae01aff2905b1852e1c"
+            ],
+            "markers": "python_version >= '3.5'",
+            "version": "==1.6.0"
+        },
+        "structlog": {
+            "hashes": [
+                "sha256:e081a26d6c373e6d201eca24eede26d8ffab07f88f477822e679183428d3d91e",
+                "sha256:f63a716cbd1b1291cf7661de7794b455acfa4c43c5bcf1630e6ad5ddc1adb3b7"
+            ],
+            "markers": "python_version >= '3.10'",
+            "version": "==26.1.0"
         }
     },
     "develop": {}
