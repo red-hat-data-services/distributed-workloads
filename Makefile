@@ -70,3 +70,15 @@ push-osu-benchmark-cuda-image:
 .PHONY: precommit
 precommit:
 	pre-commit run --all-files
+
+.PHONY: verify-requirements
+verify-requirements: ## Verify runtime and universal dependency lockfiles.
+	@$(MAKE) verify-runtime-lockfiles verify-universal-requirements
+
+.PHONY: verify-runtime-lockfiles
+verify-runtime-lockfiles: ## Verify non-MPI runtime training dependency graphs.
+	@bash ./hack/verify-runtime-lockfiles.sh
+
+.PHONY: verify-universal-requirements
+verify-universal-requirements: ## Verify universal image requirements.txt files.
+	@bash ./hack/verify-universal-requirements.sh
