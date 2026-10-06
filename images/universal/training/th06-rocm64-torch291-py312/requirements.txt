@@ -24,7 +24,6 @@ aiohttp==3.14.3
     #   -c (workspace)
     #   aiobotocore
     #   aiohttp-retry
-    #   fsspec
     #   mlflow
     #   model-registry
     #   s3fs
@@ -141,8 +140,9 @@ frozenlist==1.8.0
     #   aiohttp
     #   aiosignal
     #   training-hub
-fsspec==2025.9.0
+fsspec==2026.6.0
     # via
+    #   --override (workspace)
     #   datasets
     #   huggingface-hub
     #   s3fs
