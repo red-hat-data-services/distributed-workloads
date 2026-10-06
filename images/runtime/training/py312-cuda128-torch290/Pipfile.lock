@@ -978,11 +978,12 @@
                 "http"
             ],
             "hashes": [
-                "sha256:19fd429483d25d28b65ec68f9f4adc16c17ea2c7c7bf54ec61360d478fb19c19",
-                "sha256:530dc2a2af60a414a832059574df4a6e10cce927f6f4a78209390fe38955cfb7"
+                "sha256:02e0b71817df9b2169dc30a16832045764def1191b43dcff5bb85bdee212d2a1",
+                "sha256:f5bac145310fe30e16e1471bd6840b2d990d609e872251d7e674241822abf01a"
             ],
-            "markers": "python_version >= '3.9'",
-            "version": "==2025.9.0"
+            "index": "pypi",
+            "markers": "python_version >= '3.10'",
+            "version": "==2026.6.0"
         },
         "gitdb": {
             "hashes": [
