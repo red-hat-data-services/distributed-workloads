@@ -1,5 +1,4 @@
 # Universal CUDA Image Dockerfile (CUDA 13.0.2, torch 2.11.0)
-# Temporary rebuild trigger; remove after pipeline validation.
 #
 # FIPS-friendly Features:
 # - Build tools are isolated in intermediate stage
