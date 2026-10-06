@@ -1,0 +1,14 @@
+contentOrigin:
+  repofiles:
+    - ./rpm-repos/redhat.repo
+
+packages:
+  - openssh-server
+
+arches:
+  - x86_64
+  - aarch64
+  - ppc64le
+
+context:
+  containerfile: Dockerfile.konflux
