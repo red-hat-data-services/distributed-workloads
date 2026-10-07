@@ -156,7 +156,7 @@ frozenlist==1.8.0
     #   aiohttp
     #   aiosignal
     #   training-hub
-fsspec==2026.4.0
+fsspec==2026.6.0
     # via
     #   datasets
     #   huggingface-hub
@@ -558,7 +558,7 @@ rich==15.0.0
     #   training-hub
     #   typer
     #   unsloth
-s3fs==2026.4.0
+s3fs==2026.6.0
     # via th-torch-rocm-universal-image (pyproject.toml)
 safetensors==0.8.0
     # via
