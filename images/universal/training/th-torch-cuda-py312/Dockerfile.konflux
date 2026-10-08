@@ -17,6 +17,8 @@ ARG BASE_IMAGE=quay.io/rhoai/odh-workbench-jupyter-minimal-cuda-py312-rhel9@sha2
 ARG PYTHON_VERSION=3.12
 ARG DOWNSTREAM=false
 
+# Temporary rebuild trigger to validate the current Konflux worker configuration.
+
 ################################################################################
 # Build Stage - Install Python Dependencies
 ################################################################################
