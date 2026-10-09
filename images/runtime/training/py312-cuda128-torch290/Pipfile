@@ -13,6 +13,11 @@ url = "https://console.redhat.com/api/pypi/public-rhai/rhoai/3.3/cuda13.0-ubi9/s
 verify_ssl = true
 name = "aipcc"
 
+[[source]]
+url = "https://console.redhat.com/api/pypi/public-rhai/rhoai/3.4/cuda12.9-ubi9/simple/"
+verify_ssl = true
+name = "rhai"
+
 [packages]
 torch = {version = "==2.9.0", index = "pytorch-cu128"}
 torchvision = {version = "==0.24.0+rhai1", index = "aipcc"}
@@ -36,7 +41,8 @@ bitsandbytes = "==0.49.1"
 liger-kernel = "==0.6.4"
 sentencepiece = "<0.3,>=0.2.1"
 tokenizers = "==0.22.2"
-training-hub = "==0.5.0"
+training-hub = {version = "==0.5.0", extras = ["lora"]}
+unsloth = {version = "==2026.6.9+rhaiv.2", index = "rhai"}
 instructlab-training = "==0.13.0"
 rhai-innovation-mini-trainer = "==0.5.0"
 einops = "==0.8.1"
