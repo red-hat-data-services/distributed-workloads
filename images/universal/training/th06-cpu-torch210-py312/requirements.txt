@@ -21,10 +21,11 @@ aiohappyeyeballs==2.6.1
     # via aiohttp
 aiohttp==3.14.3
     # via
-    #   th06-cpu-universal-image (pyproject.toml)
+    #   -c (workspace)
     #   aiobotocore
     #   aiohttp-retry
     #   fsspec
+    #   mlflow
     #   model-registry
     #   s3fs
     #   training-hub
@@ -45,6 +46,7 @@ annotated-types==0.7.0
 anyio==4.13.0
     # via
     #   httpx
+    #   mlflow-skinny
     #   starlette
 async-timeout==5.0.1
     # via th06-cpu-universal-image (pyproject.toml)
@@ -140,7 +142,9 @@ fsspec==2025.9.0
 gitdb==4.0.12
     # via gitpython
 gitpython==3.1.62
-    # via mlflow-skinny
+    # via
+    #   -c (workspace)
+    #   mlflow-skinny
 google-auth==2.49.2
     # via databricks-sdk
 googleapis-common-protos==1.74.0
@@ -250,11 +254,11 @@ matplotlib==3.10.8
     #   training-hub
 mdurl==0.1.2
     # via markdown-it-py
-mlflow==3.10.1+rhaiv.3
+mlflow==3.17.0
     # via th06-cpu-universal-image (pyproject.toml)
-mlflow-skinny==3.10.1+rhaiv.3
+mlflow-skinny==3.17.0
     # via mlflow
-mlflow-tracing==3.10.1+rhaiv.3
+mlflow-tracing==3.17.0
     # via mlflow
 model-registry==0.3.7
     # via th06-cpu-universal-image (pyproject.toml)
@@ -353,6 +357,7 @@ peft==0.18.1
     #   training-hub
 pillow==12.3.0
     # via
+    #   -c (workspace)
     #   matplotlib
     #   tensorboard
 pluggy==1.6.0
@@ -514,9 +519,14 @@ sqlalchemy==2.0.49
     #   alembic
     #   mlflow
 sqlparse==0.6.0
-    # via mlflow-skinny
+    # via
+    #   -c (workspace)
+    #   mlflow-skinny
 starlette==1.3.1
-    # via fastapi
+    # via
+    #   -c (workspace)
+    #   fastapi
+    #   mlflow-skinny
 sympy==1.14.0
     # via
     #   torch
