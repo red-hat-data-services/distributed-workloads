@@ -35,7 +35,6 @@ import (
 	kueuev1beta2 "sigs.k8s.io/kueue/apis/kueue/v1beta2"
 	kueueacv1beta2 "sigs.k8s.io/kueue/client-go/applyconfiguration/kueue/v1beta2"
 
-	. "github.com/opendatahub-io/distributed-workloads/tests/common"
 	. "github.com/opendatahub-io/distributed-workloads/tests/common/support"
 	trainerutils "github.com/opendatahub-io/distributed-workloads/tests/trainer/utils"
 )
@@ -370,7 +369,8 @@ func TestRunSpecificRuntimeUpgradeTrainJob(t *testing.T) {
 // user-created, its spec won't change during upgrade, avoiding the immutable JobSet field issue
 // from RHOAIENG-48867.
 func TestSetupCustomRuntimeUpgradeTrainJob(t *testing.T) {
-	Tags(t, PreUpgrade)
+	t.Skip("Skip due to issue RHOAIENG-87834")
+	// Tags(t, PreUpgrade)
 	test := With(t)
 	SetupKueue(test, initialKueueState, TrainJobFramework)
 
@@ -455,7 +455,8 @@ func TestSetupCustomRuntimeUpgradeTrainJob(t *testing.T) {
 }
 
 func TestRunCustomRuntimeUpgradeTrainJob(t *testing.T) {
-	Tags(t, PostUpgrade)
+	t.Skip("Skip due to issue RHOAIENG-87834")
+	// Tags(t, PostUpgrade)
 	test := With(t)
 	SetupKueue(test, initialKueueState, TrainJobFramework)
 
