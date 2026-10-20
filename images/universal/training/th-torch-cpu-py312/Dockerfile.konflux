@@ -44,6 +44,15 @@ USER 0
 RUN chmod -R g+w /opt/app-root/lib/python${PYTHON_VERSION}/site-packages \
  && fix-permissions /opt/app-root -P
 
+# Remove TensorBoard's (optional) Rust data server because its bundled crypto is not FIPS compliant.
+# Verify that tensorboard automatically falls back to the (slower) pure python server in case the
+# server becomes a hard-requirement.
+RUN rm /opt/app-root/lib/python${PYTHON_VERSION}/site-packages/tensorboard_data_server/bin/server && \
+    python -c "from tensorboard import program; \
+        tb = program.TensorBoard(); \
+        tb.configure(argv=['tensorboard', '--logdir=/tmp/tensorboard-smoke', '--load_fast=auto', '--host=127.0.0.1', '--port=0']); \
+        tb.launch()"
+
 # Clean up
 RUN rm -rf /tmp/deps
 
