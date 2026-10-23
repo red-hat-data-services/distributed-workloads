@@ -40,7 +40,7 @@ spec:
     value: rhel-subscription-activation-key-rhoai-devops-for-notebooks-rhel9-6
   - name: prefetch-input
     value: |
-      [{"type": "pip", "path": "images/universal/training/th-torch-cuda-py312", "requirements_files": ["requirements.txt"], "binary": {"arch": "x86_64,aarch64", "os": "linux"}}]
+      [{"type": "pip", "path": "images/universal/training/th-torch-cuda-py312", "requirements_files": ["requirements.txt"], "binary": {"arch": "x86_64,aarch64", "os": "linux"}},{"type": "rpm", "path": "images/universal/training/th-torch-cuda-py312"}]
   - name: build-args
     value: ["DOWNSTREAM=true"]
   - name: build-platforms
@@ -89,6 +89,12 @@ spec:
           memory: 4Gi
         limits:
           memory: 4Gi
+  - pipelineTaskName: rpms-signature-scan
+    computeResources:
+      requests:
+        memory: 8Gi
+      limits:
+        memory: 8Gi
   taskRunTemplate:
     serviceAccountName: build-pipeline-odh-th-torch-cuda-py312-v3-6
     podTemplate:
