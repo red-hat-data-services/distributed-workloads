@@ -114,8 +114,9 @@ einops==0.8.2
     # via th06-cpu-universal-image (pyproject.toml)
 fastapi==0.135.3
     # via mlflow-skinny
-filelock==3.28.0
+filelock==4.2.4
     # via
+    #   -c (workspace)
     #   datasets
     #   huggingface-hub
     #   torch
@@ -608,8 +609,9 @@ typing-inspection==0.4.2
     #   pydantic
 tzdata==2026.1
     # via pandas
-urllib3==2.7.0
+urllib3==2.8.0
     # via
+    #   -c (workspace)
     #   botocore
     #   docker
     #   kubernetes
