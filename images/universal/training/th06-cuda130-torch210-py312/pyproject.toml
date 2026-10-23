@@ -103,10 +103,12 @@ index-strategy = "unsafe-best-match"
 index-url = "https://console.redhat.com/api/pypi/public-rhai/rhoai/3.4/cuda13.0-ubi9/simple/"
 constraint-dependencies = [
     "aiohttp~=3.14.3",
+    "filelock>=4.2.1",
     "gitpython>=3.2.1",
     "pillow~=12.3.0",
     "sqlparse>=0.6.0",
     "starlette~=1.3.1",
+    "urllib3>=2.8.0",
     "torchvision==0.25.0+rhaiv.1",
 ]
 override-dependencies = [

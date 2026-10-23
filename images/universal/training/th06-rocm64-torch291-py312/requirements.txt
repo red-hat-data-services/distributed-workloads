@@ -119,8 +119,9 @@ einops==0.8.2
     #   flash-attn
 fastapi==0.135.3
     # via mlflow-skinny
-filelock==3.28.0
+filelock==4.2.4
     # via
+    #   -c (workspace)
     #   datasets
     #   huggingface-hub
     #   torch
@@ -649,8 +650,9 @@ unsloth==2026.6.9+rhaiv.2
     # via
     #   th06-rocm-universal-image (pyproject.toml)
     #   training-hub
-urllib3==2.7.0
+urllib3==2.8.0
     # via
+    #   -c (workspace)
     #   botocore
     #   docker
     #   kubernetes
