@@ -18,6 +18,10 @@ package support
 
 import (
 	"fmt"
+
+	"github.com/operator-framework/api/pkg/operators/v1alpha1"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
@@ -69,6 +73,56 @@ func GetProduct(test Test) (*Product, error) {
 	return nil, fmt.Errorf("no product found for applications namespace %s", dsciApplicationsNamespace)
 }
 
+// BuildType identifies the distribution selected by the operator subscription.
+type BuildType string
+
+const (
+	ODHBuild   BuildType = "ODH"
+	RHOAIBuild BuildType = "RHOAI"
+)
+
+// GetBuildType identifies the build from the operator subscription channel:
+// odh-stable is ODH; all other channels are assumed to be RHOAI. An empty
+// build type is returned when neither ODH nor RHOAI is installed, which is
+// valid for standalone Trainer installations.
+func GetBuildType(test Test) (BuildType, error) {
+	test.T().Helper()
+
+	subscriptions, err := test.Client().OLM().OperatorsV1alpha1().Subscriptions(metav1.NamespaceAll).List(
+		test.Ctx(), metav1.ListOptions{})
+	if err != nil {
+		return "", fmt.Errorf("failed to list operator subscriptions: %w", err)
+	}
+
+	var subscription *v1alpha1.Subscription
+	for i := range subscriptions.Items {
+		sub := &subscriptions.Items[i]
+		if sub.Spec == nil || (sub.Spec.Package != OdhCsvNamePrefix && sub.Spec.Package != RhoaiCsvNamePrefix) {
+			continue
+		}
+		if subscription != nil {
+			return "", fmt.Errorf("multiple ODH/RHOAI subscriptions found: %s/%s and %s/%s",
+				subscription.Namespace, subscription.Name, sub.Namespace, sub.Name)
+		}
+		subscription = sub
+	}
+	if subscription == nil {
+		test.T().Log("No ODH/RHOAI operator subscription found; assuming standalone installation")
+		return "", nil
+	}
+	channel := subscription.Spec.Channel
+	buildType := RHOAIBuild
+	if channel == "odh-stable" {
+		buildType = ODHBuild
+	}
+	test.T().Logf("Build installed in cluster: %s; channel=%q; installedCSV=%q",
+		buildType, channel, subscription.Status.InstalledCSV)
+	return buildType, nil
+}
+
+// IsRhoai reports whether the installed operator is a RHOAI build. It returns
+// false when the product cannot be determined, e.g. for standalone Trainer
+// installations without DSCInitialization.
 func IsRhoai(test Test) bool {
 	test.T().Helper()
 
