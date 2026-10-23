@@ -1,14 +1,3 @@
-# TH CPU Universal Image Dockerfile (torch 2.11.0)
-#
-# FIPS-friendly Features:
-# - Build tools are isolated in intermediate stage
-# - Final image contains only runtime dependencies
-# - Uses pip install (additive) to preserve base image packages
-#
-# Build Modes:
-# - Midstream (default): DOWNSTREAM=false - installs system packages
-# - Downstream: DOWNSTREAM=true - skips midstream-only sections (base image has them)
-
 ################################################################################
 # Build Arguments
 ################################################################################
@@ -150,3 +139,4 @@ WORKDIR /opt/app-root/src
 
 ENTRYPOINT ["/usr/local/bin/entrypoint-universal.sh"]
 CMD ["start-notebook.sh"]
+
