@@ -31,10 +31,9 @@ COPY --chown=1001:0 pyproject.toml requirements.txt ./
 USER 1001
 WORKDIR /opt/app-root/src
 
-# Install dependencies from cachi2 prefetched packages
-# cachi2.env sets PIP_FIND_LINKS and PIP_NO_INDEX, but uv ignores PIP_* vars,
-# so we pass them explicitly as CLI flags
-RUN . /cachi2/cachi2.env && uv pip install --no-cache-dir --no-deps \
+# Install dependencies from cachi2 prefetched packages. The downstream CPU
+# base image intentionally omits the build-only uv binary for FIPS compliance.
+RUN . /cachi2/cachi2.env && pip install --no-cache-dir --no-deps \
     --no-index --find-links "${PIP_FIND_LINKS}" \
     -r /tmp/deps/requirements.txt
 
@@ -101,9 +100,7 @@ COPY --from=builder /opt/app-root/bin /opt/app-root/bin
 
 # polyfile-weave registers cv2.typing stubs that trigger import cv2 during
 # pkgutil scanning in multiprocessing.spawn, which fails on UBI9
-RUN uv pip uninstall polyfile-weave 2>/dev/null || true
-
-# Note: uv is kept in the final image — needed at runtime by openpipe-art
+RUN pip uninstall --yes polyfile-weave
 
 # The SDK replaces the container entrypoint and execs an MPI launcher directly,
 # so the normal entrypoint does not run on the launcher. Keep the MPI launcher
