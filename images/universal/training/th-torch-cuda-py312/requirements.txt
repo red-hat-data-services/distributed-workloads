@@ -53,6 +53,7 @@ anthropic==0.117.0
     # via vllm
 anyio==4.14.2
     # via
+    #   -c (workspace)
     #   anthropic
     #   gql
     #   httpx
@@ -272,6 +273,7 @@ frozenlist==1.8.0
     #   training-hub
 fsspec==2026.6.0
     # via
+    #   -c (workspace)
     #   datasets
     #   huggingface-hub
     #   s3fs
@@ -695,7 +697,7 @@ peft==0.20.0
     #   instructlab-training
     #   training-hub
     #   unsloth-zoo
-pillow==12.3.0
+pillow==13.0.0
     # via
     #   -c (workspace)
     #   matplotlib
