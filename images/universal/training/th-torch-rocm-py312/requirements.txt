@@ -179,8 +179,9 @@ google-pasta==0.2.0
     # via tensorflow-rocm
 graphene==3.4.3
     # via mlflow
-graphql-core==3.2.11
+graphql-core==3.2.12
     # via
+    #   -c (workspace)
     #   graphene
     #   graphql-relay
 graphql-relay==3.2.0

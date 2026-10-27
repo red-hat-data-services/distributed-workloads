@@ -185,8 +185,9 @@ gql==4.0.0
     # via weave
 graphene==3.4.3
     # via mlflow
-graphql-core==3.2.8
+graphql-core==3.2.12
     # via
+    #   -c (workspace)
     #   gql
     #   graphene
     #   graphql-relay
