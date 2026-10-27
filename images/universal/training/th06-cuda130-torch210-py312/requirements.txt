@@ -400,7 +400,7 @@ peft==0.18.1
     #   th06-cuda-universal-image (pyproject.toml)
     #   instructlab-training
     #   training-hub
-pillow==12.3.0
+pillow==13.0.0
     # via
     #   -c (workspace)
     #   matplotlib
