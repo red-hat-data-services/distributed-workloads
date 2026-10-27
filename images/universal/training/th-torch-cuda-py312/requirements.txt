@@ -53,6 +53,7 @@ anthropic==0.117.0
     # via vllm
 anyio==4.14.2
     # via
+    #   -c (workspace)
     #   anthropic
     #   gql
     #   httpx
@@ -195,8 +196,10 @@ distro==1.9.0
     # via
     #   anthropic
     #   openai
-dnspython==2.8.0
-    # via email-validator
+dnspython==2.9.0
+    # via
+    #   -c (workspace)
+    #   email-validator
 docker==7.2.0
     # via mlflow
 docstring-parser==0.18.0
@@ -272,6 +275,7 @@ frozenlist==1.8.0
     #   training-hub
 fsspec==2026.6.0
     # via
+    #   -c (workspace)
     #   datasets
     #   huggingface-hub
     #   s3fs
