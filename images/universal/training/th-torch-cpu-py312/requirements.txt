@@ -162,6 +162,7 @@ frozenlist==1.8.0
     #   training-hub
 fsspec==2026.6.0
     # via
+    #   -c (workspace)
     #   datasets
     #   huggingface-hub
     #   s3fs
@@ -434,7 +435,7 @@ peft==0.20.0
     #   th-torch-cpu-universal-image (pyproject.toml)
     #   instructlab-training
     #   training-hub
-pillow==12.3.0
+pillow==13.0.0
     # via
     #   -c (workspace)
     #   matplotlib
