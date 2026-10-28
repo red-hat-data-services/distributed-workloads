@@ -81,7 +81,7 @@ dependencies = [
     "instructlab-training==0.16.2",
     "rhai-innovation-mini-trainer==0.8.3",
     "unsloth==2026.6.9+rhaiv.2",
-    "unsloth-zoo==2026.6.7+rhaiv.1",
+    "unsloth-zoo==2026.9.3+rhaiv.1",
     
     # Kubeflow SDK
     "kubeflow==0.3.0+rhaiv.3",
