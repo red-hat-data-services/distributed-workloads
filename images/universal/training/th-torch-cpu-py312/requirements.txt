@@ -64,8 +64,14 @@ backoff==2.2.1
     # via gql
 blinker==1.9.0
     # via flask
+boto3==1.43.22
+    # via
+    #   --override (workspace)
+    #   litellm
 botocore==1.41.5
-    # via aiobotocore
+    # via
+    #   --override (workspace)
+    #   aiobotocore
 cachetools==7.1.4
     # via
     #   mlflow-skinny
@@ -287,8 +293,10 @@ kubeflow-trainer-api==2.1.0
     # via kubeflow
 kubernetes==35.0.0
     # via kubeflow
-litellm==1.84.0
-    # via openpipe-art
+litellm==1.102.2
+    # via
+    #   --override (workspace)
+    #   openpipe-art
 llvmlite==0.47.0
     # via
     #   numba
@@ -507,6 +515,8 @@ pydantic==2.12.5
     #   weave
 pydantic-core==2.41.5
     # via pydantic
+pydantic-settings==2.14.2
+    # via litellm
 pygments==2.20.0
     # via
     #   pytest
@@ -588,6 +598,8 @@ rpds-py==2026.6.3
     #   referencing
 s3fs==2026.6.0
     # via th-torch-cpu-universal-image (pyproject.toml)
+s3transfer==0.18.0
+    # via boto3
 safetensors==0.8.0
     # via
     #   th-torch-cpu-universal-image (pyproject.toml)
