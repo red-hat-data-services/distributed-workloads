@@ -740,7 +740,7 @@ unsloth==2026.6.9+rhaiv.2
     # via
     #   th-torch-rocm-universal-image (pyproject.toml)
     #   training-hub
-unsloth-zoo==2026.6.7+rhaiv.1
+unsloth-zoo==2026.9.3+rhaiv.1
     # via th-torch-rocm-universal-image (pyproject.toml)
 urllib3==2.7.0
     # via
