@@ -1205,7 +1205,7 @@ unsloth==2026.6.9+rhaiv.2
     #   training-hub
 unsloth-zoo==2026.9.3+rhaiv.1
     # via th-torch-cuda-universal-image (pyproject.toml)
-urllib3==2.7.0
+urllib3==2.8.0
     # via
     #   botocore
     #   databricks-sdk
