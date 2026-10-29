@@ -48,6 +48,14 @@ spec:
     value:
     - linux/x86_64
     - linux-d160-m4xlarge/arm64
+  - name: prefetch-config-file-content
+    value: |
+      ---
+      http:
+        read_timeout: 10800
+      runtime:
+        subprocess_timeout: 10800
+        concurrency_limit: 3
   pipelineRef:
     params:
     - name: url
