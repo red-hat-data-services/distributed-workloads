@@ -55,7 +55,7 @@ spec:
         read_timeout: 10800
       runtime:
         subprocess_timeout: 10800
-        concurrency_limit: 3
+        concurrency_limit: 1
   pipelineRef:
     params:
     - name: url
