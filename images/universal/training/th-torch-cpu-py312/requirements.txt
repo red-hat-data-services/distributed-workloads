@@ -77,7 +77,7 @@ cachetools==7.1.4
     #   mlflow-skinny
     #   mlflow-tracing
     #   weave
-certifi==2026.6.17
+certifi==2026.10.19
     # via
     #   httpcore
     #   httpx
