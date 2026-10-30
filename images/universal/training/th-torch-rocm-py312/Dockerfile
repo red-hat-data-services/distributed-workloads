@@ -12,7 +12,7 @@
 ################################################################################
 # Build Arguments
 ################################################################################
-ARG BASE_IMAGE=quay.io/opendatahub/odh-workbench-jupyter-minimal-rocm-py312-ubi9:3.6_ea2-v1.49
+ARG BASE_IMAGE=quay.io/opendatahub/odh-workbench-jupyter-minimal-rocm-py312-ubi9:3.6-v1.50
 ARG PYTHON_VERSION=3.12
 ARG DOWNSTREAM=false
 
@@ -34,8 +34,7 @@ WORKDIR /opt/app-root/src
 # Install dependencies from AIPCC prod index
 RUN uv pip install --no-cache-dir \
     --index-strategy=unsafe-best-match \
-    # For RHOAI 3.6GA "prod" suffix to be removed from index-url - https://redhat.atlassian.net/browse/AIPCC-32410
-    --index-url=https://console.redhat.com/api/pypi/public-rhai/rhoai/3.6-EA2/rocm7.14-ubi9-prod/simple/ \
+    --index-url=https://console.redhat.com/api/pypi/public-rhai/rhoai/3.6/rocm7.14-ubi9/simple/ \
     -r /tmp/deps/requirements.txt
 
 # Fix permissions for OpenShift
@@ -53,7 +52,7 @@ RUN rm -rf /tmp/deps
 FROM ${BASE_IMAGE} AS final
 
 LABEL name="th-torch-rocm-py312" \
-      summary="ROCm 7.14 Python 3.12 Training Hub 10 PyTorch 2.12.0 image on UBI9" \
+      summary="ROCm 7.14 Python 3.12 Training Hub 11 PyTorch 2.12.0 image on UBI9" \
       description="Universal ROCm image combining Jupyter workbench and runtime ML stack on UBI9" \
       io.k8s.display-name="ROCm Python 3.12 Universal Training Image" \
       io.k8s.description="Universal ROCm training image: Jupyter workbench by default; runtime when command provided."

@@ -12,7 +12,7 @@
 ################################################################################
 # Build Arguments
 ################################################################################
-ARG BASE_IMAGE=quay.io/opendatahub/odh-workbench-jupyter-minimal-cpu-py312-ubi9:3.6_ea2-v1.49
+ARG BASE_IMAGE=quay.io/opendatahub/odh-workbench-jupyter-minimal-cpu-py312-ubi9:3.6-v1.50
 ARG PYTHON_VERSION=3.12
 ARG DOWNSTREAM=false
 
@@ -33,8 +33,7 @@ WORKDIR /opt/app-root/src
 
 # Install dependencies from AIPCC prod index
 RUN pip install --no-cache-dir --no-deps \
-    # For RHOAI 3.6GA "prod" suffix to be removed from index-url - https://redhat.atlassian.net/browse/AIPCC-32410
-    --index-url=https://console.redhat.com/api/pypi/public-rhai/rhoai/3.6-EA2/cpu-ubi9-prod/simple/ \
+    --index-url=https://console.redhat.com/api/pypi/public-rhai/rhoai/3.6/cpu-ubi9/simple/\
     -r /tmp/deps/requirements.txt
 
 # Fix permissions for OpenShift
@@ -52,7 +51,7 @@ RUN rm -rf /tmp/deps
 FROM ${BASE_IMAGE} AS final
 
 LABEL name="th-torch-cpu-py312" \
-      summary="CPU Python 3.12 Training Hub 10 PyTorch 2.13.0 image on UBI9" \
+      summary="CPU Python 3.12 Training Hub 11 PyTorch 2.13.0 image on UBI9" \
       description="Universal CPU training image combining Jupyter workbench and runtime ML stack on UBI9" \
       io.k8s.display-name="CPU Python 3.12 Universal Training Image" \
       io.k8s.description="Universal CPU training image: Jupyter workbench by default; runtime when command provided."
