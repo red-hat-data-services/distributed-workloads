@@ -125,6 +125,7 @@ constraint-dependencies = [
     "gitpython>=3.2.0",
     "graphql-core>=3.2.12",
     "litellm>=1.101.0",
+    "mcp>=1.29.1",
     "msgpack>=1.2.3",
     "pillow>=13.0.0",
     "pyasn1>=0.6.4",
