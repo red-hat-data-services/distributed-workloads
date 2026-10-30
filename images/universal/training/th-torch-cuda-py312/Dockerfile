@@ -13,7 +13,7 @@
 ################################################################################
 # Build Arguments
 ################################################################################
-ARG BASE_IMAGE=quay.io/opendatahub/odh-workbench-jupyter-minimal-cuda-py312-ubi9:3.6_ea2-v1.49
+ARG BASE_IMAGE=quay.io/opendatahub/odh-workbench-jupyter-minimal-cuda-py312-ubi9:3.6-v1.50
 ARG PYTHON_VERSION=3.12
 ARG DOWNSTREAM=false
 ARG OPENMPI_VERSION=4.1.6
@@ -39,8 +39,7 @@ WORKDIR /opt/app-root/src
 # Install dependencies from AIPCC prod index
 RUN UV_LINK_MODE=copy uv pip install --no-cache-dir --no-deps \
     --index-strategy=unsafe-best-match \
-    # For RHOAI 3.6GA "prod" suffix to be removed from index-url - https://redhat.atlassian.net/browse/AIPCC-32410
-    --index-url=https://console.redhat.com/api/pypi/public-rhai/rhoai/3.6-EA2/cuda13.0-ubi9-prod/simple/ \
+    --index-url=https://console.redhat.com/api/pypi/public-rhai/rhoai/3.6/cuda13.0-ubi9/simple/ \
     -r /tmp/deps/requirements.txt
 
 # Fix permissions for OpenShift
@@ -140,7 +139,7 @@ RUN if [ "${DOWNSTREAM}" != "true" ]; then \
 FROM ${BASE_IMAGE} AS final
 
 LABEL name="th-torch-cuda-py312" \
-      summary="CUDA 13.0.2 Python 3.12 Training Hub 10 PyTorch 2.13.0 image on UBI9" \
+      summary="CUDA 13.0.2 Python 3.12 Training Hub 11 PyTorch 2.13.0 image on UBI9" \
       description="Universal CUDA training image combining Jupyter workbench and runtime ML stack on UBI9" \
       io.k8s.display-name="CUDA Python 3.12 Universal Training Image" \
       io.k8s.description="Universal CUDA training image: Jupyter workbench by default; runtime when command provided."
@@ -280,6 +279,10 @@ RUN ln -sfn openshift-uid-exec.sh /usr/local/bin/mpirun \
 ENV MPI_HOME=/usr/lib64/openmpi \
     PATH=/usr/local/bin:/usr/lib64/openmpi/bin:${PATH} \
     LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:/usr/lib64/ucx:${LD_LIBRARY_PATH}
+
+# Avoid getpass.getuser() falling back to getpwuid() for OpenShift's arbitrary UID.
+# Keep the name consistent with the MPI UID wrapper.
+ENV USER=mpiuser
 
 RUN if [ "${DOWNSTREAM}" != "true" ]; then \
     /usr/lib64/openmpi/bin/ompi_info --parsable --all | grep -Eq '(^|:)mpi_built_with_cuda_support:value:true$' \
