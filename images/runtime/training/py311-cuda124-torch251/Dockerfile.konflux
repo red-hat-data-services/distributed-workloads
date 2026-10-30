@@ -11,6 +11,8 @@ WORKDIR /app
 # fixes from the UBI repos directly rather than waiting on a new base image.
 RUN dnf update -y && dnf clean all
 
+RUN pip install --no-cache-dir --upgrade "pip>=26.2.2"
+
 # upgrade requests package
 RUN pip install --no-cache-dir --upgrade requests==2.32.3
 
