@@ -92,6 +92,8 @@ index-strategy = "unsafe-best-match"
 index-url = "https://console.redhat.com/api/pypi/public-rhai/rhoai/3.5/rocm7.14-ubi9/simple/"
 override-dependencies = [
     "xformers ; sys_platform == 'win32'",
+    "botocore==1.43.122",
+    "boto3==1.43.122",
 ]
 constraint-dependencies = [
     "aiohttp>=3.14.3",

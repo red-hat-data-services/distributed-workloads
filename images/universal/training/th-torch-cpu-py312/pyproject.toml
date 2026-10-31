@@ -93,8 +93,8 @@ index-strategy = "unsafe-best-match"
 index-url = "https://console.redhat.com/api/pypi/public-rhai/rhoai/3.5/cpu-ubi9/simple/"
 override-dependencies = [
     "litellm==1.102.2",
-    "botocore==1.41.5",
-    "boto3==1.43.22",
+    "botocore==1.43.122",
+    "boto3==1.43.122",
 ]
 constraint-dependencies = [
     "aiohttp>=3.14.3",
