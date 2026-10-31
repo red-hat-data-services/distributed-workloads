@@ -114,8 +114,8 @@ index-url = "https://console.redhat.com/api/pypi/public-rhai/rhoai/3.5/cuda13.0-
 override-dependencies = [
     "tilelang==0.1.9",
     "litellm==1.102.2",
-    "botocore==1.43.0",
-    "boto3==1.43.18",
+    "botocore==1.43.122",
+    "boto3==1.43.122",
 ]
 constraint-dependencies = [
     "aiohttp>=3.14.3",
