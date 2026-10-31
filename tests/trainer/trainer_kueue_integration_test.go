@@ -341,26 +341,29 @@ func TestKueueSchedulingReachesTrainJobPods(t *testing.T) {
 
 	// Assert the admitted JobSet's pod template carries the ResourceFlavor's
 	// node label and toleration, however Kueue's TrainJob integration got them there.
-	test.Eventually(SingleJobSet(test, namespace), TestTimeoutMedium).Should(
-		WithTransform(JobSetReplicatedJobsCount, BeNumerically(">", 0)),
-	)
-	jobSet := SingleJobSet(test, namespace)(test)
-
-	for _, replicatedJob := range jobSet.Spec.ReplicatedJobs {
-		podSpec := replicatedJob.Template.Spec.Template.Spec
-		test.Expect(podSpec.NodeSelector).To(
-			HaveKeyWithValue(flavorNodeLabelKey, flavorNodeLabelValue),
-			"replicated job %q should carry the ResourceFlavor's node label", replicatedJob.Name,
-		)
-		test.Expect(podSpec.Tolerations).To(
-			ContainElement(corev1.Toleration{
-				Key:      flavorTolerationKey,
-				Operator: corev1.TolerationOpEqual,
-				Value:    flavorNodeLabelValue,
-				Effect:   corev1.TaintEffectNoSchedule,
-			}),
-			"replicated job %q should carry the ResourceFlavor's toleration", replicatedJob.Name,
-		)
-	}
-	test.T().Logf("JobSet %q pod templates carry the ResourceFlavor's scheduling directives", jobSet.Name)
+	// Wrapped in Eventually because Kueue may apply the scheduling directives
+	// asynchronously after workload admission.
+	var jobSetName string
+	test.Eventually(func(g Gomega) {
+		jobSet := SingleJobSet(test, namespace)(g)
+		jobSetName = jobSet.Name
+		g.Expect(jobSet.Spec.ReplicatedJobs).NotTo(BeEmpty())
+		for _, replicatedJob := range jobSet.Spec.ReplicatedJobs {
+			podSpec := replicatedJob.Template.Spec.Template.Spec
+			g.Expect(podSpec.NodeSelector).To(
+				HaveKeyWithValue(flavorNodeLabelKey, flavorNodeLabelValue),
+				"replicated job %q should carry the ResourceFlavor's node label", replicatedJob.Name,
+			)
+			g.Expect(podSpec.Tolerations).To(
+				ContainElement(corev1.Toleration{
+					Key:      flavorTolerationKey,
+					Operator: corev1.TolerationOpEqual,
+					Value:    flavorNodeLabelValue,
+					Effect:   corev1.TaintEffectNoSchedule,
+				}),
+				"replicated job %q should carry the ResourceFlavor's toleration", replicatedJob.Name,
+			)
+		}
+	}, TestTimeoutMedium).Should(Succeed())
+	test.T().Logf("JobSet %q pod templates carry the ResourceFlavor's scheduling directives", jobSetName)
 }
