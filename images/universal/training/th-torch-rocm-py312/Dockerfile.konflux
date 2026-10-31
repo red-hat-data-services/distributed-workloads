@@ -34,7 +34,7 @@ WORKDIR /opt/app-root/src
 # Install dependencies from cachi2 prefetched packages
 # cachi2.env sets PIP_FIND_LINKS and PIP_NO_INDEX, but uv ignores PIP_* vars,
 # so we pass them explicitly as CLI flags
-RUN . /cachi2/cachi2.env && uv pip install --no-cache-dir \
+RUN . /cachi2/cachi2.env && uv pip install --no-cache-dir --no-deps \
     --no-index --find-links "${PIP_FIND_LINKS}" \
     -r /tmp/deps/requirements.txt
 
@@ -128,7 +128,7 @@ COPY LICENSE.md /licenses/rocm-license.md
 # Copy entrypoint
 COPY --chmod=0755 entrypoint-universal.sh /usr/local/bin/entrypoint-universal.sh
 
-RUN . /cachi2/cachi2.env && pip install --no-cache-dir --no-index --find-links "${PIP_FIND_LINKS}" --upgrade "pip>=26.1.2"
+RUN . /cachi2/cachi2.env && pip install --no-cache-dir --no-index --find-links "${PIP_FIND_LINKS}" --upgrade "pip>=26.2.2"
 
 # Fix permissions for OpenShift (final stage)
 RUN fix-permissions /opt/app-root -P \

@@ -146,7 +146,7 @@ COPY LICENSE.md /licenses/cuda-license.md
 # Copy entrypoint
 COPY --chmod=0755 entrypoint-universal.sh /usr/local/bin/entrypoint-universal.sh
 
-RUN . /cachi2/cachi2.env && pip install --no-cache-dir --no-index --find-links "${PIP_FIND_LINKS}" --upgrade "pip>=26.1.2"
+RUN . /cachi2/cachi2.env && pip install --no-cache-dir --no-index --find-links "${PIP_FIND_LINKS}" --upgrade "pip>=26.2.2"
 
 # Fix permissions for OpenShift (final stage)
 RUN fix-permissions /opt/app-root -P \
