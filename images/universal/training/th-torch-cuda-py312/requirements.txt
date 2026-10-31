@@ -497,8 +497,10 @@ matplotlib==3.11.0
     # via
     #   mlflow
     #   training-hub
-mcp==1.28.1
-    # via vllm
+mcp==1.30.0
+    # via
+    #   -c (workspace)
+    #   vllm
 mdurl==0.1.2
     # via markdown-it-py
 mistral-common==1.11.5
