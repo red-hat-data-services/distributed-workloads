@@ -323,11 +323,11 @@ matplotlib==3.11.0
     #   training-hub
 mdurl==0.1.2
     # via markdown-it-py
-mlflow==3.14.0
+mlflow==3.17.2
     # via th-torch-cpu-universal-image (pyproject.toml)
-mlflow-skinny==3.14.0
+mlflow-skinny==3.17.2
     # via mlflow
-mlflow-tracing==3.14.0
+mlflow-tracing==3.17.2
     # via mlflow
 model-registry==0.3.10
     # via th-torch-cpu-universal-image (pyproject.toml)
