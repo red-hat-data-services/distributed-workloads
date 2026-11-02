@@ -71,7 +71,7 @@ dependencies = [
     "deepspeed==0.19.2",
 
     # MLOps
-    "mlflow==3.14.0",
+    "mlflow==3.17.2",
 
     # Storage
     "s3fs==2026.6.0",
