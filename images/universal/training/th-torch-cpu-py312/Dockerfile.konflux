@@ -12,7 +12,7 @@
 ################################################################################
 # Build Arguments
 ################################################################################
-ARG BASE_IMAGE=quay.io/rhoai/odh-workbench-jupyter-minimal-cpu-py312-rhel9@sha256:b58d5481694fa8d81c199b52e1c4920ebca3e07e531c39c63a0c8f69fcd3b152
+ARG BASE_IMAGE=quay.io/rhoai/odh-workbench-jupyter-minimal-cpu-py312-rhel9@sha256:aedd1cb4848098b9d617820338e63800cdb0770a4135c048d8ee1ccfdf638fc8
 ARG PYTHON_VERSION=3.12
 ARG DOWNSTREAM=false
 
