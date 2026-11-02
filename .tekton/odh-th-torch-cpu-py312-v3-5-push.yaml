@@ -49,6 +49,11 @@ spec:
     value:
     - linux/x86_64
     - linux-d160-m2xlarge/arm64
+  - name: prefetch-config-file-content
+    value: |
+      ---
+      runtime:
+        concurrency_limit: 1
   pipelineRef:
     params:
     - name: url

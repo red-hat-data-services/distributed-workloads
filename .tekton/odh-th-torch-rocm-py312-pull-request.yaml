@@ -47,6 +47,11 @@ spec:
     - linux/x86_64
   - name: rhoai-version
     value: "3.5.2"
+  - name: prefetch-config-file-content
+    value: |
+      ---
+      runtime:
+        concurrency_limit: 1
   pipelineRef:
     params:
     - name: url
