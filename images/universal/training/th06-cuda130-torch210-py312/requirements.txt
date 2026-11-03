@@ -59,7 +59,7 @@ bitsandbytes==0.50.2
     #   unsloth
 blinker==1.9.0
     # via flask
-botocore==1.43.122
+botocore==1.43.117
     # via
     #   --override (workspace)
     #   aiobotocore

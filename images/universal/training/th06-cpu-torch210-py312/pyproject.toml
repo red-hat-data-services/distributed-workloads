@@ -95,6 +95,6 @@ constraint-dependencies = [
     "urllib3>=2.8.0",
 ]
 override-dependencies = [
-    "boto3==1.43.122",
-    "botocore==1.43.122",
+    "boto3==1.43.117",
+    "botocore==1.43.117",
 ]

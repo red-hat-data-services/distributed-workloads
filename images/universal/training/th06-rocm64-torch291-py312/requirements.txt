@@ -57,7 +57,7 @@ bitsandbytes==0.50.2
     # via unsloth
 blinker==1.9.0
     # via flask
-botocore==1.43.122
+botocore==1.43.117
     # via
     #   --override (workspace)
     #   aiobotocore
@@ -585,6 +585,7 @@ torch==2.9.1
     #   deepspeed
     #   flash-attn
     #   instructlab-training
+    #   liger-kernel
     #   peft
     #   rhai-innovation-mini-trainer
     #   training-hub
