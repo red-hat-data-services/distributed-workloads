@@ -57,8 +57,10 @@ bitsandbytes==0.50.2
     # via unsloth
 blinker==1.9.0
     # via flask
-botocore==1.41.5
-    # via aiobotocore
+botocore==1.43.122
+    # via
+    #   --override (workspace)
+    #   aiobotocore
 cachetools==7.0.5
     # via
     #   mlflow-skinny
@@ -335,7 +337,7 @@ numpy==2.4.4
     #   training-hub
     #   transformers
     #   xformers
-oauthlib==3.3.1
+oauthlib==4.0.1
     # via requests-oauthlib
 opentelemetry-api==1.41.0
     # via
@@ -353,7 +355,7 @@ opentelemetry-sdk==1.41.0
     #   mlflow-tracing
 opentelemetry-semantic-conventions==0.62b0
     # via opentelemetry-sdk
-packaging==26.1
+packaging==26.3
     # via
     #   accelerate
     #   bitsandbytes
