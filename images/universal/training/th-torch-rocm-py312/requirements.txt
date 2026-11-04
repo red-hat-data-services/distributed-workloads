@@ -51,6 +51,7 @@ anyio==4.14.2
     # via
     #   -c (workspace)
     #   httpx
+    #   mlflow-skinny
     #   starlette
 astunparse==1.6.3
     # via tensorflow-rocm
@@ -75,6 +76,7 @@ cachetools==7.1.4
     #   mlflow-tracing
 certifi==2026.10.19
     # via
+    #   -c (workspace)
     #   httpcore
     #   httpx
     #   kubernetes
@@ -476,7 +478,7 @@ pyarrow==24.0.0
     # via
     #   datasets
     #   mlflow
-pyasn1==0.6.4
+pyasn1==0.6.5
     # via
     #   -c (workspace)
     #   pyasn1-modules
