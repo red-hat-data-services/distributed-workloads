@@ -98,10 +98,14 @@ blake3==1.0.11
     # via vllm
 blinker==1.9.0
     # via flask
-boto3==1.43.117
-    # via litellm
-botocore==1.43.117
+boto3==1.43.122
     # via
+    #   --override (workspace)
+    #   litellm
+    #   model-registry
+botocore==1.43.122
+    # via
+    #   --override (workspace)
     #   aiobotocore
     #   boto3
     #   s3transfer
@@ -533,11 +537,11 @@ mistral-common==1.12.0
     # via vllm
 ml-dtypes==0.6.0
     # via tilelang
-mlflow==3.16.0
+mlflow==3.17.2
     # via th-torch-cuda-universal-image (pyproject.toml)
-mlflow-skinny==3.16.0
+mlflow-skinny==3.17.2
     # via mlflow
-mlflow-tracing==3.16.0
+mlflow-tracing==3.17.2
     # via mlflow
 model-hosting-container-standards==0.1.16
     # via vllm
@@ -859,7 +863,7 @@ pyarrow==25.0.1
     #   datasets
     #   mlflow
     #   pyspark-connect
-pyasn1==0.6.4
+pyasn1==0.6.5
     # via
     #   -c (workspace)
     #   pyasn1-modules
