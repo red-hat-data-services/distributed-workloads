@@ -49,14 +49,6 @@ spec:
     - linux/x86_64
     - linux-d160-m2xlarge/arm64
     - linux/ppc64le
-  - name: prefetch-config-file-content
-    value: |
-      ---
-      http:
-        read_timeout: 10800
-      runtime:
-        subprocess_timeout: 10800
-        concurrency_limit: 1
   pipelineRef:
     params:
     - name: url
@@ -98,11 +90,15 @@ spec:
           limits:
             memory: 4Gi
   - pipelineTaskName: rpms-signature-scan
-    computeResources:
-      requests:
-        memory: 8Gi
-      limits:
-        memory: 8Gi
+    stepSpecs:
+    - name: rpms-signature-scan
+      computeResources:
+        requests:
+          cpu: "500m"
+          memory: "1Gi"
+        limits:
+          cpu: "500m"
+          memory: "1Gi"
   taskRunTemplate:
     serviceAccountName: build-pipeline-odh-th-torch-cpu-py312-v3-6
     podTemplate:
