@@ -97,8 +97,6 @@ override-dependencies = [
     "numba==0.67.0",
     "numpy==2.4.6",
     "protobuf==7.36.1",
-    "botocore==1.43.122",
-    "boto3==1.43.122",
 ]
 constraint-dependencies = [
     "certifi>=2026.10.19",

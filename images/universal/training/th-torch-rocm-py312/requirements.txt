@@ -66,16 +66,8 @@ bitsandbytes==0.50.2
     #   unsloth
 blinker==1.9.0
     # via flask
-boto3==1.43.122
-    # via
-    #   --override (workspace)
-    #   model-registry
-botocore==1.43.122
-    # via
-    #   --override (workspace)
-    #   aiobotocore
-    #   boto3
-    #   s3transfer
+botocore==1.43.117
+    # via aiobotocore
 cachetools==7.1.7
     # via
     #   mlflow-skinny
@@ -276,7 +268,6 @@ jinja2==3.1.6
 jmespath==1.1.0
     # via
     #   aiobotocore
-    #   boto3
     #   botocore
 joblib==1.5.3
     # via scikit-learn
@@ -617,8 +608,6 @@ rich==15.0.0
     #   unsloth
 s3fs==2026.6.0
     # via th-torch-rocm-universal-image (pyproject.toml)
-s3transfer==0.19.3
-    # via boto3
 safetensors==0.8.0
     # via
     #   th-torch-rocm-universal-image (pyproject.toml)
