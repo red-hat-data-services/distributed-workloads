@@ -31,10 +31,9 @@ COPY --chown=1001:0 pyproject.toml requirements.txt ./
 USER 1001
 WORKDIR /opt/app-root/src
 
-# Install dependencies from cachi2 prefetched packages
-# cachi2.env sets PIP_FIND_LINKS and PIP_NO_INDEX, but uv ignores PIP_* vars,
-# so we pass them explicitly as CLI flags
-RUN . /cachi2/cachi2.env && uv pip install --no-cache-dir --no-deps \
+# Install dependencies from cachi2 prefetched packages. The downstream CPU
+# base image intentionally omits the build-only uv binary for FIPS compliance.
+RUN . /cachi2/cachi2.env && pip install --no-cache-dir --no-deps \
     --no-index --find-links "${PIP_FIND_LINKS}" \
     -r /tmp/deps/requirements.txt
 
@@ -43,6 +42,15 @@ ARG PYTHON_VERSION
 USER 0
 RUN chmod -R g+w /opt/app-root/lib/python${PYTHON_VERSION}/site-packages \
  && fix-permissions /opt/app-root -P
+
+# Remove TensorBoard's (optional) Rust data server because its bundled crypto is not FIPS compliant.
+# Verify that tensorboard automatically falls back to the (slower) pure python server in case the
+# server becomes a hard-requirement.
+RUN rm /opt/app-root/lib/python${PYTHON_VERSION}/site-packages/tensorboard_data_server/bin/server && \
+    python -c "from tensorboard import program; \
+        tb = program.TensorBoard(); \
+        tb.configure(argv=['tensorboard', '--logdir=/tmp/tensorboard-smoke', '--load_fast=auto', '--host=127.0.0.1', '--port=0']); \
+        tb.launch()"
 
 # Clean up
 RUN rm -rf /tmp/deps
@@ -92,9 +100,35 @@ COPY --from=builder /opt/app-root/bin /opt/app-root/bin
 
 # polyfile-weave registers cv2.typing stubs that trigger import cv2 during
 # pkgutil scanning in multiprocessing.spawn, which fails on UBI9
-RUN uv pip uninstall polyfile-weave 2>/dev/null || true
+RUN pip uninstall --yes polyfile-weave
 
-# Note: uv is kept in the final image — needed at runtime by openpipe-art
+# The SDK replaces the container entrypoint and execs an MPI launcher directly,
+# so the normal entrypoint does not run on the launcher. Keep the MPI launcher
+# wrapper ahead of the OpenMPI binaries on PATH.
+RUN dnf install -y --setopt=install_weak_deps=False openssh-server && dnf clean all \
+ && mkdir -p /var/run/sshd /home/mpiuser/.openmpi \
+ && test -x /usr/lib64/openmpi/bin/mpirun \
+    || { echo "ERROR: base image has no OpenMPI at /usr/lib64/openmpi"; exit 1; }
+
+COPY mpiuser-sshd.conf /home/mpiuser/.sshd_config
+COPY --chmod=0755 openshift-uid-exec.sh /usr/local/bin/openshift-uid-exec.sh
+RUN ln -sfn openshift-uid-exec.sh /usr/local/bin/mpirun \
+ && ln -sfn openshift-uid-exec.sh /usr/local/bin/mpiexec \
+ && ln -sfn openshift-uid-exec.sh /usr/local/bin/uid_entrypoint.sh \
+ && ln -sfn /usr/lib64/openmpi/bin/orted /usr/bin/orted \
+ && ln -sfn /usr/lib64/openmpi/bin/mpiexec /usr/bin/mpiexec \
+ && if [ ! -e /usr/local/bin/python ]; then \
+      printf '#!/bin/sh\nexec /opt/app-root/bin/python "$@"\n' > /usr/local/bin/python \
+      && chmod 0755 /usr/local/bin/python; \
+    fi \
+ && grep -qxF 'LD_LIBRARY_PATH=/usr/lib64/openmpi/lib' /etc/environment \
+    || echo 'LD_LIBRARY_PATH=/usr/lib64/openmpi/lib' >> /etc/environment \
+ && chgrp -R 0 /home/mpiuser && chmod -R g=u /home/mpiuser \
+ && chmod g=u /etc/passwd
+
+ENV MPI_HOME=/usr/lib64/openmpi \
+    PATH=/usr/local/bin:/usr/lib64/openmpi/bin:${PATH} \
+    LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:${LD_LIBRARY_PATH}
 
 # Copy license file
 COPY LICENSE.md /licenses/cpu-license.md
