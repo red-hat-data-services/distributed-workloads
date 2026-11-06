@@ -117,8 +117,6 @@ override-dependencies = [
     "protobuf==7.36.1",
     "numpy==2.4.6",
     "litellm==1.102.2",
-    "botocore==1.43.122",
-    "boto3==1.43.122",
 ]
 constraint-dependencies = [
     "aiohttp>=3.14.4",

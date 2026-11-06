@@ -66,14 +66,10 @@ backoff==2.2.1
     # via gql
 blinker==1.9.0
     # via flask
-boto3==1.43.122
+boto3==1.43.117
+    # via litellm
+botocore==1.43.117
     # via
-    #   --override (workspace)
-    #   litellm
-    #   model-registry
-botocore==1.43.122
-    # via
-    #   --override (workspace)
     #   aiobotocore
     #   boto3
     #   s3transfer
