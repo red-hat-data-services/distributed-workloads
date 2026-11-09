@@ -45,6 +45,7 @@ urllib3 = ">=2.7.0"
 
 msgpack = "~=1.2.3"
 aiobotocore = "~=3.10.0"
+Markdown = "~=3.11.3"
 [dev-packages]
 
 [requires]
