@@ -64,6 +64,7 @@ pillow = ">=13.0.0"
 gitpython = "==3.2.1"
 sqlparse = "==0.6.0"
 aiobotocore = "~=3.10.0"
+Markdown = "~=3.11.3"
 
 [dev-packages]
 
