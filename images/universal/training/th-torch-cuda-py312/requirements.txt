@@ -615,7 +615,7 @@ nvidia-cutlass-dsl-libs-base==4.5.2
     # via nvidia-cutlass-dsl
 nvidia-ml-py==13.610.43
     # via flashinfer-python
-oauthlib==3.3.1
+oauthlib==4.0.1
     # via requests-oauthlib
 openai==2.45.0
     # via
