@@ -880,11 +880,11 @@
         },
         "filelock": {
             "hashes": [
-                "sha256:5f17ee83ecee8a6f3e389c75822fb70a1c2f0506b99438a6dffa1d56793588c8",
-                "sha256:cf42711a7ac791818b299fab0332a088c65aeeefa36290de98db92c434303b0c"
+                "sha256:9479aaeb4db20b5a53e3da28493edd24720b66b8a0b84030aa56ccdf243d6857",
+                "sha256:fcc3c0cb8bfe7f4b3bb0e231c04b15dbad068cb3c2515f343d8fde4dce93bd5d"
             ],
-            "markers": "python_version >= '3.10'",
-            "version": "==4.0.12"
+            "markers": "python_version >= '3.11'",
+            "version": "==4.2.10"
         },
         "flask": {
             "hashes": [
