@@ -138,8 +138,9 @@ einops==0.8.2
     #   flash-attn
 fastapi==0.139.2
     # via mlflow-skinny
-filelock==3.30.2
+filelock==4.2.4
     # via
+    #   -c (workspace)
     #   datasets
     #   huggingface-hub
     #   torch
@@ -382,7 +383,9 @@ numpy==2.1.3
     #   transformers
     #   unsloth-zoo
 oauthlib==4.0.1
-    # via requests-oauthlib
+    # via
+    #   -c (workspace)
+    #   requests-oauthlib
 opentelemetry-api==1.44.0
     # via
     #   mlflow-skinny
