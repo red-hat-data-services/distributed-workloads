@@ -96,6 +96,7 @@ override-dependencies = [
     "xformers ; sys_platform == 'win32'",
     "numba==0.67.0",
     "numpy==2.4.6",
+    "grpcio>=1.84.1",
     "protobuf==7.36.1",
 ]
 constraint-dependencies = [
