@@ -800,6 +800,9 @@ pillow==13.0.0
     #   torchvision
     #   unsloth-zoo
     #   vllm
+pip==26.3 \
+    --hash=sha256:e2eaea97f31d3796f404757d1f058b8534651a97d6c2e9101b357376f38d1728
+    # via th-torch-cuda-universal-image (pyproject.toml)
 platformdirs==4.13.5
     # via sigstore
 pluggy==1.7.0

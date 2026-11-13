@@ -12,6 +12,9 @@ version = "0.1.0"
 requires-python = "==3.12.*"
 
 dependencies = [
+    # Use the AIPCC pip build that reads the system CA bundle.
+    "pip~=26.3.0",
+
     # ===================================================================
     # ML/AI DEPENDENCIES (added on top of base image)
     # Base image deps are NOT listed here - pip install is additive
