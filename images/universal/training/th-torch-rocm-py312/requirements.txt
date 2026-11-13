@@ -461,6 +461,9 @@ pillow==13.0.0
     #   tensorboard
     #   torchvision
     #   unsloth-zoo
+pip==26.3 \
+    --hash=sha256:7f675a4a716a5a3cfc336c2e190ea696aea15433d823a31d09c6eabfd13c8414
+    # via th-torch-rocm-universal-image (pyproject.toml)
 platformdirs==4.11.3
     # via sigstore
 pluggy==1.6.0
