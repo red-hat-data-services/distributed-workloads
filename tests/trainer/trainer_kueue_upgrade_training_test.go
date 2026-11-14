@@ -603,7 +603,7 @@ func createCustomRuntimeUpgradeTrainJob(test Test, namespace, localQueueName str
 			},
 			RuntimePatches: []trainerv1alpha1.RuntimePatch{
 				{
-					Manager: "test-kueue-upgrade",
+					Manager: "redhat.com/test-kueue-upgrade",
 					TrainingRuntimeSpec: &trainerv1alpha1.TrainingRuntimeSpecPatch{
 						Template: &trainerv1alpha1.JobSetTemplatePatch{
 							Spec: &trainerv1alpha1.JobSetSpecPatch{
