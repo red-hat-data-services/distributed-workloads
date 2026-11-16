@@ -14,6 +14,8 @@ verify_ssl = true
 name = "rhai"
 
 [packages]
+certifi = "~=2026.10.23"
+grpcio = "~=1.85.1"
 torch = {version = "==2.9.0+rocm6.4", index = "pytorch-rocm64"}
 torchvision = {version = "==0.24.0+rocm6.4", index = "pytorch-rocm64"}
 pytorch-triton-rocm = {version = "==3.5.0", index = "pytorch-rocm64"}

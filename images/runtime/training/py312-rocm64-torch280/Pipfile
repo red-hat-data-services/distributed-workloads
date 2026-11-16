@@ -9,6 +9,8 @@ verify_ssl = true
 name = "pytorch-rocm64"
 
 [packages]
+certifi = "~=2026.10.23"
+grpcio = "~=1.85.1"
 peft = "==0.20.0"
 datasets = "==5.2.0"
 liger-kernel = "==0.5.10"
