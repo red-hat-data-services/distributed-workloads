@@ -34,6 +34,15 @@ gpgkey=https://repo.radeon.com/rocm/rocm.gpg.key
 EOD
 EOF
 
+# Add build tools for compiling PyTorch extensions
+RUN dnf install -y --disablerepo="*" --enablerepo="ubi-9-appstream-rpms,ubi-9-baseos-rpms" \
+        gcc-c++ \
+        make \
+        cmake \
+        git \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf/*
+
 RUN dnf install -y cmake rocm-developer-tools rocm-ml-sdk rocm-openmp-sdk rocm-utils && dnf clean all && rm -rf /var/cache/dnf
 
 # Install Python packages

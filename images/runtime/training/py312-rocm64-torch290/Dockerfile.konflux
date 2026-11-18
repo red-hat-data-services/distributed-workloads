@@ -51,6 +51,16 @@ EOF
 
 RUN dnf install -y cmake rocm-developer-tools rocm-ml-sdk rocm-openmp-sdk rocm-utils && dnf clean all && rm -rf /var/cache/dnf
 
+# Add build tools for compiling PyTorch extensions
+RUN dnf install -y --disablerepo="*" --enablerepo="ubi-9-appstream-rpms,ubi-9-baseos-rpms" \
+        gcc-c++ \
+        make \
+        cmake \
+        git \
+        python3-devel \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf/*
+
 # HIP / ROCm dev toolchain (aligns with universal image so flash-attn can build)
 RUN dnf install -y --setopt=install_weak_deps=False \
     rocm-llvm \
@@ -64,12 +74,7 @@ RUN dnf install -y --setopt=install_weak_deps=False \
     hipsparse-devel \
     hipfft \
     rocfft \
-    rocm-cmake \
-    git \
-    gcc \
-    gcc-c++ \
-    make \
-    python3-devel && \
+    rocm-cmake && \
     dnf clean all && rm -rf /var/cache/dnf/*
 
 # Install Python packages
