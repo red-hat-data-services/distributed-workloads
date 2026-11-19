@@ -46,7 +46,23 @@ gpgkey=https://repo.radeon.com/rocm/rocm.gpg.key
 EOD
 EOF
 
-RUN dnf install -y cmake rocm-developer-tools rocm-ml-sdk rocm-openmp-sdk rocm-utils && dnf clean all && rm -rf /var/cache/dnf
+# ROCm SDK (needs AMD + system repos for full dependency chain)
+RUN dnf install -y \
+    rocm-developer-tools rocm-ml-sdk rocm-openmp-sdk rocm-utils && \
+    dnf clean all && rm -rf /var/cache/dnf
+
+# Build tools from UBI repos only (prevents AMD repo interference)
+RUN dnf install -y \
+    --disablerepo="*" \
+    --enablerepo="ubi-9-baseos-rpms,ubi-9-appstream-rpms" \
+    cmake && \
+    dnf clean all && rm -rf /var/cache/dnf
+
+# Restore base image packages that AMD repos may have downgraded
+RUN dnf update -y \
+    --disablerepo="*" \
+    --enablerepo="ubi-9-baseos-rpms,ubi-9-appstream-rpms" && \
+    dnf clean all && rm -rf /var/cache/dnf
 
 # Install Python packages
 
