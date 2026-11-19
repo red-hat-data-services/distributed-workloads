@@ -460,8 +460,7 @@ pillow==13.0.0
     #   polyfile-weave
     #   tensorboard
     #   torchvision
-pip==26.3 \
-    --hash=sha256:2ed0c2cb24b622e1d6f84e81a6ecc8f9d5175345cd0b907bb7d9c38e3061d954
+pip==26.3
     # via th-torch-cpu-universal-image (pyproject.toml)
 pluggy==1.6.0
     # via pytest
