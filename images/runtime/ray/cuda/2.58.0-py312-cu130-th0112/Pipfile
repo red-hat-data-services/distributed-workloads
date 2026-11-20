@@ -1,0 +1,15 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+"ray[all]" = {version = "~=2.58.0"}
+"training-hub" = {version = "==0.11.2"}
+transformers = {version = ">=4.57.6,<=5.17.0"}
+kernels = {version = ">=0.9.0,<=0.16.1"}
+einops = {version = ">=0.8.2"}
+bitsandbytes = {version = ">=0.50.2"}
+
+[requires]
+python_version = "3.12"
