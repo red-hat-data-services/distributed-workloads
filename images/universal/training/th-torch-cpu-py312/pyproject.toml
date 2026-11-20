@@ -101,6 +101,7 @@ constraint-dependencies = [
     "anyio>=4.14.2",
     "certifi>=2026.10.19",
     "cryptography>=50.0.0",
+    "fickling>=0.1.13",
     "filelock>=4.2.1",
     "fsspec>=2026.6.0",
     "gitpython>=3.2.0",
