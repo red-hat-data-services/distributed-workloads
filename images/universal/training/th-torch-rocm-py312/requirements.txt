@@ -144,7 +144,7 @@ email-validator==2.3.0
     # via pydantic
 fastapi==0.139.2
     # via mlflow-skinny
-filelock==3.32.3
+filelock==4.2.5
     # via
     #   datasets
     #   huggingface-hub
@@ -394,7 +394,7 @@ numpy==2.4.6
     #   training-hub
     #   transformers
     #   unsloth-zoo
-oauthlib==3.3.1
+oauthlib==4.0.1
     # via
     #   kubernetes
     #   requests-oauthlib
