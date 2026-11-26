@@ -104,6 +104,7 @@ constraint-dependencies = [
     "fsspec>=2026.6.0",
     "gitpython>=3.2.0",
     "graphql-core>=3.2.12",
+    "markdown>=3.11.3",
     "msgpack>=1.2.3",
     "oauthlib>=4.0.0",
     "pillow>=13.0.0",
